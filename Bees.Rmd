@@ -14,6 +14,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+theme_set(theme_bw())
 
 colony <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 stressor <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/stressor.csv')
@@ -21,7 +22,8 @@ stressor <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytues
 colony$year <- as.numeric(colony$year)
 
 beecolony <- colony %>%
-  inner_join(stressor, by = c("year", "months", "state"))
+  inner_join(stressor, by = c("year", "months", "state")) %>%
+  pivot_wider(names_from = "stressor", values_from = "stress_pct")
 
 ```
 
@@ -36,8 +38,6 @@ beecolony %>%
   gather() %>%
   ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
 
-beecolony <- na.omit(beecolony)
-
 beecolony %>%
   group_by(state) %>%
   summarize(sum(colony_lost), sum(colony_added), sum(colony_added)/sum(colony_lost)) %>%
@@ -51,9 +51,25 @@ gplot <- function(x){
     filter(!is.na({{x}})) %>%
     distinct(months, year, state, {{x}}) %>%
     group_by(months, year, state) %>%
-    ggplot(aes({{x}}, fct_reorder(state, {{x}}))) + geom_col() + labs(y = "")
+    ggplot(aes({{x}}, reorder(state, {{x}}, order = TRUE))) + geom_col() + labs(y = "")
 }
 
-gplot(colony_reno)
+gplot(colony_max)
 ```
+
+```{r}
+stressor %>%
+  drop_na() %>%
+  mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, c("Disesases", "Unknown", "Other", 
+                                                                        "Pesticides", "Other pests/parasites", 
+                                                                        "Varroa mites"))) %>%
+  group_by(year, stressor) %>%
+  summarize(n = sum(stress_pct)) %>%
+  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge")
+
+```
+
+
+
+
 
