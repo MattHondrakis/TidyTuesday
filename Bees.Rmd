@@ -47,12 +47,13 @@ beecolony %>%
 gplot <- function(x){
   colony %>%
     filter(!is.na({{x}})) %>%
+    mutate(across(where(is.character), as.factor)) %>%
     distinct(months, year, state, {{x}}) %>%
     group_by(months, year, state) %>%
     ggplot(aes({{x}}, reorder(state, {{x}}, order = TRUE))) + geom_col() + labs(y = "")
 }
 
-gplot(colony_max)
+gplot(colony_n)
 ```
 
 
@@ -64,8 +65,9 @@ stressor %>%
   drop_na() %>%
   mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, levels = levels)) %>%
   group_by(year, stressor) %>%
-  summarize(n = sum(stress_pct)) %>%
-  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge")
+  summarize(n = mean(stress_pct)) %>%
+  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge") + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1))
 
 ```
 
@@ -77,9 +79,12 @@ beecolony %>%
                                         "July-September", "October-December"))) %>%
   group_by(months) %>%
   summarize(n = mean(`Varroa mites`)) %>%
-  ggplot(aes(months, n, fill = months)) + geom_col() + labs(y = "Average Percent of Colonies", title = "Percentage of Colonies Destroyed by Varroa mites") + theme(legend.position = "none")
+  ggplot(aes(months, n, fill = months)) + geom_col() + scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(y = "", x = "", title = "Colonies Destroyed by Varroa mites", subtitle = "On average every year" ) +
+  theme(legend.position = "none")
 
 ```
+
 
 
 
