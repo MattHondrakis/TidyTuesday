@@ -25,26 +25,24 @@ beecolony <- colony %>%
   inner_join(stressor, by = c("year", "months", "state")) %>%
   pivot_wider(names_from = "stressor", values_from = "stress_pct")
 
+beecolony <- na.omit(beecolony)
 ```
 
 
 # Explore
 
 ```{r}
-beecolony <- na.omit(beecolony)
-
 beecolony %>%
-  select(where(is.numeric)) %>%
+  select(where(is.numeric), -year) %>%
   gather() %>%
-  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+  ggplot(aes(value)) + geom_histogram() + scale_x_log10(labels = scales::comma) + facet_wrap(~key, scales = "free", ncol = 3)
 
 beecolony %>%
-  group_by(state) %>%
-  summarize(sum(colony_lost), sum(colony_added), sum(colony_added)/sum(colony_lost)) %>%
-  arrange(-`sum(colony_lost)`, `sum(colony_added)`)
+  arrange(-colony_added) %>%
+  select(colony_added)
 ```
 
-
+## Colony_* Function and plots
 ```{r}
 gplot <- function(x){
   colony %>%
@@ -57,18 +55,31 @@ gplot <- function(x){
 gplot(colony_max)
 ```
 
+
+## Stressors
 ```{r}
+levels <- c("Disesases", "Unknown", "Other", "Pesticides", "Other pests/parasites", "Varroa mites")
+
 stressor %>%
   drop_na() %>%
-  mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, c("Disesases", "Unknown", "Other", 
-                                                                        "Pesticides", "Other pests/parasites", 
-                                                                        "Varroa mites"))) %>%
+  mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, levels = levels)) %>%
   group_by(year, stressor) %>%
   summarize(n = sum(stress_pct)) %>%
   ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge")
 
 ```
 
+
+```{r}
+beecolony %>%
+  mutate(months = as.factor(months), 
+         months = fct_relevel(months, c("January-March", "April-June", 
+                                        "July-September", "October-December"))) %>%
+  group_by(months) %>%
+  summarize(n = mean(`Varroa mites`)) %>%
+  ggplot(aes(months, n, fill = months)) + geom_col() + labs(y = "Average Percent of Colonies", title = "Percentage of Colonies Destroyed by Varroa mites") + theme(legend.position = "none")
+
+```
 
 
 

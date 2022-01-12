@@ -18,12 +18,10 @@ editor_options:
 
 
 ```r
-beecolony <- na.omit(beecolony)
-
 beecolony %>%
-  select(where(is.numeric)) %>%
+  select(where(is.numeric), -year) %>%
   gather() %>%
-  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+  ggplot(aes(value)) + geom_histogram() + scale_x_log10(labels = scales::comma) + facet_wrap(~key, scales = "free", ncol = 3)
 ```
 
 ```
@@ -33,32 +31,29 @@ beecolony %>%
 ![](Bees_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
 ```r
-beecolony <- na.omit(beecolony)
-
 beecolony %>%
-  group_by(state) %>%
-  summarize(sum(colony_lost), sum(colony_added), sum(colony_added)/sum(colony_lost)) %>%
-  arrange(-`sum(colony_lost)`, `sum(colony_added)`)
+  arrange(-colony_added) %>%
+  select(colony_added)
 ```
 
 ```
-## # A tibble: 46 x 4
-##    state        `sum(colony_lost)` `sum(colony_added)` `sum(colony_added)/sum(c~
-##    <chr>                     <dbl>               <dbl>                     <dbl>
-##  1 California             20736000            19866000                     0.958
-##  2 Florida                 5262000             6840000                     1.30 
-##  3 North Dakota            3805200             1962600                     0.516
-##  4 Texas                   3112000             6790200                     2.18 
-##  5 Georgia                 2496000             3097200                     1.24 
-##  6 South Dakota            1791300             1067100                     0.596
-##  7 Idaho                   1736500             1605200                     0.924
-##  8 Minnesota               1225400             1054490                     0.861
-##  9 Oregon                  1162900             1328720                     1.14 
-## 10 Michigan                1127200             1037270                     0.920
-## # ... with 36 more rows
+## # A tibble: 685 x 1
+##    colony_added
+##           <dbl>
+##  1       250000
+##  2       240000
+##  3       240000
+##  4       215000
+##  5       210000
+##  6       200000
+##  7       200000
+##  8       184000
+##  9       176000
+## 10       175000
+## # ... with 675 more rows
 ```
 
-
+## Colony_* Function and plots
 
 ```r
 gplot <- function(x){
@@ -66,11 +61,36 @@ gplot <- function(x){
     filter(!is.na({{x}})) %>%
     distinct(months, year, state, {{x}}) %>%
     group_by(months, year, state) %>%
-    ggplot(aes({{x}}, fct_reorder(state, {{x}}))) + geom_col() + labs(y = "")
+    ggplot(aes({{x}}, reorder(state, {{x}}, order = TRUE))) + geom_col() + labs(y = "")
 }
 
-gplot(colony_reno)
+gplot(colony_max)
 ```
 
 ![](Bees_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+
+## Stressors
+
+```r
+levels <- c("Disesases", "Unknown", "Other", "Pesticides", "Other pests/parasites", "Varroa mites")
+
+stressor %>%
+  drop_na() %>%
+  mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, levels = levels)) %>%
+  group_by(year, stressor) %>%
+  summarize(n = sum(stress_pct)) %>%
+  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge")
+```
+
+```
+## Warning: Outer names are only allowed for unnamed scalar atomic inputs
+```
+
+```
+## `summarise()` has grouped output by 'year'. You can override using the `.groups` argument.
+```
+
+![](Bees_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 
