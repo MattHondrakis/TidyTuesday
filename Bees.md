@@ -59,12 +59,12 @@ beecolony %>%
 gplot <- function(x){
   colony %>%
     filter(!is.na({{x}})) %>%
+    mutate(across(where(is.character), as.factor)) %>%
     distinct(months, year, state, {{x}}) %>%
-    group_by(months, year, state) %>%
     ggplot(aes({{x}}, reorder(state, {{x}}, order = TRUE))) + geom_col() + labs(y = "")
 }
 
-gplot(colony_max)
+gplot(colony_n)
 ```
 
 ![](Bees_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
@@ -79,8 +79,9 @@ stressor %>%
   drop_na() %>%
   mutate(stressor = as.factor(stressor), stressor = fct_relevel(stressor, levels = levels)) %>%
   group_by(year, stressor) %>%
-  summarize(n = sum(stress_pct)) %>%
-  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge")
+  summarize(n = mean(stress_pct)) %>%
+  ggplot(aes(year, n, fill = stressor)) + geom_col(position = "dodge") + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1))
 ```
 
 ```
@@ -92,5 +93,175 @@ stressor %>%
 ```
 
 ![](Bees_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+
+
+```r
+beecolony %>%
+  mutate(months = as.factor(months), 
+         months = fct_relevel(months, c("January-March", "April-June", 
+                                        "July-September", "October-December"))) %>%
+  group_by(months) %>%
+  summarize(n = mean(`Varroa mites`)) %>%
+  ggplot(aes(months, n, fill = months)) + geom_col() + scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(y = "", x = "", title = "Colonies Destroyed by Varroa mites", subtitle = "On average every year" ) +
+  theme(legend.position = "none")
+```
+
+![](Bees_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+
+
+```r
+library(GGally)
+```
+
+```
+## Warning: package 'GGally' was built under R version 4.0.5
+```
+
+```
+## Registered S3 method overwritten by 'GGally':
+##   method from   
+##   +.gg   ggplot2
+```
+
+```r
+colony %>%
+  select(contains("colony"), -contains("pct")) %>%
+  ggpairs()
+```
+
+```
+## Warning: Removed 47 rows containing non-finite values (stat_density).
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 72 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 47 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 83 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 131 rows containing missing values
+```
+
+```
+## Warning: Removed 72 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 72 rows containing non-finite values (stat_density).
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 72 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 108 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 156 rows containing missing values
+```
+
+```
+## Warning: Removed 47 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 72 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 47 rows containing non-finite values (stat_density).
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 83 rows containing missing values
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 131 rows containing missing values
+```
+
+```
+## Warning: Removed 83 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 108 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 83 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 83 rows containing non-finite values (stat_density).
+```
+
+```
+## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
+## Removed 145 rows containing missing values
+```
+
+```
+## Warning: Removed 131 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 156 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 131 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 145 rows containing missing values (geom_point).
+```
+
+```
+## Warning: Removed 131 rows containing non-finite values (stat_density).
+```
+
+![](Bees_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+
+
+
+```r
+colony %>%
+  drop_na() %>%
+  ggplot(aes(colony_added, colony_lost)) + geom_point() + scale_x_log10(labels = scales::label_comma()) +
+  scale_y_log10(labels = scales::label_comma()) + geom_smooth(method = "lm") + facet_wrap(~months) +
+  labs(x = "Colonies added", y = "Colonies lost", title = "Colonies: Lost vs Added", subtitle = "Axes on a log10 scale")
+```
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+![](Bees_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+
+
 
 
