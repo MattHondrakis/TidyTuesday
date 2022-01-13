@@ -49,7 +49,6 @@ gplot <- function(x){
     filter(!is.na({{x}})) %>%
     mutate(across(where(is.character), as.factor)) %>%
     distinct(months, year, state, {{x}}) %>%
-    group_by(months, year, state) %>%
     ggplot(aes({{x}}, reorder(state, {{x}}, order = TRUE))) + geom_col() + labs(y = "")
 }
 
@@ -82,6 +81,25 @@ beecolony %>%
   ggplot(aes(months, n, fill = months)) + geom_col() + scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(y = "", x = "", title = "Colonies Destroyed by Varroa mites", subtitle = "On average every year" ) +
   theme(legend.position = "none")
+
+```
+
+
+```{r}
+library(GGally)
+colony %>%
+  select(contains("colony"), -contains("pct")) %>%
+  ggpairs()
+```
+
+
+
+```{r}
+colony %>%
+  drop_na() %>%
+  ggplot(aes(colony_added, colony_lost)) + geom_point() + scale_x_log10(labels = scales::label_comma()) +
+  scale_y_log10(labels = scales::label_comma()) + geom_smooth(method = "lm") + facet_wrap(~months) +
+  labs(x = "Colonies added", y = "Colonies lost", title = "Colonies: Lost vs Added", subtitle = "Axes on a log10 scale")
 
 ```
 
