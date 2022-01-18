@@ -1,0 +1,44 @@
+---
+title: "Chocolate Bar Ratings"
+author: "Matthew"
+date: "1/18/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+theme_set(theme_bw())
+chocolate <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv')
+```
+
+```{r}
+chocolate %>%
+  keep(is.numeric) %>%
+  gather() %>%
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+chocolate %>%
+  gather() %>%
+  count(value, sort = TRUE)
+```
+
+
+```{r}
+ratingplot <- function(x) {
+  chocolate %>%
+    group_by({{x}}) %>%
+    summarize(n = mean(rating)) %>%
+    arrange(-n) %>%
+    head(10) %>%
+    ggplot(aes(n, fct_reorder({{x}}, n))) + geom_col() + labs(x = "Average Rating")
+}
+ratingplot(company_location) + labs(y = "")
+```
+
+
+
+
+
+
