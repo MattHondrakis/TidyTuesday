@@ -10,10 +10,19 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(lubridate)
 theme_set(theme_bw())
 chocolate <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv')
+chocolate <- chocolate %>%
+  rename(year = review_date) %>%
+  separate(ingredients, c("ingredients_amount", "ingredients_type"), extra = "merge") %>%
+  mutate(cocoa_percent = as.numeric(str_replace(cocoa_percent, "%", "")),
+         ingredients_amount = as.numeric(ingredients_amount))
 ```
 
+# EDA
+
+## Plot of Numerics
 ```{r}
 chocolate %>%
   keep(is.numeric) %>%
@@ -24,7 +33,7 @@ chocolate %>%
   count(value, sort = TRUE)
 ```
 
-
+## Plot function
 ```{r}
 ratingplot <- function(x) {
   chocolate %>%
@@ -34,11 +43,36 @@ ratingplot <- function(x) {
     head(10) %>%
     ggplot(aes(n, fct_reorder({{x}}, n))) + geom_col() + labs(x = "Average Rating")
 }
-ratingplot(company_location) + labs(y = "")
+ratingplot(company_manufacturer) + labs(y = "Manufacturer")
+ratingplot(company_location) + labs(y = "Location")
+ratingplot(country_of_bean_origin) + labs(y = "Bean Origin")
 ```
 
 
+## Rating by Year
+```{r}
+chocolate %>%
+  group_by(year) %>%
+  summarize(n = mean(rating)) %>%
+  ggplot(aes(year, n)) + geom_point() + geom_smooth() + ylim(ymin = 0, ymax = 5)
+```
 
 
+## Rating by Cocoa Percent
+```{r}
+chocolate %>%
+  group_by(cocoa_percent) %>%
+  summarize(n = mean(rating)) %>%
+  ggplot(aes(cocoa_percent, n)) + geom_point() + geom_line() + 
+  geom_smooth(se = FALSE) + labs(y = "Mean Rating", x = "Cocoa Percent")
+```
 
+
+## Rating by amount of ingredients
+```{r}
+chocolate %>%
+  drop_na() %>%
+  group_by(ingredients_amount) %>%
+  ggplot(aes(ingredients_amount, rating, group = ingredients_amount)) + geom_boxplot()
+```
 
