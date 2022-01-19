@@ -10,7 +10,6 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(lubridate)
 theme_set(theme_bw())
 chocolate <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv')
 chocolate <- chocolate %>%
@@ -73,6 +72,31 @@ chocolate %>%
 chocolate %>%
   drop_na() %>%
   group_by(ingredients_amount) %>%
-  ggplot(aes(ingredients_amount, rating, group = ingredients_amount)) + geom_boxplot()
+  mutate(new = mean(rating)) %>%
+  ggplot(aes(ingredients_amount, rating, group = ingredients_amount)) + geom_boxplot() + 
+  geom_line(aes(x = ingredients_amount, y = new, group = 1), color = "blue") +
+  geom_point(aes(x = ingredients_amount, y = new), color = "blue", size = 2) +
+  labs(caption = "Blue line/dots represent the average per group")
+
+chocolate %>%
+  drop_na() %>%
+  group_by(ingredients_amount) %>%
+  summarize(Average = mean(rating)) %>%
+  ggplot(aes(ingredients_amount, Average)) + geom_line() + labs(title = "Zoomed in")
+
+```
+
+
+
+
+
+### Ingredients Type
+```{r}
+chocolate %>%
+  mutate(ingredients_type = fct_lump(ingredients_type, n = 5)) %>%
+  group_by(ingredients_type) %>%
+  summarize(Average = mean(rating)) %>%
+  ggplot(aes(Average, fct_reorder(ingredients_type, Average, .desc = TRUE))) + geom_col() + labs(y = "Ingredients",
+                                                                                                 x = "Average Rating")
 ```
 
