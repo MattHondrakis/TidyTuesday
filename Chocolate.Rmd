@@ -100,3 +100,24 @@ chocolate %>%
        y = "Ingredients", x = "Average Rating")
 ```
 
+
+## Type of Sugar
+```{r}
+chocolate %>%
+  drop_na() %>%
+  mutate(sugar = str_detect(ingredients_type, "\\*"),
+         sugar = case_when(sugar == FALSE ~ "Real Sugar",
+                           sugar == TRUE ~ "Sweetener")) %>%
+  ggplot(aes(sugar, rating)) + geom_boxplot() + 
+  labs(y = "Rating", x = "Sugar", title = "Ratings separated by synthetic or real sugar",
+       subtitle = "There is far more real sugar in the dataset, than sweetener substitutes", 
+       caption = "Real Sugar: 2,367     Sweetener: 76")
+  
+```
+
+
+
+
+
+
+
