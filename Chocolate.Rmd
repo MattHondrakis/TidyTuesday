@@ -88,15 +88,15 @@ chocolate %>%
 
 
 
-
-
 ### Ingredients Type
 ```{r}
 chocolate %>%
+  drop_na() %>%
   mutate(ingredients_type = fct_lump(ingredients_type, n = 5)) %>%
   group_by(ingredients_type) %>%
   summarize(Average = mean(rating)) %>%
-  ggplot(aes(Average, fct_reorder(ingredients_type, Average, .desc = TRUE))) + geom_col() + labs(y = "Ingredients",
-                                                                                                 x = "Average Rating")
+  ggplot(aes(Average, fct_reorder(ingredients_type, Average))) + geom_col() + 
+  labs(title = "Average Rating of Top 5 Ingredients", subtitle = "Ratings not in top 5 are collapsed as Other", 
+       y = "Ingredients", x = "Average Rating")
 ```
 
