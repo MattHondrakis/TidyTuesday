@@ -116,16 +116,49 @@ chocolate %>%
 chocolate %>%
   drop_na() %>%
   mutate(sugar = str_detect(ingredients_type, "\\*"),
-         sugar = case_when(sugar == FALSE ~ "Real Sugar",
-                           sugar == TRUE ~ "Sweetener")) %>%
+         sugar = ifelse(sugar == FALSE, "Real Sugar", "Sweetener")) %>%
   ggplot(aes(sugar, rating)) + geom_boxplot() + 
   labs(y = "Rating", x = "Sugar", title = "Ratings separated by synthetic or real sugar",
        subtitle = "There is far more real sugar in the dataset, than sweetener substitutes", 
        caption = "Real Sugar: 2,367     Sweetener: 76")
-  
+
+chocolate %>%
+  drop_na() %>%
+  mutate(sugar = str_detect(ingredients_type, "\\*"),
+         sugar = ifelse(sugar == FALSE, "Real Sugar", "Sweetener")) %>%
+  ggplot(aes(rating, color = sugar)) + geom_density()
+
 ```
 
 
+## Company location and bean origin
+```{r}
+chocolate <- chocolate %>%
+  mutate(location_origin = ifelse(company_location == country_of_bean_origin, "Same","Different"))
+
+t.test(rating ~ location_origin, chocolate)
+
+chocolate %>%
+  ggplot(aes(location_origin, rating, group = location_origin)) + geom_boxplot() + 
+  stat_summary(fun = mean, geom ="line", color = "blue", group = 1) +
+  stat_summary(fun = mean, geom ="point", color = "blue")
+
+chocolate %>%
+  ggplot(aes(rating, color = location_origin)) + geom_density()
+
+```
 
 
+## Ratings by country and their country = bean origin
+```{r}
+chocolate %>%
+  group_by(company_location) %>%
+  summarize(rating = mean(rating),
+            location_origin) %>%
+  distinct(company_location, rating, location_origin) %>%
+  arrange(-rating) %>%
+  head(20) %>%
+  ggplot(aes(rating, reorder(company_location, rating, order = TRUE), fill = location_origin)) + geom_col(position = "identity") +
+  labs(y = "Company Location", x = "Average Rating", title = "Top 20 Countries", subtitle = "Colored by Companies Location = Bean Location")
+```
 

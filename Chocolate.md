@@ -153,8 +153,7 @@ chocolate %>%
 chocolate %>%
   drop_na() %>%
   mutate(sugar = str_detect(ingredients_type, "\\*"),
-         sugar = case_when(sugar == FALSE ~ "Real Sugar",
-                           sugar == TRUE ~ "Sweetener")) %>%
+         sugar = ifelse(sugar == FALSE, "Real Sugar", "Sweetener")) %>%
   ggplot(aes(sugar, rating)) + geom_boxplot() + 
   labs(y = "Rating", x = "Sugar", title = "Ratings separated by synthetic or real sugar",
        subtitle = "There is far more real sugar in the dataset, than sweetener substitutes", 
@@ -162,3 +161,66 @@ chocolate %>%
 ```
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+chocolate %>%
+  drop_na() %>%
+  mutate(sugar = str_detect(ingredients_type, "\\*"),
+         sugar = ifelse(sugar == FALSE, "Real Sugar", "Sweetener")) %>%
+  ggplot(aes(rating, color = sugar)) + geom_density()
+```
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+## Company location and bean origin
+
+``` r
+chocolate <- chocolate %>%
+  mutate(location_origin = ifelse(company_location == country_of_bean_origin, "Same","Different"))
+
+t.test(rating ~ location_origin, chocolate)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  rating by location_origin
+    ## t = 2.958, df = 410.71, p-value = 0.003276
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.02660304 0.13201587
+    ## sample estimates:
+    ## mean in group Different      mean in group Same 
+    ##                3.206281                3.126972
+
+``` r
+chocolate %>%
+  ggplot(aes(location_origin, rating, group = location_origin)) + geom_boxplot() + 
+  stat_summary(fun = mean, geom ="line", color = "blue", group = 1) +
+  stat_summary(fun = mean, geom ="point", color = "blue")
+```
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+chocolate %>%
+  ggplot(aes(rating, color = location_origin)) + geom_density()
+```
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
+chocolate %>%
+  group_by(company_location) %>%
+  summarize(rating = mean(rating),
+            location_origin) %>%
+  distinct(company_location, rating, location_origin) %>%
+  arrange(-rating) %>%
+  head(20) %>%
+  ggplot(aes(rating, reorder(company_location, rating, order = TRUE), fill = location_origin)) + geom_col(position = "identity") +
+  labs(y = "Company Location", x = "Average Rating", title = "Top 20 Countries", subtitle = "Colored by Companies Location = Bean Location")
+```
+
+    ## `summarise()` has grouped output by 'company_location'. You can override using the `.groups` argument.
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
