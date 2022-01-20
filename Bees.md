@@ -67,8 +67,6 @@ stressor %>%
   scale_y_continuous(labels = scales::percent_format(scale = 1))
 ```
 
-    ## Warning: Outer names are only allowed for unnamed scalar atomic inputs
-
     ## `summarise()` has grouped output by 'year'. You can override using the `.groups` argument.
 
 ![](Bees_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -91,8 +89,6 @@ beecolony %>%
 library(GGally)
 ```
 
-    ## Warning: package 'GGally' was built under R version 4.0.5
-
     ## Registered S3 method overwritten by 'GGally':
     ##   method from   
     ##   +.gg   ggplot2
@@ -102,66 +98,6 @@ colony %>%
   select(contains("colony"), -contains("pct")) %>%
   ggpairs()
 ```
-
-    ## Warning: Removed 47 rows containing non-finite values (stat_density).
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 72 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 47 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 83 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 131 rows containing missing values
-
-    ## Warning: Removed 72 rows containing missing values (geom_point).
-
-    ## Warning: Removed 72 rows containing non-finite values (stat_density).
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 72 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 108 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 156 rows containing missing values
-
-    ## Warning: Removed 47 rows containing missing values (geom_point).
-
-    ## Warning: Removed 72 rows containing missing values (geom_point).
-
-    ## Warning: Removed 47 rows containing non-finite values (stat_density).
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 83 rows containing missing values
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 131 rows containing missing values
-
-    ## Warning: Removed 83 rows containing missing values (geom_point).
-
-    ## Warning: Removed 108 rows containing missing values (geom_point).
-
-    ## Warning: Removed 83 rows containing missing values (geom_point).
-
-    ## Warning: Removed 83 rows containing non-finite values (stat_density).
-
-    ## Warning in ggally_statistic(data = data, mapping = mapping, na.rm = na.rm, :
-    ## Removed 145 rows containing missing values
-
-    ## Warning: Removed 131 rows containing missing values (geom_point).
-
-    ## Warning: Removed 156 rows containing missing values (geom_point).
-
-    ## Warning: Removed 131 rows containing missing values (geom_point).
-
-    ## Warning: Removed 145 rows containing missing values (geom_point).
-
-    ## Warning: Removed 131 rows containing non-finite values (stat_density).
 
 ![](Bees_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 

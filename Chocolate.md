@@ -16,8 +16,6 @@ chocolate %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-    ## Warning: Removed 87 rows containing non-finite values (stat_bin).
-
 ![](Chocolate_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 ``` r
