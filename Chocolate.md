@@ -178,22 +178,7 @@ chocolate %>%
 chocolate <- chocolate %>%
   mutate(location_origin = ifelse(company_location == country_of_bean_origin, "Same","Different"))
 
-t.test(rating ~ location_origin, chocolate)
-```
 
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  rating by location_origin
-    ## t = 2.958, df = 410.71, p-value = 0.003276
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  0.02660304 0.13201587
-    ## sample estimates:
-    ## mean in group Different      mean in group Same 
-    ##                3.206281                3.126972
-
-``` r
 chocolate %>%
   ggplot(aes(location_origin, rating, group = location_origin)) + geom_boxplot() + 
   stat_summary(fun = mean, geom ="line", color = "blue", group = 1) +
@@ -209,18 +194,41 @@ chocolate %>%
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
+## Ratings by country = bean origin
+
 ``` r
 chocolate %>%
-  group_by(company_location) %>%
+  group_by(company_location, location_origin) %>%
   summarize(rating = mean(rating),
-            location_origin) %>%
-  distinct(company_location, rating, location_origin) %>%
+            n = n()) %>%
+  filter(n > 20) %>%
   arrange(-rating) %>%
-  head(20) %>%
+  head(11) %>%
   ggplot(aes(rating, reorder(company_location, rating, order = TRUE), fill = location_origin)) + geom_col(position = "identity") +
-  labs(y = "Company Location", x = "Average Rating", title = "Top 20 Countries", subtitle = "Colored by Companies Location = Bean Location")
+  labs(y = "", x = "Average Rating", title = "Top 11 Countries", 
+       subtitle = "Only countries that received a total of at least 20 ratings", fill = "",
+       caption = "Color indicates whether the beans come from that country")
 ```
 
     ## `summarise()` has grouped output by 'company_location'. You can override using the `.groups` argument.
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+chocolate %>%
+  group_by(company_manufacturer, location_origin) %>%
+  summarize(rating = mean(rating),
+            n = n()) %>%
+  filter(n > 10) %>%
+  arrange(-rating) %>%
+  head(10) %>%
+  ggplot(aes(rating, reorder(company_manufacturer, rating, order = TRUE), fill = location_origin)) + 
+  geom_col() +
+  labs(y = "", x = "Average Rating", title = "Top 10 Companies", fill = "",
+       subtitle = "Only companies that received a total of at least 10 ratings",
+       caption = "Color indicates whether the company and the beans are from the same country")
+```
+
+    ## `summarise()` has grouped output by 'company_manufacturer'. You can override using the `.groups` argument.
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
