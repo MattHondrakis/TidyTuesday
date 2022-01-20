@@ -92,12 +92,22 @@ chocolate %>%
 ```{r}
 chocolate %>%
   drop_na() %>%
+  group_by(ingredients_type) %>%
+  summarize(Average = mean(rating)) %>%
+  ggplot(aes(Average, fct_reorder(ingredients_type, Average), fill = Average)) + geom_col() +
+  scale_fill_viridis_c(option = "H", direction = -1) +
+  labs(title = "Average Rating of all Ingredients", 
+       y = "Ingredients", x = "Average Rating")
+
+chocolate %>%
+  drop_na() %>%
   mutate(ingredients_type = fct_lump(ingredients_type, n = 5)) %>%
   group_by(ingredients_type) %>%
   summarize(Average = mean(rating)) %>%
   ggplot(aes(Average, fct_reorder(ingredients_type, Average))) + geom_col() + 
   labs(title = "Average Rating of Top 5 Ingredients", subtitle = "Ratings not in top 5 are collapsed as Other", 
        y = "Ingredients", x = "Average Rating")
+
 ```
 
 
@@ -114,8 +124,6 @@ chocolate %>%
        caption = "Real Sugar: 2,367     Sweetener: 76")
   
 ```
-
-
 
 
 
