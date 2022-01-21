@@ -192,7 +192,7 @@ chocolate %>%
   ggbarplot(x = "country_of_bean_origin", y = "n", fill = "n", sort.val = "asc", 
             rotate = TRUE, ggtheme = theme_minimal(),
             ylab = "Number of ratings") %>%
-  ggpar(legend = "", main = "Ratings per Country", subtitle = "Country of Bean Origin", xlab = "")
+  ggpar(legend = "", main = "Number of Ratings per Country's Bean Origin", xlab = "", ylab = "", font.ytickslab = c(10, "bold"))
 
 ```
 
