@@ -179,6 +179,22 @@ chocolate %>%
        subtitle = "Only companies that received a total of at least 10 ratings",
        caption = "Color indicates whether the company and the beans are from the same country")
 
+```
+
+
+## Ratings per country
+```{r}
+chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  summarize(n = n()) %>%
+  arrange(-n) %>%
+  head(20) %>%
+  ggbarplot(x = "country_of_bean_origin", y = "n", fill = "n", sort.val = "asc", 
+            rotate = TRUE, ggtheme = theme_minimal(),
+            ylab = "Number of ratings") %>%
+  ggpar(legend = "", main = "Ratings per Country", subtitle = "Country of Bean Origin", xlab = "")
 
 ```
+
+
 
