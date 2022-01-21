@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
+library(ggpubr)
 theme_set(theme_bw())
 chocolate <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv')
 chocolate <- chocolate %>%
