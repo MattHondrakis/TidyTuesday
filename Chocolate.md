@@ -268,3 +268,20 @@ chocolate %>%
 ```
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+## Number of variety of ingredients
+
+``` r
+chocolate %>%
+  drop_na() %>%
+  group_by(company_location) %>%
+  distinct(ingredients_type) %>%
+  summarize(n = n()) %>%
+  arrange(-n) %>%
+  head(15) %>%
+  ggbarplot(x = "company_location", y = "n", fill = "n", rotate = TRUE, sort.val = "asc") %>%
+  ggpar(xlab = "", ylab = "Number of different ingredient combinations", legend = "", 
+        title = "Number of Different Chocolate Variations by Country")
+```
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
