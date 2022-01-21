@@ -214,6 +214,26 @@ chocolate %>%
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
+### Using ggbarplot for previous plot
+
+``` r
+chocolate %>%
+  group_by(company_location, location_origin) %>%
+  summarize(rating = mean(rating),
+            n = n()) %>%
+  filter(n > 20) %>%
+  arrange(-rating) %>%
+  head(11) %>%
+  ggbarplot("company_location", "rating", rotate = TRUE, fill = "location_origin", sort.val = "asc", sort.by.groups = FALSE) %>%
+  ggpar(xlab = "", ylab = "Average Rating", title = "Top 11 Countries", font.ytickslab = 11,
+       subtitle = "Only countries that received a total of at least 20 ratings", legend.title = "",
+       caption = "Color indicates whether the beans come from that country", palette = "npg")
+```
+
+    ## `summarise()` has grouped output by 'company_location'. You can override using the `.groups` argument.
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 ``` r
 chocolate %>%
   group_by(company_manufacturer, location_origin) %>%
@@ -231,4 +251,20 @@ chocolate %>%
 
     ## `summarise()` has grouped output by 'company_manufacturer'. You can override using the `.groups` argument.
 
-![](Chocolate_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Chocolate_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+## Ratings per country
+
+``` r
+chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  summarize(n = n()) %>%
+  arrange(-n) %>%
+  head(20) %>%
+  ggbarplot(x = "country_of_bean_origin", y = "n", fill = "n", sort.val = "asc", 
+            rotate = TRUE, ggtheme = theme_minimal(),
+            ylab = "Number of ratings") %>%
+  ggpar(legend = "", main = "Number of Ratings per Country's Bean Origin", xlab = "", ylab = "", font.ytickslab = c(10, "bold"))
+```
+
+![](Chocolate_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->

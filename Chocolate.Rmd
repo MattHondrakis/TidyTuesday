@@ -164,6 +164,20 @@ chocolate %>%
        caption = "Color indicates whether the beans come from that country")
 ```
 
+### Using ggbarplot for previous plot
+```{r}
+chocolate %>%
+  group_by(company_location, location_origin) %>%
+  summarize(rating = mean(rating),
+            n = n()) %>%
+  filter(n > 20) %>%
+  arrange(-rating) %>%
+  head(11) %>%
+  ggbarplot("company_location", "rating", rotate = TRUE, fill = "location_origin", sort.val = "asc", sort.by.groups = FALSE) %>%
+  ggpar(xlab = "", ylab = "Average Rating", title = "Top 11 Countries", font.ytickslab = 11,
+       subtitle = "Only countries that received a total of at least 20 ratings", legend.title = "",
+       caption = "Color indicates whether the beans come from that country", palette = "npg")
+```
 
 
 ```{r}
