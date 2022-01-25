@@ -70,7 +70,7 @@ games %>%
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-### Gplot function for filling by numeric
+### Gplot column function for filling by numeric
 
 ``` r
 Gplot <- function(x) {
@@ -87,6 +87,54 @@ Gplot(maxplayers)
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+``` r
+Gplot(minplayers)
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+### Gplot2 point function of numerics and average
+
+``` r
+Gplot2 <- function(x) {
+  games %>%
+    filter({{x}} != 0) %>%
+    ggplot(aes({{x}}, average)) + geom_point(alpha = 0.1) + scale_x_log10() + 
+    geom_hline(yintercept = mean(games$average), lty = 2, size = 1.5, color = "red") +
+    geom_smooth()
+}
+
+Gplot2(wanting)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+Gplot2(wishing)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+Gplot2(trading)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+
+``` r
+Gplot2(owned)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-5-4.png)<!-- -->
+
 ## Game Mechanics
 
 ``` r
@@ -101,4 +149,31 @@ games %>%
   theme(legend.position = "") + labs(y = "", x = "Average rating", title = "Average rating by most common game mechanics")
 ```
 
-![](BillboardGames_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](BillboardGames_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+games %>%
+  unnest_tokens(word, mechanic) %>%
+  group_by(word) %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(-mean) %>%
+  filter(!word %in% c("game", "and", "player"), !is.na(word)) %>%
+  head(30) %>%
+  ggplot(aes(mean, fct_reorder(word, mean))) + geom_text(aes(label = word)) + expand_limits(x = 7) +
+  labs(y = "", x = "Average", title = "Average Rating by highest rated words") + theme(axis.text.y = element_blank())
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+games %>%
+  unnest_tokens(word, mechanic) %>%
+  group_by(word) %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(-mean) %>%
+  filter(!word %in% c("game", "and", "player", "with", "a", "as", "of"), !is.na(word)) %>%
+  head(100) %>%
+  ggplot(aes(mean, n)) + geom_text(aes(label = word), check_overlap = TRUE)
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->

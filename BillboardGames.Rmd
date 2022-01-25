@@ -62,7 +62,7 @@ games %>%
 ```
 
 
-### Gplot function for filling by numeric
+### Gplot column function for filling by numeric
 ```{r}
 Gplot <- function(x) {
   games %>%
@@ -74,6 +74,24 @@ Gplot <- function(x) {
 }
 
 Gplot(maxplayers)
+Gplot(minplayers)
+```
+
+
+### Gplot2 point function of numerics and average
+```{r}
+Gplot2 <- function(x) {
+  games %>%
+    filter({{x}} != 0) %>%
+    ggplot(aes({{x}}, average)) + geom_point(alpha = 0.1) + scale_x_log10() + 
+    geom_hline(yintercept = mean(games$average), lty = 2, size = 1.5, color = "red") +
+    geom_smooth()
+}
+
+Gplot2(wanting)
+Gplot2(wishing)
+Gplot2(trading)
+Gplot2(owned)
 ```
 
 
@@ -91,5 +109,27 @@ games %>%
 ```
 
 
+```{r}
+games %>%
+  unnest_tokens(word, mechanic) %>%
+  group_by(word) %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(-mean) %>%
+  filter(!word %in% c("game", "and", "player"), !is.na(word)) %>%
+  head(30) %>%
+  ggplot(aes(mean, fct_reorder(word, mean))) + geom_text(aes(label = word)) + expand_limits(x = 7) +
+  labs(y = "", x = "Average", title = "Average Rating by highest rated words") + theme(axis.text.y = element_blank())
+  
+
+
+games %>%
+  unnest_tokens(word, mechanic) %>%
+  group_by(word) %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(-mean) %>%
+  filter(!word %in% c("game", "and", "player", "with", "a", "as", "of"), !is.na(word)) %>%
+  head(100) %>%
+  ggplot(aes(mean, n)) + geom_text(aes(label = word), check_overlap = TRUE)
+```
 
 
