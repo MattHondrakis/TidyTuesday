@@ -151,29 +151,59 @@ games %>%
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
+### Tidy mechanic column and furthur analysis
+
 ``` r
 games %>%
-  unnest_tokens(word, mechanic) %>%
-  group_by(word) %>%
-  summarize(n = n(), mean = mean(average)) %>%
-  arrange(-mean) %>%
-  filter(!word %in% c("game", "and", "player"), !is.na(word)) %>%
+  separate_rows(mechanic, sep = ",") %>%
+  mutate(mechanic = str_replace_all(mechanic, "\\[|\\]", ""),
+         mechanic = str_replace_all(mechanic, "\'", ""),
+         mechanic = str_trim(mechanic, "both")) %>% 
+  group_by(mechanic) %>%
+  summarize(n = n(), average = mean(average)) %>%
+  filter(n >100) %>%
+  arrange(-average) %>%
   head(30) %>%
-  ggplot(aes(mean, fct_reorder(word, mean))) + geom_text(aes(label = word)) + expand_limits(x = 7) +
-  labs(y = "", x = "Average", title = "Average Rating by highest rated words") + theme(axis.text.y = element_blank())
+  ggplot(aes(average, fct_reorder(mechanic, average), fill = average)) + geom_col(color = "black") + 
+  theme(legend.position = "") +
+  geom_vline(xintercept = mean(games$average), lty = 2, color = "red") +
+  labs(y = "", x = "", title = "Average rating by common mechanics", subtitle = "Highest 30 Mechanics",
+       caption = "Red line indicates global average")
 ```
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 games %>%
-  unnest_tokens(word, mechanic) %>%
-  group_by(word) %>%
-  summarize(n = n(), mean = mean(average)) %>%
-  arrange(-mean) %>%
-  filter(!word %in% c("game", "and", "player", "with", "a", "as", "of"), !is.na(word)) %>%
-  head(100) %>%
-  ggplot(aes(mean, n)) + geom_text(aes(label = word), check_overlap = TRUE)
+  separate_rows(mechanic, sep = ",") %>%
+  mutate(mechanic = str_replace_all(mechanic, "\\[|\\]", ""),
+         mechanic = str_replace_all(mechanic, "\'", ""),
+         mechanic = str_trim(mechanic, "both")) %>% 
+  group_by(mechanic) %>%
+  summarize(n = n(), average = mean(average)) %>%
+  filter(n >100, !is.na(mechanic)) %>%
+  arrange(average) %>%
+  head(30) %>%
+  ggplot(aes(average, fct_reorder(mechanic, average), fill = average)) + geom_col(color = "black") + 
+  geom_vline(xintercept = mean(games$average), lty = 2, color = "red") +
+  theme(legend.position = "") +
+  labs(y = "", x = "", title = "Average rating by common mechanics", subtitle = "Lowest 30 Mechanics",
+       caption = "Red line indicates global average")
 ```
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+games %>%
+  separate_rows(mechanic, sep = ",") %>%
+  mutate(mechanic = str_replace_all(mechanic, "\\[|\\]", ""),
+         mechanic = str_replace_all(mechanic, "\'", ""),
+         mechanic = str_trim(mechanic, "both")) %>% 
+  group_by(mechanic) %>%
+  summarize(n = n(), average = mean(average)) %>%
+  filter(n >100, !is.na(mechanic)) %>%
+  arrange(-average) %>%
+  ggplot(aes(average, n)) + geom_text(aes(label = mechanic), check_overlap = TRUE)
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
