@@ -19,6 +19,9 @@ details <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesd
 games <- ratings %>%
   inner_join(details, by = "id") %>%
   rename_with(~gsub(pattern = "boardgame",replacement = "", .x))
+
+games <- games %>%
+  select(-primary, -thumbnail, -url)
 ```
 
 
