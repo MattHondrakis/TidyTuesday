@@ -197,3 +197,41 @@ games %>%
 ```
 
 
+## Bayes Average and gplot function
+```{r}
+gplot <- function(x,y) {
+  games %>%
+    filter({{x}} > 0) %>%
+    group_by({{x}}) %>%
+    summarize(y = mean({{y}})) %>%
+    ggplot(aes({{x}}, y)) + geom_point()
+}
+gplot(wanting, bayes_average) + scale_x_log10()
+```
+
+
+### Gathered Bayes/Average and make another gplot function
+```{r}
+gplot2 <- function(x) {
+  games %>% 
+    gather(key = key, value = value, bayes_average, average) %>%
+    filter({{x}} > 0) %>%
+    group_by({{x}}, key) %>%
+    summarize(value = mean(value)) %>%
+    ggplot(aes({{x}}, value)) + geom_point() + facet_wrap(~key)
+}
+
+gplot2(wanting) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
+gplot2(wanting) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
+```
+
+
+#### Quick lm models
+```{r}
+lm(bayes_average ~ sqrt(wanting), games %>% filter(wanting >0)) %>% summary()
+lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
+```
+
+
+
+
