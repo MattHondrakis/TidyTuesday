@@ -100,7 +100,7 @@ Gplot2 <- function(x) {
   games %>%
     filter({{x}} != 0) %>%
     ggplot(aes({{x}}, average)) + geom_point(alpha = 0.1) + scale_x_log10() + 
-    geom_hline(yintercept = mean(games$average), lty = 2, size = 1.5, color = "red") +
+    geom_hline(yintercept = mean(games$average), lty = 3, size = 1.5, color = "red") +
     geom_smooth()
 }
 
@@ -145,7 +145,7 @@ games %>%
   arrange(-n) %>%
   filter(!word %in% c("game", "and", "player"), !is.na(word)) %>%
   head(30) %>%
-  ggplot(aes(mean, fct_reorder(word, mean), fill = word)) + geom_col() + geom_vline(xintercept = mean(games$average), lty = 2) +
+  ggplot(aes(mean, fct_reorder(word, mean), fill = word)) + geom_col() + geom_vline(xintercept = mean(games$average), lty = 3) +
   theme(legend.position = "") + labs(y = "", x = "Average rating", title = "Average rating by most common game mechanics")
 ```
 
@@ -166,7 +166,7 @@ games %>%
   head(30) %>%
   ggplot(aes(average, fct_reorder(mechanic, average), fill = average)) + geom_col(color = "black") + 
   theme(legend.position = "") +
-  geom_vline(xintercept = mean(games$average), lty = 2, color = "red") +
+  geom_vline(xintercept = mean(games$average), lty = 3, color = "red") +
   labs(y = "", x = "", title = "Average rating by common mechanics", subtitle = "Highest 30 Mechanics",
        caption = "Red line indicates global average")
 ```
@@ -185,7 +185,7 @@ games %>%
   arrange(average) %>%
   head(30) %>%
   ggplot(aes(average, fct_reorder(mechanic, average), fill = average)) + geom_col(color = "black") + 
-  geom_vline(xintercept = mean(games$average), lty = 2, color = "red") +
+  geom_vline(xintercept = mean(games$average), lty = 3, color = "red") +
   theme(legend.position = "") +
   labs(y = "", x = "", title = "Average rating by common mechanics", subtitle = "Lowest 30 Mechanics",
        caption = "Red line indicates global average")
@@ -207,3 +207,45 @@ games %>%
 ```
 
 ![](BillboardGames_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+## Game category
+
+``` r
+games %>%
+  separate_rows(category, sep = ",") %>%
+  mutate(category = str_replace_all(category, "\\[|\\]", ""),
+         category = str_replace_all(category, "\'",""), 
+         category = str_trim(category, "both")) %>%
+  group_by(category) %>%
+  drop_na() %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(-mean) %>%
+  filter(n > 25) %>%
+  head(25) %>%
+  ggplot(aes(mean, fct_reorder(category, mean), fill = mean)) + geom_col(color = "black") + 
+  geom_vline(xintercept = mean(games$average), lty = 3, color = "red") +
+  labs(y = "", x = "Average Rating", title = "Top 25 Categories", caption = "Only categories with more than 25 occurances") + 
+  theme(legend.position = "")
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+games %>%
+  separate_rows(category, sep = ",") %>%
+  mutate(category = str_replace_all(category, "\\[|\\]", ""),
+         category = str_replace_all(category, "\'",""), 
+         category = str_trim(category, "both")) %>%
+  group_by(category) %>%
+  drop_na() %>%
+  summarize(n = n(), mean = mean(average)) %>%
+  arrange(mean) %>%
+  filter(n > 10) %>%
+  head(25) %>%
+  ggplot(aes(mean, fct_reorder(category, mean), fill = mean)) + geom_col(color = "black") + 
+  geom_vline(xintercept = mean(games$average), lty = 3, color = "red") +
+  labs(y = "", x = "Average Rating", title = "Bottom 25 Categories", caption = "Only categories with more than 10 occurances") +
+  theme(legend.position = "")
+```
+
+![](BillboardGames_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
