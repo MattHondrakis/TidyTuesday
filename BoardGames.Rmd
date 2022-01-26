@@ -221,14 +221,14 @@ gplot2 <- function(x) {
     ggplot(aes({{x}}, value)) + geom_point() + facet_wrap(~key)
 }
 
-gplot2(wanting) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
-gplot2(wanting) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
+gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
+gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
 ```
 
 
 #### Quick lm models
 ```{r}
-lm(bayes_average ~ sqrt(wanting), games %>% filter(wanting >0)) %>% summary()
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% summary()
 lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
 ```
 

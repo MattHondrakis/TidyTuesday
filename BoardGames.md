@@ -277,20 +277,20 @@ gplot2 <- function(x) {
     ggplot(aes({{x}}, value)) + geom_point() + facet_wrap(~key)
 }
 
-gplot2(wanting) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
+gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
 ```
 
-    ## `summarise()` has grouped output by 'wanting'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
 
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
-gplot2(wanting) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
+gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
 ```
 
-    ## `summarise()` has grouped output by 'wanting'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
@@ -298,28 +298,30 @@ gplot2(wanting) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X 
 #### Quick lm models
 
 ``` r
-lm(bayes_average ~ sqrt(wanting), games %>% filter(wanting >0)) %>% summary()
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = bayes_average ~ sqrt(wanting), data = games %>% 
-    ##     filter(wanting > 0))
+    ## lm(formula = bayes_average ~ sqrt(wishing) * sqrt(wanting), data = games %>% 
+    ##     filter(wishing > 0))
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -5.4285 -0.0707  0.0039  0.0635  1.3894 
+    ## -5.4732 -0.0582  0.0035  0.0567  1.1578 
     ## 
     ## Coefficients:
-    ##                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   5.3569883  0.0016381  3270.3   <2e-16 ***
-    ## sqrt(wanting) 0.0715120  0.0002412   296.5   <2e-16 ***
+    ##                               Estimate Std. Error  t value Pr(>|t|)    
+    ## (Intercept)                  5.372e+00  1.772e-03 3031.451   <2e-16 ***
+    ## sqrt(wishing)                2.004e-02  3.673e-04   54.554   <2e-16 ***
+    ## sqrt(wanting)                2.682e-02  7.296e-04   36.768   <2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -7.493e-05  8.132e-06   -9.214   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.162 on 19711 degrees of freedom
-    ## Multiple R-squared:  0.8168, Adjusted R-squared:  0.8168 
-    ## F-statistic: 8.79e+04 on 1 and 19711 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1477 on 21518 degrees of freedom
+    ## Multiple R-squared:  0.8378, Adjusted R-squared:  0.8377 
+    ## F-statistic: 3.704e+04 on 3 and 21518 DF,  p-value: < 2.2e-16
 
 ``` r
 lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
