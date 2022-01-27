@@ -255,6 +255,7 @@ lm(bayes_average ~ ., games %>% select_if(is.numeric) %>%
 
 ```{r}
 library(tidymodels)
+library(mgcv)
 games_split <- initial_split(games, strata = bayes_average)
 games_train <- training(games_split)
 games_test <- testing(games_split)
@@ -283,7 +284,7 @@ games_test %>%
   mutate(predictions = predict(model, games_test)) %>%
   ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
   geom_abline(color = "blue", linetype = "dashed", size = 1) +
-  xlim(5,10) + ylim(5,10)
+  xlim(5.5,8.5) + ylim(5.5,8.5)
   
 ```
 
@@ -303,10 +304,21 @@ games_test %>%
 
 games_test %>%
   mutate(predictions = predict(model2, games_test)) %>%
+  group_by(wishing) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt()
+
+games_test %>%
+  mutate(predictions = predict(model2, games_test)) %>%
   ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
   geom_abline(color = "blue", linetype = "dashed", size = 1) +
   xlim(5.5,8.5) + ylim(5.5,8.5)
+```
 
+##### Both models
+```{r}
 games_test %>%
   mutate(predictions = predict(model2, games_test),
          model = "2") %>%
@@ -317,7 +329,8 @@ games_test %>%
   summarize(bayes_average = mean(bayes_average),
             predictions = mean(predictions)) %>%
   ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
-  geom_point(aes(y = predictions, color = model), alpha = 0.3) + scale_x_sqrt()
+  geom_point(aes(y = predictions, color = model), alpha = 0.3) + scale_x_sqrt() +
+  labs(title = "Both models fitted", subtitle = "Square root scale")
 
 ```
 

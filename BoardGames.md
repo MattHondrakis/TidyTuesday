@@ -400,6 +400,21 @@ library(tidymodels)
     ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
+library(mgcv)
+```
+
+    ## Loading required package: nlme
+
+    ## 
+    ## Attaching package: 'nlme'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     collapse
+
+    ## This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
+
+``` r
 games_split <- initial_split(games, strata = bayes_average)
 games_train <- training(games_split)
 games_test <- testing(games_split)
@@ -417,22 +432,33 @@ model %>% summary()
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1.72398 -0.06045  0.00290  0.05676  1.13957 
+    ## -1.56488 -0.06045  0.00263  0.05631  1.14250 
     ## 
     ## Coefficients:
     ##                               Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                  5.199e+00  9.346e-03 556.350  < 2e-16 ***
-    ## sqrt(wishing)                1.994e-02  4.024e-04  49.550  < 2e-16 ***
-    ## sqrt(wanting)                2.378e-02  8.056e-04  29.514  < 2e-16 ***
-    ## minplayers                   2.374e-02  1.615e-03  14.703  < 2e-16 ***
-    ## average                      2.139e-02  1.399e-03  15.289  < 2e-16 ***
-    ## sqrt(wishing):sqrt(wanting) -4.579e-05  8.994e-06  -5.091 3.61e-07 ***
+    ## (Intercept)                  5.199e+00  9.372e-03 554.779  < 2e-16 ***
+    ## sqrt(wishing)                1.952e-02  4.047e-04  48.236  < 2e-16 ***
+    ## sqrt(wanting)                2.453e-02  8.059e-04  30.437  < 2e-16 ***
+    ## minplayers                   2.338e-02  1.617e-03  14.461  < 2e-16 ***
+    ## average                      2.163e-02  1.403e-03  15.416  < 2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -4.550e-05  8.994e-06  -5.059 4.26e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.139 on 16215 degrees of freedom
-    ## Multiple R-squared:  0.8546, Adjusted R-squared:  0.8546 
-    ## F-statistic: 1.906e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1386 on 16215 degrees of freedom
+    ## Multiple R-squared:  0.8553, Adjusted R-squared:  0.8552 
+    ## F-statistic: 1.917e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model, games_test),
+         residuals = bayes_average - predictions) %>%
+  ggplot(aes(predictions, residuals)) + geom_point(alpha = 0.1) + 
+  geom_hline(yintercept = 0, lty = 2, color = "blue", size = 1) +
+  labs(title = "Residual plot for first lm")
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 games_test %>%
@@ -444,14 +470,98 @@ games_test %>%
   geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt()
 ```
 
-![](BoardGames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](BoardGames_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 games_test %>%
   mutate(predictions = predict(model, games_test)) %>%
   ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
   geom_abline(color = "blue", linetype = "dashed", size = 1) +
-  xlim(5,10) + ylim(5,10)
+  xlim(5.5,8.5) + ylim(5.5,8.5)
 ```
 
-![](BoardGames_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](BoardGames_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
+
+##### Gam model
+
+``` r
+model2 <- gam(bayes_average ~ s(wishing), family = gaussian, data = games_train)
+
+model2 %>% summary()
+```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## bayes_average ~ s(wishing)
+    ## 
+    ## Parametric coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 5.684313   0.001076    5285   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##             edf Ref.df     F p-value    
+    ## s(wishing) 8.94  8.999 10948  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## R-sq.(adj) =  0.859   Deviance explained = 85.9%
+    ## GCV = 0.018778  Scale est. = 0.018766  n = 16221
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model2, games_test),
+         residuals = bayes_average - predictions) %>%
+  ggplot(aes(predictions, residuals)) + geom_point(alpha = 0.1) + 
+  geom_hline(yintercept = 0, lty = 2, color = "blue", size = 1) +
+  labs(title = "Residual plot for first Gam")
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model2, games_test)) %>%
+  group_by(wishing) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt()
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model2, games_test)) %>%
+  ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
+  geom_abline(color = "blue", linetype = "dashed", size = 1) +
+  xlim(5.5,8.5) + ylim(5.5,8.5)
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+##### Both models
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model2, games_test),
+         model = "2") %>%
+  bind_rows(games_test %>%
+              mutate(predictions = predict(model, games_test),
+                     model = "1")) %>%
+  group_by(wishing, model) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions, color = model), alpha = 0.3) + scale_x_sqrt() +
+  labs(title = "Both models fitted", subtitle = "Square root scale")
+```
+
+    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
