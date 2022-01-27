@@ -260,7 +260,7 @@ gplot <- function(x,y) {
     summarize(y = mean({{y}})) %>%
     ggplot(aes({{x}}, y)) + geom_point()
 }
-gplot(wanting, bayes_average) + scale_x_log10()
+gplot(wanting, bayes_average) + scale_x_sqrt()
 ```
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
@@ -274,7 +274,7 @@ gplot2 <- function(x) {
     filter({{x}} > 0) %>%
     group_by({{x}}, key) %>%
     summarize(value = mean(value)) %>%
-    ggplot(aes({{x}}, value)) + geom_point() + facet_wrap(~key)
+    ggplot(aes({{x}}, value)) + geom_point(alpha = 0.3) + facet_wrap(~key)
 }
 
 gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
@@ -298,30 +298,32 @@ gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X 
 #### Quick lm models
 
 ``` r
-lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% summary()
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + log(minplayers), games %>% filter(wishing >0, minplayers >0)) %>% summary()
 ```
 
     ## 
     ## Call:
-    ## lm(formula = bayes_average ~ sqrt(wishing) * sqrt(wanting), data = games %>% 
-    ##     filter(wishing > 0))
+    ## lm(formula = bayes_average ~ sqrt(wishing) * sqrt(wanting) + 
+    ##     log(minplayers), data = games %>% filter(wishing > 0, minplayers > 
+    ##     0))
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -5.4732 -0.0582  0.0035  0.0567  1.1578 
+    ## -5.4731 -0.0587  0.0030  0.0570  1.1481 
     ## 
     ## Coefficients:
-    ##                               Estimate Std. Error  t value Pr(>|t|)    
-    ## (Intercept)                  5.372e+00  1.772e-03 3031.451   <2e-16 ***
-    ## sqrt(wishing)                2.004e-02  3.673e-04   54.554   <2e-16 ***
-    ## sqrt(wanting)                2.682e-02  7.296e-04   36.768   <2e-16 ***
-    ## sqrt(wishing):sqrt(wanting) -7.493e-05  8.132e-06   -9.214   <2e-16 ***
+    ##                               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                  5.334e+00  2.801e-03 1904.10   <2e-16 ***
+    ## sqrt(wishing)                2.044e-02  3.658e-04   55.88   <2e-16 ***
+    ## sqrt(wanting)                2.724e-02  7.252e-04   37.56   <2e-16 ***
+    ## log(minplayers)              5.194e-02  2.996e-03   17.34   <2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -8.792e-05  8.110e-06  -10.84   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.1477 on 21518 degrees of freedom
-    ## Multiple R-squared:  0.8378, Adjusted R-squared:  0.8377 
-    ## F-statistic: 3.704e+04 on 3 and 21518 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1467 on 21474 degrees of freedom
+    ## Multiple R-squared:  0.8403, Adjusted R-squared:  0.8403 
+    ## F-statistic: 2.825e+04 on 4 and 21474 DF,  p-value: < 2.2e-16
 
 ``` r
 lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
@@ -346,3 +348,110 @@ lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
     ## Residual standard error: 0.7533 on 21520 degrees of freedom
     ## Multiple R-squared:  0.3382, Adjusted R-squared:  0.3382 
     ## F-statistic: 1.1e+04 on 1 and 21520 DF,  p-value: < 2.2e-16
+
+##### Plots of tidy lm models
+
+``` r
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% 
+  tidy(conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>%
+  ggplot(aes(estimate, term, color = term)) + geom_point() + geom_errorbar(aes(xmin = conf.low, xmax = conf.high))
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+lm(bayes_average ~ ., games %>% select_if(is.numeric) %>% 
+  filter(wishing >0)) %>% 
+  tidy(conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>% 
+  drop_na() %>%
+  ggplot(aes(estimate, fct_reorder(term, estimate), color = term)) + 
+  geom_point() + geom_errorbar(aes(xmin = conf.low, xmax = conf.high)) +
+  theme(legend.position = "") + labs(y = "", title = "Linear model using only numeric estimates")
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+library(tidymodels)
+```
+
+    ## Registered S3 method overwritten by 'tune':
+    ##   method                   from   
+    ##   required_pkgs.model_spec parsnip
+
+    ## -- Attaching packages -------------------------------------- tidymodels 0.1.4 --
+
+    ## v broom        0.7.10     v rsample      0.1.1 
+    ## v dials        0.0.10     v tune         0.1.6 
+    ## v infer        1.0.0      v workflows    0.2.4 
+    ## v modeldata    0.1.1      v workflowsets 0.1.0 
+    ## v parsnip      0.1.7      v yardstick    0.0.9 
+    ## v recipes      0.1.17
+
+    ## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
+    ## x scales::discard() masks purrr::discard()
+    ## x dplyr::filter()   masks stats::filter()
+    ## x recipes::fixed()  masks stringr::fixed()
+    ## x dplyr::lag()      masks stats::lag()
+    ## x yardstick::spec() masks readr::spec()
+    ## x recipes::step()   masks stats::step()
+    ## * Learn how to get started at https://www.tidymodels.org/start/
+
+``` r
+games_split <- initial_split(games, strata = bayes_average)
+games_train <- training(games_split)
+games_test <- testing(games_split)
+
+
+model <- lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + minplayers + average, games_train)
+
+model %>% summary()
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = bayes_average ~ sqrt(wishing) * sqrt(wanting) + 
+    ##     minplayers + average, data = games_train)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -1.72398 -0.06045  0.00290  0.05676  1.13957 
+    ## 
+    ## Coefficients:
+    ##                               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                  5.199e+00  9.346e-03 556.350  < 2e-16 ***
+    ## sqrt(wishing)                1.994e-02  4.024e-04  49.550  < 2e-16 ***
+    ## sqrt(wanting)                2.378e-02  8.056e-04  29.514  < 2e-16 ***
+    ## minplayers                   2.374e-02  1.615e-03  14.703  < 2e-16 ***
+    ## average                      2.139e-02  1.399e-03  15.289  < 2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -4.579e-05  8.994e-06  -5.091 3.61e-07 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.139 on 16215 degrees of freedom
+    ## Multiple R-squared:  0.8546, Adjusted R-squared:  0.8546 
+    ## F-statistic: 1.906e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model, games_test)) %>%
+  group_by(wishing) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt()
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+games_test %>%
+  mutate(predictions = predict(model, games_test)) %>%
+  ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
+  geom_abline(color = "blue", linetype = "dashed", size = 1) +
+  xlim(5,10) + ylim(5,10)
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
