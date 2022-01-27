@@ -264,6 +264,12 @@ model <- lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + minplayers + average
 
 model %>% summary()
 
+games_test %>%
+  mutate(predictions = predict(model, games_test),
+         residuals = bayes_average - predictions) %>%
+  ggplot(aes(predictions, residuals)) + geom_point(alpha = 0.1) + 
+  geom_hline(yintercept = 0, lty = 2, color = "blue", size = 1) +
+  labs(title = "Residual plot for first lm")
 
 games_test %>%
   mutate(predictions = predict(model, games_test)) %>%
@@ -282,6 +288,38 @@ games_test %>%
 ```
 
 
+##### Gam model
+```{r}
+model2 <- gam(bayes_average ~ s(wishing), family = gaussian, data = games_train)
+
+model2 %>% summary()
+
+games_test %>%
+  mutate(predictions = predict(model2, games_test),
+         residuals = bayes_average - predictions) %>%
+  ggplot(aes(predictions, residuals)) + geom_point(alpha = 0.1) + 
+  geom_hline(yintercept = 0, lty = 2, color = "blue", size = 1) +
+  labs(title = "Residual plot for first Gam")
+
+games_test %>%
+  mutate(predictions = predict(model2, games_test)) %>%
+  ggplot(aes(predictions, bayes_average)) + geom_point(alpha = 0.07) + 
+  geom_abline(color = "blue", linetype = "dashed", size = 1) +
+  xlim(5.5,8.5) + ylim(5.5,8.5)
+
+games_test %>%
+  mutate(predictions = predict(model2, games_test),
+         model = "2") %>%
+  bind_rows(games_test %>%
+              mutate(predictions = predict(model, games_test),
+                     model = "1")) %>%
+  group_by(wishing, model) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions, color = model), alpha = 0.3) + scale_x_sqrt()
+
+```
 
 
 
