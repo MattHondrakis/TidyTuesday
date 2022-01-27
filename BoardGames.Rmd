@@ -228,9 +228,34 @@ gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X 
 
 #### Quick lm models
 ```{r}
-lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% summary()
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + log(minplayers), games %>% filter(wishing >0, minplayers >0)) %>% summary()
 lm(average ~ log(wishing), games %>% filter(wishing >0)) %>% summary()
 ```
+
+
+##### Plots of tidy lm models
+```{r}
+lm(bayes_average ~ sqrt(wishing) * sqrt(wanting), games %>% filter(wishing >0)) %>% 
+  tidy(conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>%
+  ggplot(aes(estimate, term, color = term)) + geom_point() + geom_errorbar(aes(xmin = conf.low, xmax = conf.high))
+
+lm(bayes_average ~ ., games %>% select_if(is.numeric) %>% 
+  filter(wishing >0)) %>% 
+  tidy(conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>% 
+  drop_na() %>%
+  ggplot(aes(estimate, fct_reorder(term, estimate), color = term)) + 
+  geom_point() + geom_errorbar(aes(xmin = conf.low, xmax = conf.high))
+
+
+```
+
+
+
+
+
+
 
 
 
