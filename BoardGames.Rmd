@@ -166,7 +166,8 @@ games %>%
 games %>%
   separate_rows(category, sep = ",") %>%
   mutate(category = str_replace_all(category, "\\[|\\]", ""),
-         category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\'",""),
+         category = str_replace_all(category, "\\\"",""),
          category = str_trim(category, "both")) %>%
   group_by(category) %>%
   drop_na() %>%
@@ -183,6 +184,7 @@ games %>%
   separate_rows(category, sep = ",") %>%
   mutate(category = str_replace_all(category, "\\[|\\]", ""),
          category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\\\"",""),
          category = str_trim(category, "both")) %>%
   group_by(category) %>%
   drop_na() %>%
@@ -260,6 +262,7 @@ games_split <- initial_split(games, strata = bayes_average)
 games_train <- training(games_split)
 games_test <- testing(games_split)
 
+set.seed(2022)
 
 model <- lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + minplayers + average, games_train)
 
@@ -335,7 +338,62 @@ games_test %>%
 ```
 
 
+```{r}
+games_df <- games %>%
+  select(bayes_average, category, wishing) %>%
+  drop_na() %>%
+  separate_rows(category, sep = ",") %>%
+  mutate(category = str_replace_all(category, "\\[|\\]", ""),
+         category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\\\"",""),
+         category = str_trim(category, "both")) %>%
+  mutate_if(is.character, factor) %>%
+  mutate(category = fct_lump(category, prop = 0.01))
+```
 
+
+#### Gam model 3 using categories
+```{r}
+df_split <- initial_split(games_df, strata = bayes_average)
+df_train <- training(df_split)
+df_test <- testing(df_split)
+
+model3 <- gam(bayes_average ~ s(wishing) + category, gaussian, df_train)
+
+model3 %>% summary()
+
+df_fit <- df_test %>%
+  mutate(predictions = predict(model3, df_test),
+         residuals = bayes_average - predictions)
+
+df_fit %>%
+  group_by(wishing) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt() +
+  labs(title = "GAM model", subtitle = "Includes wishing and top 31 most common categories")
+```
+
+#### Model 2
+```{r}
+games_test %>%
+  filter(bayes_average > 0) %>%
+  mutate(predictions = predict(model2, games_test %>% filter(bayes_average > 0)),
+         residuals = bayes_average - predictions) %>%
+  summarize(rmse = sqrt(mean(residuals^2)),
+            relerr = sqrt(mean((residuals/bayes_average)^2)))
+```
+
+#### Model 3
+```{r}
+df_test %>%
+  filter(bayes_average > 0) %>%
+  mutate(predictions = predict(model3, df_test %>% filter(bayes_average > 0)),
+         residuals = bayes_average - predictions) %>%
+  summarize(rmse = sqrt(mean(residuals^2)),
+            relerr = sqrt(mean((residuals/bayes_average)^2)))
+```
 
 
 

@@ -214,7 +214,8 @@ games %>%
 games %>%
   separate_rows(category, sep = ",") %>%
   mutate(category = str_replace_all(category, "\\[|\\]", ""),
-         category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\'",""),
+         category = str_replace_all(category, "\\\"",""),
          category = str_trim(category, "both")) %>%
   group_by(category) %>%
   drop_na() %>%
@@ -235,6 +236,7 @@ games %>%
   separate_rows(category, sep = ",") %>%
   mutate(category = str_replace_all(category, "\\[|\\]", ""),
          category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\\\"",""),
          category = str_trim(category, "both")) %>%
   group_by(category) %>%
   drop_na() %>%
@@ -397,7 +399,7 @@ library(tidymodels)
     ## x dplyr::lag()      masks stats::lag()
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
-    ## * Learn how to get started at https://www.tidymodels.org/start/
+    ## * Use tidymodels_prefer() to resolve common conflicts.
 
 ``` r
 library(mgcv)
@@ -419,6 +421,7 @@ games_split <- initial_split(games, strata = bayes_average)
 games_train <- training(games_split)
 games_test <- testing(games_split)
 
+set.seed(2022)
 
 model <- lm(bayes_average ~ sqrt(wishing) * sqrt(wanting) + minplayers + average, games_train)
 
@@ -432,22 +435,22 @@ model %>% summary()
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1.56488 -0.06045  0.00263  0.05631  1.14250 
+    ## -1.90065 -0.06153  0.00283  0.05715  1.14241 
     ## 
     ## Coefficients:
     ##                               Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                  5.199e+00  9.372e-03 554.779  < 2e-16 ***
-    ## sqrt(wishing)                1.952e-02  4.047e-04  48.236  < 2e-16 ***
-    ## sqrt(wanting)                2.453e-02  8.059e-04  30.437  < 2e-16 ***
-    ## minplayers                   2.338e-02  1.617e-03  14.461  < 2e-16 ***
-    ## average                      2.163e-02  1.403e-03  15.416  < 2e-16 ***
-    ## sqrt(wishing):sqrt(wanting) -4.550e-05  8.994e-06  -5.059 4.26e-07 ***
+    ## (Intercept)                  5.187e+00  9.596e-03 540.533  < 2e-16 ***
+    ## sqrt(wishing)                1.928e-02  4.120e-04  46.788  < 2e-16 ***
+    ## sqrt(wanting)                2.440e-02  8.290e-04  29.434  < 2e-16 ***
+    ## minplayers                   2.446e-02  1.653e-03  14.797  < 2e-16 ***
+    ## average                      2.352e-02  1.439e-03  16.346  < 2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -3.178e-05  9.397e-06  -3.382 0.000721 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.1386 on 16215 degrees of freedom
-    ## Multiple R-squared:  0.8553, Adjusted R-squared:  0.8552 
-    ## F-statistic: 1.917e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1432 on 16215 degrees of freedom
+    ## Multiple R-squared:  0.8459, Adjusted R-squared:  0.8458 
+    ## F-statistic: 1.78e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
 
 ``` r
 games_test %>%
@@ -499,18 +502,18 @@ model2 %>% summary()
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 5.684313   0.001076    5285   <2e-16 ***
+    ## (Intercept) 5.684571   0.001115    5100   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
-    ##             edf Ref.df     F p-value    
-    ## s(wishing) 8.94  8.999 10948  <2e-16 ***
+    ##              edf Ref.df     F p-value    
+    ## s(wishing) 8.929  8.998 10091  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.859   Deviance explained = 85.9%
-    ## GCV = 0.018778  Scale est. = 0.018766  n = 16221
+    ## R-sq.(adj) =  0.848   Deviance explained = 84.9%
+    ## GCV = 0.020163  Scale est. = 0.02015   n = 16221
 
 ``` r
 games_test %>%
@@ -565,3 +568,128 @@ games_test %>%
     ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+games_df <- games %>%
+  select(bayes_average, category, wishing) %>%
+  drop_na() %>%
+  separate_rows(category, sep = ",") %>%
+  mutate(category = str_replace_all(category, "\\[|\\]", ""),
+         category = str_replace_all(category, "\'",""), 
+         category = str_replace_all(category, "\\\"",""),
+         category = str_trim(category, "both")) %>%
+  mutate_if(is.character, factor) %>%
+  mutate(category = fct_lump(category, prop = 0.01))
+```
+
+#### Gam model 3 using categories
+
+``` r
+df_split <- initial_split(games_df, strata = bayes_average)
+df_train <- training(df_split)
+df_test <- testing(df_split)
+
+model3 <- gam(bayes_average ~ s(wishing) + category, gaussian, df_train)
+
+model3 %>% summary()
+```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## bayes_average ~ s(wishing) + category
+    ## 
+    ## Parametric coefficients:
+    ##                                    Estimate Std. Error  t value Pr(>|t|)    
+    ## (Intercept)                        5.705316   0.004512 1264.511  < 2e-16 ***
+    ## categoryAction / Dexterity        -0.016482   0.006922   -2.381 0.017266 *  
+    ## categoryAdventure                 -0.057144   0.006880   -8.306  < 2e-16 ***
+    ## categoryAncient                    0.014456   0.007795    1.855 0.063650 .  
+    ## categoryAnimals                   -0.018471   0.006605   -2.796 0.005169 ** 
+    ## categoryBluffing                   0.008037   0.006816    1.179 0.238364    
+    ## categoryCard Game                  0.017500   0.005019    3.487 0.000489 ***
+    ## categoryChildrens Game            -0.025534   0.006234   -4.096 4.21e-05 ***
+    ## categoryDeduction                 -0.001942   0.006941   -0.280 0.779676    
+    ## categoryDice                      -0.016878   0.006081   -2.775 0.005517 ** 
+    ## categoryEconomic                   0.022929   0.006415    3.575 0.000351 ***
+    ## categoryExploration               -0.051801   0.007435   -6.967 3.28e-12 ***
+    ## categoryFantasy                   -0.003808   0.005677   -0.671 0.502339    
+    ## categoryFighting                   0.011242   0.006261    1.796 0.072562 .  
+    ## categoryHorror                    -0.031026   0.008134   -3.814 0.000137 ***
+    ## categoryHumor                     -0.013900   0.006840   -2.032 0.042130 *  
+    ## categoryMedieval                   0.013613   0.007105    1.916 0.055362 .  
+    ## categoryMiniatures                 0.013872   0.006948    1.997 0.045875 *  
+    ## categoryMovies / TV / Radio theme -0.025177   0.006985   -3.604 0.000313 ***
+    ## categoryNautical                   0.009293   0.008334    1.115 0.264859    
+    ## categoryNegotiation               -0.016547   0.008173   -2.025 0.042924 *  
+    ## categoryParty Game                -0.003093   0.006012   -0.515 0.606855    
+    ## categoryPrint & Play              -0.026945   0.008467   -3.182 0.001461 ** 
+    ## categoryPuzzle                     0.004864   0.008170    0.595 0.551606    
+    ## categoryRacing                    -0.007302   0.008394   -0.870 0.384374    
+    ## categoryReal-time                  0.012585   0.007747    1.624 0.104282    
+    ## categoryScience Fiction           -0.020416   0.006275   -3.253 0.001142 ** 
+    ## categoryTrivia                    -0.003011   0.008504   -0.354 0.723289    
+    ## categoryWargame                    0.021488   0.005336    4.027 5.67e-05 ***
+    ## categoryWorld War II               0.029326   0.006784    4.322 1.55e-05 ***
+    ## categoryOther                      0.006197   0.004762    1.301 0.193175    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##              edf Ref.df     F p-value    
+    ## s(wishing) 8.991      9 26362  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## R-sq.(adj) =  0.854   Deviance explained = 85.4%
+    ## GCV = 0.023275  Scale est. = 0.023253  n = 42473
+
+``` r
+df_fit <- df_test %>%
+  mutate(predictions = predict(model3, df_test),
+         residuals = bayes_average - predictions)
+
+df_fit %>%
+  group_by(wishing) %>%
+  summarize(bayes_average = mean(bayes_average),
+            predictions = mean(predictions)) %>%
+  ggplot(aes(wishing)) + geom_point(aes(y = bayes_average), alpha = 0.3) + 
+  geom_point(aes(y = predictions), color = "blue", alpha = 0.3) + scale_x_sqrt() +
+  labs(title = "GAM model", subtitle = "Includes wishing and top 31 most common categories")
+```
+
+![](BoardGames_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+#### Model 2
+
+``` r
+games_test %>%
+  filter(bayes_average > 0) %>%
+  mutate(predictions = predict(model2, games_test %>% filter(bayes_average > 0)),
+         residuals = bayes_average - predictions) %>%
+  summarize(rmse = sqrt(mean(residuals^2)),
+            relerr = sqrt(mean((residuals/bayes_average)^2)))
+```
+
+    ## # A tibble: 1 x 2
+    ##    rmse relerr
+    ##   <dbl>  <dbl>
+    ## 1 0.133 0.0225
+
+#### Model 3
+
+``` r
+df_test %>%
+  filter(bayes_average > 0) %>%
+  mutate(predictions = predict(model3, df_test %>% filter(bayes_average > 0)),
+         residuals = bayes_average - predictions) %>%
+  summarize(rmse = sqrt(mean(residuals^2)),
+            relerr = sqrt(mean((residuals/bayes_average)^2)))
+```
+
+    ## # A tibble: 1 x 2
+    ##    rmse relerr
+    ##   <dbl>  <dbl>
+    ## 1 0.149 0.0252
