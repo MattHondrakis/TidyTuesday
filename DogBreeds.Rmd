@@ -4,7 +4,7 @@ author: "Matthew"
 date: "2/1/2022"
 output: github_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_trait: console
 ---
 
 ```{r setup, include=FALSE}
@@ -16,11 +16,13 @@ theme_set(theme_bw())
 
 ```{r, include=FALSE}
 breed_traits <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-01/breed_traits.csv')
+breed_rank <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-01/breed_rank.csv')
+
 breed_traits <- breed_traits %>%
   rename_with(tolower)
 
 breed_long <- breed_traits %>%
-  pivot_longer(cols = where(is.numeric), names_to = "type", "value")
+  pivot_longer(cols = where(is.numeric), names_to = "trait", "value")
 ```
 
 
@@ -33,6 +35,7 @@ breed_traits %>%
 ```
 
 
+## Correlation plot
 ```{r}
 library(ggcorrplot)
 breed_traits %>%
@@ -43,10 +46,11 @@ breed_traits %>%
 ```
 
 
+## Top 13 dogs by total score
 ```{r}
 breed_long %>%
   group_by(breed) %>%
-  mutate(value = ifelse(type %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
+  mutate(value = ifelse(trait %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
                         -value, value)) %>%
   summarize(total_score = sum(value)) %>%
   arrange(-total_score) %>% 
@@ -60,7 +64,17 @@ breed_long %>%
 ```
 
 
-
+## Top 10 Dog Rankings
+```{r}
+breed_rank %>%
+  rename_with(~ gsub(pattern = " Rank", replace = "", .x), starts_with("20")) %>%
+  head(10) %>%
+  pivot_longer(cols = where(is.numeric), names_to = "year", values_to = "rank") %>%
+  mutate(year = as.numeric(year)) %>%
+  ggplot(aes(year, rank, color = fct_reorder2(Breed, year, rank, .desc = FALSE))) + geom_line() + geom_point() +
+  scale_y_reverse(breaks = 1:13) + theme(legend.title = element_blank()) +
+  labs(title = "Dog Rankings by Year", x = "", y = "")
+```
 
 
 

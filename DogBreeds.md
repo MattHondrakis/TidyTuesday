@@ -16,6 +16,8 @@ breed_traits %>%
 
 ![](DogBreeds_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
+## Correlation plot
+
 ``` r
 library(ggcorrplot)
 breed_traits %>%
@@ -27,10 +29,12 @@ breed_traits %>%
 
 ![](DogBreeds_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
+## Top 13 dogs by total score
+
 ``` r
 breed_long %>%
   group_by(breed) %>%
-  mutate(value = ifelse(type %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
+  mutate(value = ifelse(trait %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
                         -value, value)) %>%
   summarize(total_score = sum(value)) %>%
   arrange(-total_score) %>% 
@@ -44,3 +48,18 @@ breed_long %>%
 ```
 
 ![](DogBreeds_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Top 10 Dog Rankings
+
+``` r
+breed_rank %>%
+  rename_with(~ gsub(pattern = " Rank", replace = "", .x), starts_with("20")) %>%
+  head(10) %>%
+  pivot_longer(cols = where(is.numeric), names_to = "year", values_to = "rank") %>%
+  mutate(year = as.numeric(year)) %>%
+  ggplot(aes(year, rank, color = fct_reorder2(Breed, year, rank, .desc = FALSE))) + geom_line() + geom_point() +
+  scale_y_reverse(breaks = 1:13) + theme(legend.title = element_blank()) +
+  labs(title = "Dog Rankings by Year", x = "", y = "")
+```
+
+![](DogBreeds_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
