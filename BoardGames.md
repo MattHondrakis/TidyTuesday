@@ -279,7 +279,8 @@ gplot2 <- function(x) {
     ggplot(aes({{x}}, value)) + geom_point(alpha = 0.3) + facet_wrap(~key)
 }
 
-gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
+gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + 
+  labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a log10 scale")
 ```
 
     ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
@@ -289,7 +290,8 @@ gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X
 ![](BoardGames_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
-gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
+gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + 
+  labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a square root scale")
 ```
 
     ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
@@ -399,7 +401,7 @@ library(tidymodels)
     ## x dplyr::lag()      masks stats::lag()
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
-    ## * Use tidymodels_prefer() to resolve common conflicts.
+    ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
 library(mgcv)
@@ -434,23 +436,23 @@ model %>% summary()
     ##     minplayers + average, data = games_train)
     ## 
     ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.90065 -0.06153  0.00283  0.05715  1.14241 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -5.5321 -0.0595  0.0038  0.0579  1.1030 
     ## 
     ## Coefficients:
     ##                               Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                  5.187e+00  9.596e-03 540.533  < 2e-16 ***
-    ## sqrt(wishing)                1.928e-02  4.120e-04  46.788  < 2e-16 ***
-    ## sqrt(wanting)                2.440e-02  8.290e-04  29.434  < 2e-16 ***
-    ## minplayers                   2.446e-02  1.653e-03  14.797  < 2e-16 ***
-    ## average                      2.352e-02  1.439e-03  16.346  < 2e-16 ***
-    ## sqrt(wishing):sqrt(wanting) -3.178e-05  9.397e-06  -3.382 0.000721 ***
+    ## (Intercept)                  5.203e+00  9.941e-03 523.361  < 2e-16 ***
+    ## sqrt(wishing)                1.946e-02  4.243e-04  45.853  < 2e-16 ***
+    ## sqrt(wanting)                2.457e-02  8.481e-04  28.975  < 2e-16 ***
+    ## minplayers                   2.441e-02  1.713e-03  14.252  < 2e-16 ***
+    ## average                      2.069e-02  1.496e-03  13.831  < 2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -3.716e-05  9.746e-06  -3.813 0.000138 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.1432 on 16215 degrees of freedom
-    ## Multiple R-squared:  0.8459, Adjusted R-squared:  0.8458 
-    ## F-statistic: 1.78e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1477 on 16215 degrees of freedom
+    ## Multiple R-squared:  0.8374, Adjusted R-squared:  0.8374 
+    ## F-statistic: 1.671e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
 
 ``` r
 games_test %>%
@@ -502,18 +504,18 @@ model2 %>% summary()
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 5.684571   0.001115    5100   <2e-16 ***
+    ## (Intercept) 5.683226   0.001148    4950   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
-    ##              edf Ref.df     F p-value    
-    ## s(wishing) 8.929  8.998 10091  <2e-16 ***
+    ##              edf Ref.df    F p-value    
+    ## s(wishing) 8.915  8.998 9503  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.848   Deviance explained = 84.9%
-    ## GCV = 0.020163  Scale est. = 0.02015   n = 16221
+    ## R-sq.(adj) =  0.841   Deviance explained = 84.1%
+    ## GCV = 0.021396  Scale est. = 0.021383  n = 16221
 
 ``` r
 games_test %>%
@@ -676,7 +678,7 @@ games_test %>%
     ## # A tibble: 1 x 2
     ##    rmse relerr
     ##   <dbl>  <dbl>
-    ## 1 0.133 0.0225
+    ## 1 0.140 0.0238
 
 #### Model 3
 

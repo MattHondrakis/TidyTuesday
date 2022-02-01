@@ -223,8 +223,10 @@ gplot2 <- function(x) {
     ggplot(aes({{x}}, value)) + geom_point(alpha = 0.3) + facet_wrap(~key)
 }
 
-gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + labs(title = "X is on a Log10 Scale")
-gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + labs(title = "X is on a Sqrt Scale")
+gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") + 
+  labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a log10 scale")
+gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") + 
+  labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a square root scale")
 ```
 
 
