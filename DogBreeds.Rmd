@@ -1,0 +1,66 @@
+---
+title: "Dog Breeds"
+author: "Matthew"
+date: "2/1/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r, include=FALSE}
+breed_traits <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-01/breed_traits.csv')
+breed_traits <- breed_traits %>%
+  rename_with(tolower)
+
+breed_long <- breed_traits %>%
+  pivot_longer(cols = where(is.numeric), names_to = "type", "value")
+```
+
+
+# EDA
+```{r}
+breed_traits %>%
+  keep(is.numeric) %>%
+  gather() %>%
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key)
+```
+
+
+```{r}
+library(ggcorrplot)
+breed_traits %>%
+  keep(is.numeric) %>%
+  cor() %>%
+  round(1) %>%
+  ggcorrplot(type = "lower", lab = TRUE, p.mat = cor_pmat(keep(breed_traits, is.numeric)), insig = "blank")
+```
+
+
+```{r}
+breed_long %>%
+  group_by(breed) %>%
+  mutate(value = ifelse(type %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
+                        -value, value)) %>%
+  summarize(total_score = sum(value)) %>%
+  arrange(-total_score) %>% 
+  head(13) %>%
+  ggplot(aes(total_score, fct_reorder(breed, total_score), fill = breed)) + geom_col() +
+  theme(legend.position = "") +
+  labs(title = "Top 13 Dogs", subtitle = "The sum of positive and negative trait scores",
+       y = "", x = "Total Score", 
+       caption = "Drooling, Grooming frequency, Shedding and Barking = Negative Scores\n
+                  The choice of displaying 13 was because the following 10 (#14-23) were a tie")
+```
+
+
+
+
+
+
