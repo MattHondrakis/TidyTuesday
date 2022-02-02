@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
+library(ggthemes)
 theme_set(theme_bw())
 ```
 
@@ -56,17 +57,20 @@ breed_traits %>%
 ```{r}
 breed_long %>%
   group_by(breed) %>%
-  mutate(value = ifelse(trait %in% c("drooling level", "coat grooming frequency", "shedding level", "barking level"),
+  mutate(value = ifelse(trait %in% c("drooling level", "coat grooming frequency", 
+                                     "shedding level", "barking level", "mental stimulation needs"),
                         -value, value)) %>%
   summarize(total_score = sum(value)) %>%
   arrange(-total_score) %>% 
   head(13) %>%
-  ggplot(aes(total_score, fct_reorder(breed, total_score), fill = breed)) + geom_col() +
-  theme(legend.position = "") +
-  labs(title = "Top 13 Dogs", subtitle = "The sum of positive and negative trait scores",
+  ggplot(aes(total_score, fct_reorder(breed, total_score), fill = breed)) + geom_col() + theme_pander() + 
+  scale_x_continuous(minor_breaks = seq(26,30,2), breaks = seq(26,30,2), limits = c(0,30)) +
+  labs(title = "Top 13 Dogs", subtitle = "Sum of Positive and Negative Trait Scores",
        y = "", x = "Total Score", 
-       caption = "Drooling, Grooming frequency, Shedding and Barking = Negative Scores\n
-                  The choice of displaying 13 was because the following 10 (#14-23) were a tie")
+       caption = "Drooling, Grooming frequency, Mental Stimulation needs, Shedding and Barking = Negative Scores\n
+       The choice of displaying 13 was because the following 10 (#14-23) were a tie") +
+  theme(legend.position = "", plot.caption = element_text(lineheight = 0.5, hjust = 0), 
+        plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 ```
 
 
