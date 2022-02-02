@@ -39,7 +39,7 @@ breed_traits %>%
 
 ![](DogBreeds_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
-## Top 13 dogs by total score
+## Top 10 dogs by total score
 
 ``` r
 breed_long %>%
@@ -49,13 +49,12 @@ breed_long %>%
                         -value, value)) %>%
   summarize(total_score = sum(value)) %>%
   arrange(-total_score) %>% 
-  head(13) %>%
+  head(10) %>%
   ggplot(aes(total_score, fct_reorder(breed, total_score), fill = breed)) + geom_col() + theme_pander() + 
   scale_x_continuous(minor_breaks = seq(26,30,2), breaks = seq(26,30,2), limits = c(0,30)) +
-  labs(title = "Top 13 Dogs", subtitle = "Sum of Positive and Negative Trait Scores",
+  labs(title = "Top 10 Dogs", subtitle = "Sum of Positive and Negative Trait Scores",
        y = "", x = "Total Score", 
-       caption = "Drooling, Grooming frequency, Mental Stimulation needs, Shedding and Barking = Negative Scores\n
-       The choice of displaying 13 was because the following 10 (#14-23) were a tie") +
+       caption = "Drooling, Grooming frequency, Mental Stimulation needs, Shedding and Barking = Negative Scores") +
   theme(legend.position = "", plot.caption = element_text(lineheight = 0.5, hjust = 0), 
         plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 ```
