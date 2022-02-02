@@ -22,12 +22,22 @@ breed_traits %>%
 library(ggcorrplot)
 breed_traits %>%
   keep(is.numeric) %>%
+  rename_with(~ gsub(" level|good with |coat | nature| needs",
+                     "", .x)) %>%
   cor() %>%
-  round(1) %>%
-  ggcorrplot(type = "lower", lab = TRUE, p.mat = cor_pmat(keep(breed_traits, is.numeric)), insig = "blank")
+  round(2) %>%
+  ggcorrplot(type = "lower", lab = TRUE, p.mat = cor_pmat(keep(breed_traits, is.numeric)), 
+             insig = "blank", color = c("#0000FF","#FFFFFF","#00FF00"), lab_size = 3.5)
 ```
 
 ![](DogBreeds_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+breed_traits %>%
+  ggplot(aes(`adaptability level`, `affectionate with family`)) + geom_count()
+```
+
+![](DogBreeds_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ## Top 13 dogs by total score
 
@@ -58,7 +68,8 @@ breed_rank %>%
   pivot_longer(cols = where(is.numeric), names_to = "year", values_to = "rank") %>%
   mutate(year = as.numeric(year)) %>%
   ggplot(aes(year, rank, color = fct_reorder2(Breed, year, rank, .desc = FALSE))) + geom_line() + geom_point() +
-  scale_y_reverse(breaks = 1:13) + theme(legend.title = element_blank()) +
+  scale_y_reverse(breaks = 1:13) + 
+  theme(legend.title = element_blank(), legend.key.height = unit(0.75,'cm')) +
   labs(title = "Dog Rankings by Year", x = "", y = "")
 ```
 
