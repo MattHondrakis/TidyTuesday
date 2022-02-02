@@ -55,7 +55,7 @@ breed_long %>%
   labs(title = "Top 10 Dogs", subtitle = "Sum of Positive and Negative Trait Scores",
        y = "", x = "Total Score", 
        caption = "Drooling, Grooming frequency, Mental Stimulation needs, Shedding and Barking = Negative Scores") +
-  theme(legend.position = "", plot.caption = element_text(lineheight = 0.5, hjust = 0), 
+  theme(legend.position = "", plot.caption = element_text(lineheight = 0.5), 
         plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 ```
 
