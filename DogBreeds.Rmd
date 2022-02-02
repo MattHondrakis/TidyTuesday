@@ -40,6 +40,8 @@ breed_traits %>%
 library(ggcorrplot)
 breed_traits %>%
   keep(is.numeric) %>%
+  rename_with(~ gsub(" level|good with |coat | nature| needs",
+                     "", .x)) %>%
   cor() %>%
   round(1) %>%
   ggcorrplot(type = "lower", lab = TRUE, p.mat = cor_pmat(keep(breed_traits, is.numeric)), insig = "blank")
