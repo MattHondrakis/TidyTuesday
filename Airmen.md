@@ -34,7 +34,9 @@ airmen <- airmen %>% select(-web_profile)
 
 # EDA
 
-## Hometowns
+## Credits
+
+### Hometown
 
 ``` r
 gplot <- function(x){
@@ -53,7 +55,7 @@ gplot(military_hometown_of_record) +
 
 ![](Airmen_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-## Class
+### Class
 
 ``` r
 gplot(class) + labs(x = "Total Credits", y = "", title = "Top 12 Classes", fill = "# of Airmen") +
@@ -61,3 +63,50 @@ gplot(class) + labs(x = "Total Credits", y = "", title = "Top 12 Classes", fill 
 ```
 
 ![](Airmen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+## Graduation
+
+``` r
+airmen %>%
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  drop_na() %>%
+  mutate(sum = cumsum(n)) %>%
+  arrange(graduation_date) %>%
+  gather(-graduation_date, key = "key", value = "value") %>%
+  ggplot(aes(graduation_date, value)) + geom_line() + facet_wrap(~key, scales = "free", nrow = 2) +
+  labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time")
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+airmen %>%
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  drop_na() %>%
+  mutate(sum = cumsum(n)) %>%
+  arrange(graduation_date) %>%
+  gather(-graduation_date, key = "key", value = "value") %>%
+  ggplot(aes(graduation_date, value)) + facet_wrap(~key, scales = "free", nrow = 2) +
+  geom_smooth(se = FALSE, size = 0.3) +
+  labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time",
+       subtitle = "Appears as the Normal PDF and CDF", caption = "Plotted as a geom_smooth (loess)")
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+![](Airmen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+### Year 1945
+
+``` r
+airmen %>%
+  filter(year(graduation_date) == 1945) %>% 
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  arrange(graduation_date) %>%
+  ggplot(aes(graduation_date, n)) + geom_line() + geom_point()
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->

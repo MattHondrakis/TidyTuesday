@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
+library(lubridate)
 theme_set(theme_bw())
 ```
 
@@ -21,7 +22,8 @@ airmen <- airmen %>% select(-web_profile)
 
 
 # EDA
-## Hometowns
+## Credits
+### Hometown
 ```{r}
 gplot <- function(x){
   airmen %>%
@@ -38,9 +40,52 @@ gplot(military_hometown_of_record) +
 ```
 
 
-## Class
+### Class
 ```{r}
 gplot(class) + labs(x = "Total Credits", y = "", title = "Top 12 Classes", fill = "# of Airmen") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+
+## Graduation
+```{r}
+airmen %>%
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  drop_na() %>%
+  mutate(sum = cumsum(n)) %>%
+  arrange(graduation_date) %>%
+  gather(-graduation_date, key = "key", value = "value") %>%
+  ggplot(aes(graduation_date, value)) + geom_line() + facet_wrap(~key, scales = "free", nrow = 2) +
+  labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time")
+```
+
+
+```{r}
+airmen %>%
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  drop_na() %>%
+  mutate(sum = cumsum(n)) %>%
+  arrange(graduation_date) %>%
+  gather(-graduation_date, key = "key", value = "value") %>%
+  ggplot(aes(graduation_date, value)) + facet_wrap(~key, scales = "free", nrow = 2) +
+  geom_smooth(se = FALSE, size = 0.3) +
+  labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time",
+       subtitle = "Appears as the Normal PDF and CDF", caption = "Plotted as a geom_smooth (loess)")
+```
+
+
+### Year 1945
+```{r}
+airmen %>%
+  filter(year(graduation_date) == 1945) %>% 
+  group_by(graduation_date) %>%
+  summarize(n = n()) %>%
+  arrange(graduation_date) %>%
+  ggplot(aes(graduation_date, n)) + geom_line() + geom_point()
+```
+
+
+
 
