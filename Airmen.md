@@ -39,15 +39,15 @@ airmen <- airmen %>% select(-web_profile)
 ### Hometown
 
 ``` r
-gplot <- function(x){
-  airmen %>%
+gplot <- function(data = airmen, x){
+  data %>%
     group_by({{x}}) %>%
     summarize(n = n(), credits = sum(number_of_aerial_victory_credits)) %>%
     arrange(-credits) %>%
     head(12) %>%
     ggplot(aes(credits, fct_reorder({{x}}, credits), fill = n)) + geom_col(color = "black")
 }
-gplot(military_hometown_of_record) +
+airmen %>% gplot(military_hometown_of_record) +
   scale_x_continuous(breaks = seq(0,10,2)) +
   labs(x = "Total Credits", y = "", title = "Top 12 Hometowns", fill = "# of Airmen") +
   theme(plot.title = element_text(hjust = 0.5))
@@ -55,14 +55,44 @@ gplot(military_hometown_of_record) +
 
 ![](Airmen_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-### Class
+### State
 
 ``` r
-gplot(class) + labs(x = "Total Credits", y = "", title = "Top 12 Classes", fill = "# of Airmen") +
-  theme(plot.title = element_text(hjust = 0.5))
+gplot(, state) + ggthemes::theme_pander() + scale_x_continuous(breaks = seq(0,14,2)) +
+  labs(x = "Total Credits", y = "", title = "Top 12 States") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](Airmen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+### Class
+
+``` r
+airmen %>% gplot(class) + labs(x = "Total Credits", y = "", title = "Top 12 Classes", fill = "# of Airmen") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+### Rank
+
+``` r
+airmen %>% 
+  filter(!is.na(rank_at_graduation), rank_at_graduation != "N/A") %>%
+  gplot(rank_at_graduation) + labs(y = "", x = "Total Credits")
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+airmen %>% 
+  filter(!is.na(rank_at_graduation), rank_at_graduation != "N/A") %>%
+  group_by(rank_at_graduation) %>%
+  summarize(n = mean(number_of_aerial_victory_credits)) %>%
+  ggplot(aes(n, fct_reorder(rank_at_graduation, n), fill = rank_at_graduation)) + geom_col(color = "black") +
+  labs(x = "Average Credits", y = "", title = "Average Credits per Rank") + theme(legend.position = "")
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ## Graduation
 
@@ -78,7 +108,7 @@ airmen %>%
   labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time")
 ```
 
-![](Airmen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 airmen %>%
@@ -96,7 +126,20 @@ airmen %>%
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](Airmen_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+airmen %>%
+  group_by(m = month(graduation_date)) %>%
+  summarize(n = n()) %>%
+  arrange(m) %>%
+  drop_na() %>%
+  ggplot(aes(m, n, fill = factor(m))) + geom_col() + scale_x_continuous(breaks = seq(1,12,1)) +
+  labs(x = "Month", y = "", title = "Graduates by Month") + 
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "") 
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### Year 1945
 
@@ -109,4 +152,4 @@ airmen %>%
   ggplot(aes(graduation_date, n)) + geom_line() + geom_point()
 ```
 
-![](Airmen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
