@@ -94,6 +94,17 @@ airmen %>%
 
 ![](Airmen_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
+### Name
+
+``` r
+airmen %>% 
+  gplot(name) + 
+  labs(y = "", x = "Credits", title = "Top 12 Individuals") + 
+  theme(legend.position = "", plot.title = element_text(hjust = 0.5))
+```
+
+![](Airmen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
 ## Graduation
 
 ``` r
@@ -108,7 +119,7 @@ airmen %>%
   labs(x = "Graduation Date", y = "", title = "Number of Graduations and Cummulative Graduations over time")
 ```
 
-![](Airmen_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 airmen %>%
@@ -126,7 +137,7 @@ airmen %>%
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](Airmen_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 airmen %>%
@@ -139,7 +150,7 @@ airmen %>%
   theme(plot.title = element_text(hjust = 0.5), legend.position = "") 
 ```
 
-![](Airmen_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ### Year 1945
 
@@ -152,4 +163,4 @@ airmen %>%
   ggplot(aes(graduation_date, n)) + geom_line() + geom_point()
 ```
 
-![](Airmen_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Airmen_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

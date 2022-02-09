@@ -69,6 +69,15 @@ airmen %>%
 ```
 
 
+### Name
+```{r}
+airmen %>% 
+  gplot(name) + 
+  labs(y = "", x = "Credits", title = "Top 12 Individuals") + 
+  theme(legend.position = "", plot.title = element_text(hjust = 0.5))
+```
+
+
 ## Graduation
 ```{r}
 airmen %>%
