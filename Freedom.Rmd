@@ -1,0 +1,53 @@
+---
+title: "Freedom"
+author: "Matthew"
+date: "2/21/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+freedom <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-22/freedom.csv")
+freedom <- freedom %>%
+  rename_with(tolower)
+```
+
+
+# EDA
+```{r}
+freedom %>%
+  select(where(is.numeric)) %>%
+  gather() %>%
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+
+
+```{r}
+freedom %>%
+  lm(cl ~ pr,.) %>%
+  summary()
+```
+
+
+```{r}
+freedom %>%
+  select(year, region_name, pr, cl) %>%
+  pivot_longer(c("pr","cl")) %>%
+  group_by(region_name, name, year) %>%
+  mutate(value = -value + 8) %>%
+  summarize(value = sum(value)) %>%
+  arrange(-value) %>%
+  ggplot(aes(value, fct_reorder(region_name, value), fill = region_name)) + geom_col() +
+  facet_wrap(~name + year) + labs(y = "")
+```
+
+
