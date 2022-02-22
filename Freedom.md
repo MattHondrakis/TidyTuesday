@@ -38,6 +38,8 @@ freedom %>%
 
 ![](Freedom_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
+## Cl \~ Pr relationship
+
 ``` r
 freedom %>%
   lm(cl ~ pr,.) %>%
@@ -63,6 +65,8 @@ freedom %>%
     ## Multiple R-squared:  0.8753, Adjusted R-squared:  0.8753 
     ## F-statistic: 3.493e+04 on 1 and 4977 DF,  p-value: < 2.2e-16
 
+## Top countries
+
 ``` r
 x <- freedom %>%
   filter(year == 2020) %>%
@@ -86,3 +90,30 @@ freedom %>%
 ```
 
 ![](Freedom_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Status
+
+``` r
+freedom %>%
+  mutate(pr = -pr +8,
+         cl = -cl +8) %>%
+  group_by(status) %>%
+  summarize(mean_pr = mean(pr),
+            mean_cl = mean(cl)) %>%
+  pivot_longer(-status) %>%
+  ggplot(aes(value, fct_reorder(status, value), fill = fct_reorder(status, value))) + geom_col() +
+  facet_wrap(~name) + labs(y = "", x = "Average Value") 
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+### By Region
+
+``` r
+freedom %>%
+  mutate(status = fct_relevel(status,"NF", "PF", "F")) %>%
+  ggplot(aes(fill = status, y = fct_reorder(region_name, status, .fun = function(.x) mean(.x == "F")))) + 
+  geom_bar(position = "fill") + labs(y = "") + scale_fill_manual(values = c("#B81D13", "#F5A33E", "#00C301"))
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->

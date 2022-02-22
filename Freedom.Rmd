@@ -30,7 +30,7 @@ freedom %>%
 ```
 
 
-
+## Cl ~ Pr relationship
 ```{r}
 freedom %>%
   lm(cl ~ pr,.) %>%
@@ -38,6 +38,7 @@ freedom %>%
 ```
 
 
+## Top countries
 ```{r}
 x <- freedom %>%
   filter(year == 2020) %>%
@@ -61,6 +62,26 @@ freedom %>%
 ```
 
 
+## Status
+```{r}
+freedom %>%
+  mutate(pr = -pr +8,
+         cl = -cl +8) %>%
+  group_by(status) %>%
+  summarize(mean_pr = mean(pr),
+            mean_cl = mean(cl)) %>%
+  pivot_longer(-status) %>%
+  ggplot(aes(value, fct_reorder(status, value), fill = fct_reorder(status, value))) + geom_col() +
+  facet_wrap(~name) + labs(y = "", x = "Average Value") 
+```
 
+
+### By Region
+```{r}
+freedom %>%
+  mutate(status = fct_relevel(status,"NF", "PF", "F")) %>%
+  ggplot(aes(fill = status, y = fct_reorder(region_name, status, .fun = function(.x) mean(.x == "F")))) + 
+  geom_bar(position = "fill") + labs(y = "") + scale_fill_manual(values = c("#B81D13", "#F5A33E", "#00C301"))
+```
 
 
