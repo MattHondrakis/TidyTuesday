@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
 library(broom)
 theme_set(theme_bw())
@@ -35,7 +35,7 @@ freedom %>%
 ## Cl ~ Pr relationship
 ```{r}
 freedom %>%
-  lm(cl ~ pr,.) %>%
+  lm(cl ~ pr, .) %>%
   summary()
 ```
 
@@ -134,7 +134,7 @@ freedom_nest %>%
 ```
 
 
-## Plots of fastest decline in PR or CL
+## Plots of fastest decline in PR or CL (based on largest estimate)
 ```{r}
 gplot <- function(x,y){
   freedom %>%
@@ -142,35 +142,91 @@ gplot <- function(x,y){
     ggplot(aes(year, {{y}})) + geom_line() +
     geom_point()
 }
+sub = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest"
 gplot("Thailand", pr) + scale_y_reverse() + 
   labs(y = "Political Rights", title = "Thailand's Political Rights over the Years",
-       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+       subtitle = sub)
 
 gplot("South Sudan", cl) + scale_y_reverse(breaks = seq(5,7,1)) + 
   scale_x_continuous(breaks = seq(2011,2020,1)) + 
   labs(y = "Civil Liberties", title = "South Sudan's Civil Liberties over the Years",
-       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+       subtitle = sub)
 ```
 
 
-## Plots of fastest incline 
+## Plots of fastest incline (based on largest estimate)
 ```{r}
 gplot("Tunisia", pr) +
   scale_y_reverse(breaks = seq(1,7,1)) +
   labs(y = "Political Rights", title = "Tunisia's Political Rights over the Years",
-       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+       subtitle = sub)
 
-gplot("Bhutan", cl) + 
+gplot("Bhutan", pr) + 
   scale_y_reverse() +
   labs(y = "Civil Liberties", title = "Bhutan's Civil Liberties over the Years",
-       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+       subtitle = sub)
 ```
 
 
-
+# Difference between first and last rating
 ```{r}
+freedom %>%
+  group_by(country) %>%
+  summarize(diff = cl[year == max(year)] - cl[year == min(year)]) %>%
+  arrange(-diff)
+freedom %>%
+  group_by(country) %>%
+  summarize(diff = pr[year == max(year)] - pr[year == min(year)]) %>%
+  arrange(-diff)
+```
+
+
+## Countries with the largest decrease from first and last rating
+```{r}
+freedom %>%
+  filter(country %in% c("Central African Republic", "Venezuela (Bolivarian Republic of)")) %>%
+  pivot_longer(c("cl","pr")) %>%
+  mutate(name = ifelse(name == "cl", "Civil Liberties", "Political Rights")) %>%
+  ggplot(aes(year, value, color = country)) + geom_line(size = 1) +
+  geom_point(size = 2) + facet_wrap(~name, nrow = 2) + scale_y_reverse() +
+  labs(title = "Countries with largest decline", y = "", color = "", x = "Year",
+       subtitle = sub,
+       caption = "Largest decline with respect to first and last rating") +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 
 ```
 
 
+### Individual Plots
+```{r}
+gplot("Central African Republic", cl) + scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Central African Republic's Civil Liberties over the Years",
+       subtitle = sub)
+
+gplot("Central African Republic", pr) + scale_y_reverse() +
+  labs(y = "Political Rights", title = "Central African Republic's Political Rights over the Years",
+       subtitle = sub)
+
+gplot("Venezuela (Bolivarian Republic of)", pr) + scale_y_reverse() +
+  labs(y = "Political Rights", title = "Venezuela's Political Rights over the Years",
+       subtitle = sub)
+gplot("Venezuela (Bolivarian Republic of)", cl) + scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Venezuela's Civil Liberties over the Years",
+       subtitle = sub)
+```
+
+
+
+## Country with the largest increase from first and last rating
+```{r}
+freedom %>%
+  filter(country == "Bhutan") %>%
+  pivot_longer(c("cl","pr")) %>%
+  mutate(name = ifelse(name == "cl", "Civil Liberties", "Political Rights")) %>%
+  ggplot(aes(year, value, color = name)) + geom_line(size = 1) +
+  geom_point(size = 2) + scale_y_reverse() + geom_vline(xintercept = 2008, linetype = "dashed") +
+  annotate(geom = "text", label = c("Partially Free", "Not Free"), x = c(2005, 2011), y = 2.2) +
+  labs(y = "", x = "Year", title = "Bhutan's Change over Time",
+       subtitle = sub, caption = "Bhutan had best improvement with respect to both CL and PR")
+```
 

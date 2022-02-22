@@ -43,7 +43,7 @@ freedom %>%
 
 ``` r
 freedom %>%
-  lm(cl ~ pr,.) %>%
+  lm(cl ~ pr, .) %>%
   summary()
 ```
 
@@ -158,3 +158,217 @@ freedom %>%
     ##   <chr>    <chr>      
     ## 1 Kiribati Oceania    
     ## 2 Tuvalu   Oceania
+
+# Multiple lm models of Pr or Cl by year for each country
+
+``` r
+freedom_nest <- freedom %>%
+  select(country, pr, cl, year) %>%
+  nest(-country) %>%
+  mutate(fitpr = map(data, ~ lm(pr ~ year, .x)),
+         fitcl = map(data, ~ lm(cl ~ year, .x)),
+         tidypr = map(fitpr, tidy),
+         tidycl = map(fitcl, tidy)) %>%
+  unnest(tidypr,tidycl)
+
+freedom_nest %>%
+  filter(term == "year") %>%
+  select(country, estimate) %>%
+  arrange(estimate)
+```
+
+    ## # A tibble: 193 x 2
+    ##    country             estimate
+    ##    <chr>                  <dbl>
+    ##  1 Tunisia              -0.222 
+    ##  2 Bhutan               -0.219 
+    ##  3 Indonesia            -0.174 
+    ##  4 Tonga                -0.162 
+    ##  5 Liberia              -0.136 
+    ##  6 Croatia              -0.129 
+    ##  7 Timor-Leste          -0.128 
+    ##  8 Iraq                 -0.105 
+    ##  9 Nigeria              -0.102 
+    ## 10 Antigua and Barbuda  -0.0995
+    ## # ... with 183 more rows
+
+``` r
+freedom_nest %>%
+  filter(term == "year") %>%
+  select(country, estimate1) %>%
+  arrange(estimate1)
+```
+
+    ## # A tibble: 193 x 2
+    ##    country      estimate1
+    ##    <chr>            <dbl>
+    ##  1 Bhutan         -0.118 
+    ##  2 Sierra Leone   -0.110 
+    ##  3 Tunisia        -0.104 
+    ##  4 Liberia        -0.0988
+    ##  5 Myanmar        -0.0862
+    ##  6 Viet Nam       -0.0821
+    ##  7 Brazil         -0.0821
+    ##  8 Senegal        -0.0797
+    ##  9 Croatia        -0.0769
+    ## 10 Slovakia       -0.0759
+    ## # ... with 183 more rows
+
+## Plots of fastest decline in PR or CL (based on largest estimate)
+
+``` r
+gplot <- function(x,y){
+  freedom %>%
+    filter(country == {{x}}) %>%
+    ggplot(aes(year, {{y}})) + geom_line() +
+    geom_point()
+}
+sub = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest"
+gplot("Thailand", pr) + scale_y_reverse() + 
+  labs(y = "Political Rights", title = "Thailand's Political Rights over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+gplot("South Sudan", cl) + scale_y_reverse(breaks = seq(5,7,1)) + 
+  scale_x_continuous(breaks = seq(2011,2020,1)) + 
+  labs(y = "Civil Liberties", title = "South Sudan's Civil Liberties over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+## Plots of fastest incline (based on largest estimate)
+
+``` r
+gplot("Tunisia", pr) +
+  scale_y_reverse(breaks = seq(1,7,1)) +
+  labs(y = "Political Rights", title = "Tunisia's Political Rights over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+gplot("Bhutan", pr) + 
+  scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Bhutan's Civil Liberties over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+# Difference between first and last rating
+
+``` r
+freedom %>%
+  group_by(country) %>%
+  summarize(diff = cl[year == max(year)] - cl[year == min(year)]) %>%
+  arrange(-diff)
+```
+
+    ## # A tibble: 193 x 2
+    ##    country                             diff
+    ##    <chr>                              <dbl>
+    ##  1 Central African Republic               3
+    ##  2 Eritrea                                3
+    ##  3 Venezuela (Bolivarian Republic of)     3
+    ##  4 Honduras                               2
+    ##  5 Mali                                   2
+    ##  6 Russian Federation                     2
+    ##  7 South Sudan                            2
+    ##  8 Bangladesh                             1
+    ##  9 Belarus                                1
+    ## 10 Cameroon                               1
+    ## # ... with 183 more rows
+
+``` r
+freedom %>%
+  group_by(country) %>%
+  summarize(diff = pr[year == max(year)] - pr[year == min(year)]) %>%
+  arrange(-diff)
+```
+
+    ## # A tibble: 193 x 2
+    ##    country                             diff
+    ##    <chr>                              <dbl>
+    ##  1 Central African Republic               4
+    ##  2 Mali                                   4
+    ##  3 Russian Federation                     4
+    ##  4 Thailand                               4
+    ##  5 Venezuela (Bolivarian Republic of)     4
+    ##  6 Congo                                  3
+    ##  7 Kyrgyzstan                             3
+    ##  8 Bangladesh                             2
+    ##  9 Belarus                                2
+    ## 10 Benin                                  2
+    ## # ... with 183 more rows
+
+## Countries with the largest decrease from first and last rating
+
+``` r
+freedom %>%
+  filter(country %in% c("Central African Republic", "Venezuela (Bolivarian Republic of)")) %>%
+  pivot_longer(c("cl","pr")) %>%
+  mutate(name = ifelse(name == "cl", "Civil Liberties", "Political Rights")) %>%
+  ggplot(aes(year, value, color = country)) + geom_line(size = 1) +
+  geom_point(size = 2) + facet_wrap(~name, nrow = 2) + scale_y_reverse() +
+  labs(title = "Countries with largest decline", y = "", color = "", x = "Year",
+       subtitle = sub,
+       caption = "Largest decline with respect to first and last rating") +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+### Individual Plots
+
+``` r
+gplot("Central African Republic", cl) + scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Central African Republic's Civil Liberties over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+gplot("Central African Republic", pr) + scale_y_reverse() +
+  labs(y = "Political Rights", title = "Central African Republic's Political Rights over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+gplot("Venezuela (Bolivarian Republic of)", pr) + scale_y_reverse() +
+  labs(y = "Political Rights", title = "Venezuela's Political Rights over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
+gplot("Venezuela (Bolivarian Republic of)", cl) + scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Venezuela's Civil Liberties over the Years",
+       subtitle = sub)
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+
+## Country with the largest increase from first and last rating
+
+``` r
+freedom %>%
+  filter(country == "Bhutan") %>%
+  pivot_longer(c("cl","pr")) %>%
+  mutate(name = ifelse(name == "cl", "Civil Liberties", "Political Rights")) %>%
+  ggplot(aes(year, value, color = name)) + geom_line(size = 1) +
+  geom_point(size = 2) + scale_y_reverse() + geom_vline(xintercept = 2008, linetype = "dashed") +
+  annotate(geom = "text", label = c("Partially Free", "Not Free"), x = c(2005, 2011), y = 2.2) +
+  labs(y = "", x = "Year", title = "Bhutan's Change over Time",
+       subtitle = sub, caption = "Bhutan had best improvement with respect to both CL and PR")
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
