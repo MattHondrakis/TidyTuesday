@@ -22,7 +22,8 @@ freedom <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesd
 
 ``` r
 freedom <- freedom %>%
-  rename_with(tolower)
+  rename_with(tolower) %>%
+  mutate(is_ldc = fct_rev(as.factor(is_ldc)))
 ```
 
 # EDA
@@ -112,8 +113,48 @@ freedom %>%
 ``` r
 freedom %>%
   mutate(status = fct_relevel(status,"NF", "PF", "F")) %>%
-  ggplot(aes(fill = status, y = fct_reorder(region_name, status, .fun = function(.x) mean(.x == "F")))) + 
-  geom_bar(position = "fill") + labs(y = "") + scale_fill_manual(values = c("#B81D13", "#F5A33E", "#00C301"))
+  ggplot(aes(fill = status, y = fct_reorder(region_name, status, function(.x) mean(.x == "F")))) + 
+  geom_bar(position = "fill") + labs(y = "", x = "Proportion") + 
+  scale_fill_manual(values = c("#B81D13", "#F5A33E", "#00C301")) +
+  scale_x_continuous(labels = scales::label_percent())
 ```
 
 ![](Freedom_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+## Region
+
+``` r
+freedom %>%
+  ggplot(aes(fill = is_ldc, y = fct_reorder(region_name, is_ldc, function(.x) mean(.x == "0")))) + 
+  geom_bar(position = "fill") + 
+  labs(y = "", x = "Percent", title = "The Proportion of Underdeveloped Countries per Region") + 
+  scale_x_continuous(labels = scales::label_percent()) + 
+  theme(legend.position = "", plot.title = element_text(hjust = 0.5))
+```
+
+![](Freedom_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+table(freedom$is_ldc, freedom$region_name) %>%
+  chisq.test()
+```
+
+    ## 
+    ##  Pearson's Chi-squared test
+    ## 
+    ## data:  .
+    ## X-squared = 1629.2, df = 4, p-value < 2.2e-16
+
+## Is least developed and has perfect Cl and Pr
+
+``` r
+freedom %>%
+  filter(is_ldc == 1 & cl == 1 & pr == 1) %>%
+  distinct(country, region_name)
+```
+
+    ## # A tibble: 2 x 2
+    ##   country  region_name
+    ##   <chr>    <chr>      
+    ## 1 Kiribati Oceania    
+    ## 2 Tuvalu   Oceania
