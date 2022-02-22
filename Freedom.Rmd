@@ -39,15 +39,28 @@ freedom %>%
 
 
 ```{r}
+x <- freedom %>%
+  filter(year == 2020) %>%
+  mutate(pr = -pr + 8,
+         cl = -cl + 8,
+         total = cl + pr) %>%
+  arrange(-total) %>%
+  head(41)
+
 freedom %>%
-  select(year, region_name, pr, cl) %>%
+  filter(country %in% x$country) %>%
+  select(country, year, pr, cl) %>%
   pivot_longer(c("pr","cl")) %>%
-  group_by(region_name, name, year) %>%
   mutate(value = -value + 8) %>%
-  summarize(value = sum(value)) %>%
-  arrange(-value) %>%
-  ggplot(aes(value, fct_reorder(region_name, value), fill = region_name)) + geom_col() +
-  facet_wrap(~name + year) + labs(y = "")
+  group_by(country) %>%
+  mutate(total = sum(value)) %>%
+  ggplot(aes(value, fct_reorder2(country, value, total, .desc = FALSE), fill = name)) + geom_col() +
+  labs(y = "", x = "Total Score", subtitle = "Countries that had best scores in 2020",
+       title = "Best 30 Countries based on Civil Liberties and Political Rights",
+       caption = "Total Score = Sum of scores from 1995 - 2020")
 ```
+
+
+
 
 
