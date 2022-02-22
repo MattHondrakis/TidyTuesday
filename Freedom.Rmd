@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(broom)
 theme_set(theme_bw())
 ```
 
@@ -110,6 +111,66 @@ freedom %>%
 ```
 
 
+# Multiple lm models of Pr or Cl by year for each country
+```{r}
+freedom_nest <- freedom %>%
+  select(country, pr, cl, year) %>%
+  nest(-country) %>%
+  mutate(fitpr = map(data, ~ lm(pr ~ year, .x)),
+         fitcl = map(data, ~ lm(cl ~ year, .x)),
+         tidypr = map(fitpr, tidy),
+         tidycl = map(fitcl, tidy)) %>%
+  unnest(tidypr,tidycl)
+
+freedom_nest %>%
+  filter(term == "year") %>%
+  select(country, estimate) %>%
+  arrange(estimate)
+
+freedom_nest %>%
+  filter(term == "year") %>%
+  select(country, estimate1) %>%
+  arrange(estimate1)
+```
+
+
+## Plots of fastest decline in PR or CL
+```{r}
+gplot <- function(x,y){
+  freedom %>%
+    filter(country == {{x}}) %>%
+    ggplot(aes(year, {{y}})) + geom_line() +
+    geom_point()
+}
+gplot("Thailand", pr) + scale_y_reverse() + 
+  labs(y = "Political Rights", title = "Thailand's Political Rights over the Years",
+       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+
+gplot("South Sudan", cl) + scale_y_reverse(breaks = seq(5,7,1)) + 
+  scale_x_continuous(breaks = seq(2011,2020,1)) + 
+  labs(y = "Civil Liberties", title = "South Sudan's Civil Liberties over the Years",
+       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+```
+
+
+## Plots of fastest incline 
+```{r}
+gplot("Tunisia", pr) +
+  scale_y_reverse(breaks = seq(1,7,1)) +
+  labs(y = "Political Rights", title = "Tunisia's Political Rights over the Years",
+       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+
+gplot("Bhutan", cl) + 
+  scale_y_reverse() +
+  labs(y = "Civil Liberties", title = "Bhutan's Civil Liberties over the Years",
+       subtitle = "On a scale of 1 to 7, 1 being the highest and 7 being the lowest")
+```
+
+
+
+```{r}
+
+```
 
 
 
