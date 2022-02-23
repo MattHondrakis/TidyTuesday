@@ -389,12 +389,14 @@ freedom %>%
   pivot_longer(c("cl","pr")) %>%
   mutate(name = ifelse(name == "cl", "Civil Liberties", "Political Rights")) %>%
   ggplot(aes(year, value, color = name)) + geom_line(size = 1) +
-  geom_point(size = 2) + scale_y_reverse() + geom_vline(xintercept = 2008, linetype = "dashed") +
-  annotate(geom = "text", label = c("Partially Free", "Not Free"), x = c(2005, 2011), y = 2.2) +
+  geom_point(size = 2) + scale_y_reverse(breaks = seq(1,7)) + geom_vline(xintercept = 2008, linetype = "dashed") +
+  annotate(geom = "text", label = c("Partially Free", "Not Free"), x = c(2002.5, 2012.5), y = 1.5) +
   labs(y = "", x = "Year", title = "Bhutan's Change over Time", color = "",
        subtitle = sub, caption = "Bhutan had best improvement with respect to both CL and PR") +
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.grid.minor = element_blank()) +
+  expand_limits(y = 1)
 ```
 
 ![](Freedom_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
