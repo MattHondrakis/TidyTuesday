@@ -306,6 +306,30 @@ freedom %>%
     ## 10 Benin                                  2
     ## # ... with 183 more rows
 
+``` r
+freedom %>%
+  group_by(country) %>%
+  summarize(diff1 = pr[year == max(year)] - pr[year == min(year)],
+            diff2 = cl[year == max(year)] - cl[year == min(year)],
+            tdiff = abs(diff1) + abs(diff2)) %>%
+  arrange(-tdiff)
+```
+
+    ## # A tibble: 193 x 4
+    ##    country                            diff1 diff2 tdiff
+    ##    <chr>                              <dbl> <dbl> <dbl>
+    ##  1 Bhutan                                -5    -3     8
+    ##  2 Central African Republic               4     3     7
+    ##  3 Indonesia                             -5    -2     7
+    ##  4 Sierra Leone                          -4    -3     7
+    ##  5 Venezuela (Bolivarian Republic of)     4     3     7
+    ##  6 Liberia                               -4    -2     6
+    ##  7 Mali                                   4     2     6
+    ##  8 Russian Federation                     4     2     6
+    ##  9 Tunisia                               -4    -2     6
+    ## 10 Croatia                               -3    -2     5
+    ## # ... with 183 more rows
+
 ## Countries with the largest decrease from first and last rating
 
 ``` r
