@@ -178,6 +178,13 @@ freedom %>%
   group_by(country) %>%
   summarize(diff = pr[year == max(year)] - pr[year == min(year)]) %>%
   arrange(-diff)
+
+freedom %>%
+  group_by(country) %>%
+  summarize(diff1 = pr[year == max(year)] - pr[year == min(year)],
+            diff2 = cl[year == max(year)] - cl[year == min(year)],
+            tdiff = abs(diff1) + abs(diff2)) %>%
+  arrange(-tdiff)
 ```
 
 
