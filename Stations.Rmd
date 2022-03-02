@@ -82,3 +82,16 @@ p1 + p2 + plot_annotation(title = "Sharp increase in Electric Fuel at the start 
 ```
 
 
+## Days of the week
+```{r, dpi=600}
+stations %>%
+  mutate(dow = weekdays(open_date),
+         dow = fct_relevel(dow, "Monday", "Tuesday", "Wednesday", "Thursday", 
+                          "Friday", "Saturday", "Sunday")) %>%
+  filter(!is.na(dow)) %>%
+  group_by(dow) %>%
+  ggplot(aes(dow, fill = fuel_type_code)) + geom_bar() +
+  labs(fill = "Fuel", y = "Count", x = "")
+
+```
+

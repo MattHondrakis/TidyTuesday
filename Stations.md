@@ -120,3 +120,16 @@ p1 + p2 + plot_annotation(title = "Sharp increase in Electric Fuel at the start 
 ```
 
 ![](Stations_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+
+``` r
+stations %>%
+  mutate(dow = weekdays(open_date),
+         dow = fct_relevel(dow, "Monday", "Tuesday", "Wednesday", "Thursday", 
+                          "Friday", "Saturday", "Sunday")) %>%
+  filter(!is.na(dow)) %>%
+  group_by(dow) %>%
+  ggplot(aes(dow, fill = fuel_type_code)) + geom_bar() +
+  labs(fill = "Fuel", y = "Count", x = "")
+```
+
+![](Stations_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
