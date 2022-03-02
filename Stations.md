@@ -4,12 +4,46 @@ Matthew
 2/28/2022
 
 ``` r
+stations <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-01/stations.csv')
+```
+
+    ## 
+    ## -- Column specification --------------------------------------------------------
+    ## cols(
+    ##   .default = col_character(),
+    ##   X = col_double(),
+    ##   Y = col_double(),
+    ##   OBJECTID = col_double(),
+    ##   PLUS4 = col_logical(),
+    ##   BD_BLENDS = col_logical(),
+    ##   EV_LEVEL1_EVSE_NUM = col_double(),
+    ##   EV_LEVEL2_EVSE_NUM = col_double(),
+    ##   EV_DC_FAST_COUNT = col_double(),
+    ##   LATITUDE = col_double(),
+    ##   LONGITUDE = col_double(),
+    ##   ID = col_double(),
+    ##   FEDERAL_AGENCY_ID = col_double(),
+    ##   HYDROGEN_STATUS_LINK = col_logical(),
+    ##   LPG_PRIMARY = col_logical(),
+    ##   E85_BLENDER_PUMP = col_logical(),
+    ##   INTERSECTION_DIRECTIONS_FRENCH = col_logical(),
+    ##   ACCESS_DAYS_TIME_FRENCH = col_logical(),
+    ##   BD_BLENDS_FRENCH = col_logical(),
+    ##   HYDROGEN_IS_RETAIL = col_logical(),
+    ##   CNG_DISPENSER_NUM = col_double()
+    ##   # ... with 8 more columns
+    ## )
+    ## i Use `spec()` for the full column specifications.
+
+``` r
 stations <- stations %>%
   select(where(~any(!is.na(.x)))) %>%
   rename_with(tolower) %>%
   select(-objectid) %>%
   mutate(open_date = as.Date(open_date))
 ```
+
+# EDA
 
 ``` r
 stations %>%
@@ -35,13 +69,15 @@ stations %>%
 
 ![](Stations_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
-### Observing date 2021-01-07
+## Observing date 2021-01-07
 
 ``` r
-stations %>%
-  count(open_date, sort = TRUE) %>%
+(p1 <- stations %>%
   filter(year(open_date) > 2010) %>%
-  ggplot(aes(open_date, n)) + geom_line()
+  count(open_date, sort = TRUE) %>%
+  ggplot(aes(open_date, n)) + geom_line() + 
+  labs(title = "Number of Stations opened by day", x = "", y = "",
+       subtitle = "Since year 2010"))
 ```
 
 ![](Stations_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -49,22 +85,38 @@ stations %>%
 ``` r
 stations %>%
   filter(open_date == "2021-01-27") %>%
+  count(fuel_type_code)
+```
+
+    ## # A tibble: 1 x 2
+    ##   fuel_type_code     n
+    ##   <chr>          <int>
+    ## 1 ELEC           10446
+
+``` r
+x <- stations %>%
+  filter(open_date == "2021-01-27") %>%
   count(state, sort = TRUE) %>%
-  ggplot(aes(n, y = fct_reorder(state, n))) +
-  geom_col() + labs(y = "State", x = "Count", fill = "Fuel")
+  head(20) %>%
+  select(state)
+
+(p2 <- stations %>%
+  filter(!is.na(open_date)) %>%
+  select(open_date, state) %>%
+  mutate(key = ifelse(open_date == "2021-01-27", "Yes", "No")) %>%
+  group_by(key) %>%
+  count(state) %>%
+  filter(state %in% x$state) %>%
+  ggplot(aes(n, fct_reorder(state, n), fill = fct_rev(as.factor(key)))) + geom_col() +
+  labs(fill = "2021-01-27", y = "", x = "Count", title = "Stations Opened", subtitle = "Top 20 States") + 
+  scale_fill_manual(values = c("yellow","blue")))
 ```
 
 ![](Stations_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ``` r
-stations %>%
-  filter(!is.na(open_date)) %>%
-  select(open_date, state) %>%
-  mutate(key = ifelse(open_date == "2021-01-27", "Yes", "No")) %>%
-  group_by(state,key) %>%
-  count(state) %>%
-  ggplot(aes(n, fct_reorder(state, n), fill = fct_rev(as.factor(key)))) + geom_col() +
-  labs(fill = "2021-01-27", y = "") + scale_fill_hue(direction = -1)
+p1 + p2 + plot_annotation(title = "Sharp increase in Electric Fuel at the start of 2021",
+                          subtitle = "All stations opened in 2021-01-27 used Electric Fuel")
 ```
 
 ![](Stations_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->

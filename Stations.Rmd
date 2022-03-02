@@ -12,22 +12,23 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
 library(broom)
 library(lubridate)
+library(patchwork)
 theme_set(theme_bw())
-stations <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-01/stations.csv')
 ```
 
 
 ```{r}
+stations <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-01/stations.csv')
+
 stations <- stations %>%
   select(where(~any(!is.na(.x)))) %>%
   rename_with(tolower) %>%
   select(-objectid) %>%
   mutate(open_date = as.Date(open_date))
 
-
 ```
  
- 
+# EDA
 ```{r}
 stations %>%
   keep(is.numeric) %>%
@@ -45,27 +46,39 @@ stations %>%
 ```
 
 
-### Observing date 2021-01-07
+## Observing date 2021-01-07
 ```{r, dpi = 600}
-stations %>%
-  count(open_date, sort = TRUE) %>%
+(p1 <- stations %>%
   filter(year(open_date) > 2010) %>%
-  ggplot(aes(open_date, n)) + geom_line()
+  count(open_date, sort = TRUE) %>%
+  ggplot(aes(open_date, n)) + geom_line() + 
+  labs(title = "Number of Stations opened by day", x = "", y = "",
+       subtitle = "Since year 2010"))
 
 stations %>%
   filter(open_date == "2021-01-27") %>%
-  count(state, sort = TRUE) %>%
-  ggplot(aes(n, y = fct_reorder(state, n))) +
-  geom_col() + labs(y = "State", x = "Count", fill = "Fuel")
+  count(fuel_type_code)
 
-stations %>%
+x <- stations %>%
+  filter(open_date == "2021-01-27") %>%
+  count(state, sort = TRUE) %>%
+  head(20) %>%
+  select(state)
+
+(p2 <- stations %>%
   filter(!is.na(open_date)) %>%
   select(open_date, state) %>%
   mutate(key = ifelse(open_date == "2021-01-27", "Yes", "No")) %>%
-  group_by(state,key) %>%
+  group_by(key) %>%
   count(state) %>%
+  filter(state %in% x$state) %>%
   ggplot(aes(n, fct_reorder(state, n), fill = fct_rev(as.factor(key)))) + geom_col() +
-  labs(fill = "2021-01-27", y = "") + scale_fill_hue(direction = -1)
+  labs(fill = "2021-01-27", y = "", x = "Count", title = "Stations Opened", subtitle = "Top 20 States") + 
+  scale_fill_manual(values = c("yellow","blue")))
 
+
+p1 + p2 + plot_annotation(title = "Sharp increase in Electric Fuel at the start of 2021",
+                          subtitle = "All stations opened in 2021-01-27 used Electric Fuel")
 ```
+
 
