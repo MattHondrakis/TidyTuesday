@@ -1,0 +1,53 @@
+---
+title: "Erasmus"
+author: "Matthew"
+date: "3/8/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(anytime)
+library(skimr)
+theme_set(theme_bw())
+```
+
+
+```{r}
+erasmus <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-08/erasmus.csv')
+erasmus <- erasmus %>%
+  rename_with(~ gsub("mobility_","", .x)) %>%
+  mutate(start_month = as.Date(anytime(start_month)),
+         end_month = as.Date(anytime(end_month)))
+```
+
+# EDA
+```{r}
+skim(erasmus)
+```
+
+
+```{r}
+erasmus %>%
+  count(participant_age, sort = TRUE) %>%
+  head(15) %>%
+  ggplot(aes(x = n, y = as.character(participant_age))) + geom_col() + ylab("")
+```
+
+
+```{r}
+erasmus %>%
+  group_by(participant_gender) %>%
+  summarize(m = mean(special_needs == "No"))
+```
+
+
+```{r}
+
+```
+
+
+
