@@ -2,7 +2,7 @@
 title: "Erasmus"
 author: "Matthew"
 date: "3/8/2022"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
 library(anytime)
 library(skimr)
+library(scales)
 theme_set(theme_bw())
 ```
 
@@ -57,7 +58,6 @@ propfun(activity_mob)
 propfun(duration)
 propfun(receiving_city)
 propfun(participant_profile)
-
 ```
 
 
@@ -73,4 +73,35 @@ erasmus %>%
   filter(100 < abs(participant_age)) %>%
   count(participant_age)
 ```
+
+
+```{r}
+erasmus %>%
+  group_by(participant_gender) %>%
+  count(activity_mob) %>%
+  ggplot(aes(n, activity_mob, fill = participant_gender)) + 
+  geom_col(position = "dodge")
+```
+
+
+```{r}
+erasmus %>%
+  select(start_month, end_month, duration) %>%
+  count(duration) %>% arrange(duration) %>%
+  head(20) %>%
+  ggplot(aes(n, fct_reorder(as.factor(duration), duration))) + 
+  geom_col() + scale_x_log10(labels=comma) +
+  labs(y = "Duration", x = "Count")
+
+df <- erasmus %>%
+  count(duration)
+
+df %>%
+  ggplot(aes(duration, n)) + geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_log10() + scale_x_log10()
+
+lm(log(n) ~ log(duration), df) %>% summary()
+```
+
 
