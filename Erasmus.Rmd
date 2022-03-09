@@ -46,6 +46,20 @@ erasmus %>%
 
 
 ```{r}
+propfun <- function(x){
+  erasmus %>%
+    count({{x}}, sort = TRUE) %>%
+    mutate(prop = n/sum(n))
+}
+
+propfun(receiving_organisation_erasmus_code)
+propfun(activity_mob)
+propfun(duration)
+propfun(receiving_city)
+
+erasmus %>%
+  group_by(participant_gender) %>%
+  count(receiving_city, sort = TRUE)
 
 ```
 
