@@ -56,12 +56,21 @@ propfun(receiving_organisation_erasmus_code)
 propfun(activity_mob)
 propfun(duration)
 propfun(receiving_city)
-
-erasmus %>%
-  group_by(participant_gender) %>%
-  count(receiving_city, sort = TRUE)
+propfun(participant_profile)
 
 ```
 
 
+```{r}
+erasmus %>%
+  group_by(participant_gender) %>%
+  count(receiving_city, sort = TRUE)
+```
+
+
+```{r}
+erasmus %>%
+  filter(100 < abs(participant_age)) %>%
+  count(participant_age)
+```
 
