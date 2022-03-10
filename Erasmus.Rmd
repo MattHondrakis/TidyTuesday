@@ -13,6 +13,7 @@ library(tidyverse)
 library(anytime)
 library(skimr)
 library(scales)
+library(broom)
 theme_set(theme_bw())
 ```
 
@@ -101,7 +102,24 @@ df %>%
   geom_smooth(method = "lm", se = FALSE) +
   scale_y_log10() + scale_x_log10()
 
-lm(log(n) ~ log(duration), df) %>% summary()
+mod <- lm(log(n) ~ log(duration), df)
+
+mod %>% summary()
+
+df %>%
+  mutate(log_pred = predict(mod, df),
+         resid = log(n) - log_pred) %>%
+  ggplot(aes(log_pred, resid)) + geom_point() +
+  geom_hline(yintercept = 0)
+
 ```
+
+Bias in residuals: Not a very good linear regression model. 
+
+```{r}
+
+```
+
+
 
 

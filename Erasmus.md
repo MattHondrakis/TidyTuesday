@@ -270,7 +270,9 @@ df %>%
 ![](Erasmus_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
-lm(log(n) ~ log(duration), df) %>% summary()
+mod <- lm(log(n) ~ log(duration), df)
+
+mod %>% summary()
 ```
 
     ## 
@@ -291,3 +293,15 @@ lm(log(n) ~ log(duration), df) %>% summary()
     ## Residual standard error: 1.807 on 46 degrees of freedom
     ## Multiple R-squared:  0.6917, Adjusted R-squared:  0.685 
     ## F-statistic: 103.2 on 1 and 46 DF,  p-value: 2.46e-13
+
+``` r
+df %>%
+  mutate(log_pred = predict(mod, df),
+         resid = log(n) - log_pred) %>%
+  ggplot(aes(log_pred, resid)) + geom_point() +
+  geom_hline(yintercept = 0)
+```
+
+![](Erasmus_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
+
+Bias in residuals: Not a very good linear regression model.
