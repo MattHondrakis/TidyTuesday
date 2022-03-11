@@ -305,3 +305,74 @@ df %>%
 ![](Erasmus_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
 
 Bias in residuals: Not a very good linear regression model.
+
+``` r
+same_city <- erasmus %>%
+  filter(receiving_city == sending_city)
+diff_city <- erasmus %>%
+  filter(receiving_city != sending_city)
+
+
+erasmus %>%
+  filter()
+```
+
+    ## # A tibble: 164,635 x 24
+    ##    project_reference academic_year start_month end_month  duration activity_mob 
+    ##    <chr>             <chr>         <date>      <date>        <dbl> <chr>        
+    ##  1 2014-1-AT02-KA34~ 2014-2015     2014-11-01  2014-11-01        1 National you~
+    ##  2 2014-1-AT02-KA34~ 2014-2015     2014-11-01  2014-11-01        1 National you~
+    ##  3 2014-1-AT02-KA34~ 2014-2015     2014-11-01  2014-11-01        1 National you~
+    ##  4 2014-1-AT02-KA34~ 2014-2015     2014-11-01  2014-11-01        1 National you~
+    ##  5 2014-1-AT02-KA34~ 2014-2015     2014-11-01  2014-11-01        1 National you~
+    ##  6 2014-1-AT02-KA34~ 2014-2015     2014-12-01  2014-12-01        1 National you~
+    ##  7 2014-1-AT02-KA34~ 2014-2015     2014-12-01  2014-12-01        1 National you~
+    ##  8 2014-1-AT02-KA34~ 2014-2015     2014-12-01  2014-12-01        1 National you~
+    ##  9 2014-1-AT02-KA34~ 2014-2015     2014-12-01  2014-12-01        1 National you~
+    ## 10 2014-1-AT02-KA34~ 2014-2015     2014-12-01  2014-12-01        1 National you~
+    ## # ... with 164,625 more rows, and 18 more variables: field_of_education <chr>,
+    ## #   participant_nationality <chr>, education_level <chr>,
+    ## #   participant_gender <chr>, participant_profile <chr>, special_needs <chr>,
+    ## #   fewer_opportunities <chr>, group_leader <chr>, participant_age <dbl>,
+    ## #   sending_country_code <chr>, sending_city <chr>, sending_organization <chr>,
+    ## #   sending_organisation_erasmus_code <chr>, receiving_country_code <chr>,
+    ## #   receiving_city <chr>, receiving_organization <chr>, ...
+
+``` r
+(p2 <- erasmus %>%
+  group_by(duration) %>%
+  summarize(n = sum(participants)) %>%
+  head(20) %>%
+  ggplot(aes(n, fct_reorder(as.factor(duration), duration))) +
+  geom_col() + scale_x_log10(labels = comma) + labs(y = ""))
+```
+
+![](Erasmus_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+x <- erasmus %>%
+  group_by(duration) %>%
+  summarize(sum = sum(participants))
+
+y <- erasmus %>%
+  count(duration)
+
+x %>%
+  inner_join(y, by = "duration") %>%
+  filter(sum > n)
+```
+
+    ## # A tibble: 29 x 3
+    ##    duration    sum     n
+    ##       <dbl>  <dbl> <int>
+    ##  1        1 187359 88142
+    ##  2        2  36573 20942
+    ##  3        3  40518 25343
+    ##  4        4  16784 10547
+    ##  5        5  11498  8177
+    ##  6        6   6712  4364
+    ##  7        7   5354  3761
+    ##  8        8   2473  1763
+    ##  9        9    645   433
+    ## 10       10    874   608
+    ## # ... with 19 more rows

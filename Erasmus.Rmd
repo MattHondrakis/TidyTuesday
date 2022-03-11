@@ -116,10 +116,34 @@ df %>%
 
 Bias in residuals: Not a very good linear regression model. 
 
+
 ```{r}
+same_city <- erasmus %>%
+  filter(receiving_city == sending_city)
+diff_city <- erasmus %>%
+  filter(receiving_city != sending_city)
 
+
+erasmus %>%
+  filter()
+
+(p2 <- erasmus %>%
+  group_by(duration) %>%
+  summarize(n = sum(participants)) %>%
+  head(20) %>%
+  ggplot(aes(n, fct_reorder(as.factor(duration), duration))) +
+  geom_col() + scale_x_log10(labels = comma) + labs(y = ""))
+
+
+x <- erasmus %>%
+  group_by(duration) %>%
+  summarize(sum = sum(participants))
+
+y <- erasmus %>%
+  count(duration)
+
+x %>%
+  inner_join(y, by = "duration") %>%
+  filter(sum > n)
 ```
-
-
-
 
