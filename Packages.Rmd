@@ -21,9 +21,15 @@ cran <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/
 
 
 ```{r}
-cran %>%
-  count(package, sort = TRUE)
-bioc %>%
-  count(package, sort = TRUE)
+countplot <- function(data) {
+  data %>%
+    count(package, sort = TRUE) %>%
+    head(15) %>%
+    ggplot(aes(n, fct_reorder(package, n))) + geom_col() + 
+    labs(y = "", x = "Count")
+}
+countplot(cran)
+countplot(bioc)
 ```
+
 
