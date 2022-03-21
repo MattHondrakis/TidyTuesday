@@ -1,0 +1,112 @@
+---
+title: "Baby Names"
+author: "Matthew"
+date: "3/21/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+babynames <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-22/babynames.csv')
+
+babynames <- babynames %>%
+  mutate(sex = factor(sex))
+```
+
+
+# EDA
+```{r}
+babynames %>%
+  group_by(name) %>%
+  summarize(k = sum(n)) %>%
+  arrange(-k) %>%
+  head(20) %>%
+  knitr::kable()
+```
+
+
+```{r}
+babynames %>%
+  group_by(name) %>%
+  summarize(min = min(n),
+            max = max(n),
+            diff = max - min) %>%
+  arrange(-diff)
+```
+
+
+
+```{r}
+babynames %>%
+  filter(name == "James") %>%
+  ggplot(aes(year, n)) + geom_point() + geom_smooth(method = "lm") +
+  facet_wrap(~ sex)
+
+babynames %>%
+  filter(name == "James") %>%
+  arrange(year) %>%
+  select(year, n)
+```
+
+
+```{r}
+babynames %>%
+  group_by(year, name) %>%
+  summarize(max(n))
+
+babynames %>%
+  filter(name == "Aaron" & year == 1880)
+```
+
+
+```{r}
+babynames %>%
+  group_by(name) %>%
+  count(year, sort = TRUE) %>%
+  filter(n > 1)
+```
+
+
+# Model
+```{r}
+library(tidymodels)
+```
+
+
+```{r}
+split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 50)))
+
+train_data <- training(split_data)
+test_data <- testing(split_data)
+```
+
+
+```{r}
+mod <- logistic_reg()
+
+rec <- recipe(sex ~ ., train_data) %>%
+  step_dummy(all_nominal_predictors()) 
+  
+mod_wf <- workflow() %>%
+  add_model(mod) %>%
+  add_recipe(rec) 
+
+fit <- last_fit(mod_wf, split_data)
+
+fit %>%
+  collect_predictions() %>%
+  roc_curve(sex, .pred_F) %>%
+  autoplot()
+
+fit %>%
+  collect_metrics()
+```
+
