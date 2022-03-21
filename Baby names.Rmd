@@ -2,7 +2,7 @@
 title: "Baby Names"
 author: "Matthew"
 date: "3/21/2022"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
+library(broom)
 theme_set(theme_bw())
 ```
 
@@ -43,7 +44,6 @@ babynames %>%
 ```
 
 
-
 ```{r}
 babynames %>%
   filter(name == "James") %>%
@@ -57,56 +57,40 @@ babynames %>%
 ```
 
 
-```{r}
-babynames %>%
-  group_by(year, name) %>%
-  summarize(max(n))
-
-babynames %>%
-  filter(name == "Aaron" & year == 1880)
-```
-
-
-```{r}
-babynames %>%
-  group_by(name) %>%
-  count(year, sort = TRUE) %>%
-  filter(n > 1)
-```
-
-
 # Model
 ```{r}
 library(tidymodels)
-```
+set.seed(123)
 
-
-```{r}
-split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 50)))
+split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)))
 
 train_data <- training(split_data)
 test_data <- testing(split_data)
 ```
 
 
+## Build Model
 ```{r}
 mod <- logistic_reg()
 
-rec <- recipe(sex ~ ., train_data) %>%
+rec <- recipe(sex ~ name + n, train_data) %>%
   step_dummy(all_nominal_predictors()) 
   
 mod_wf <- workflow() %>%
   add_model(mod) %>%
-  add_recipe(rec) 
+  add_recipe(rec)
+```
 
-fit <- last_fit(mod_wf, split_data)
 
-fit %>%
-  collect_predictions() %>%
+## Fit Model and Evaluate
+```{r}
+fit <- fit(mod_wf, train_data)
+
+augment(fit, test_data) %>%
   roc_curve(sex, .pred_F) %>%
   autoplot()
 
-fit %>%
-  collect_metrics()
+augment(fit, test_data) %>%
+  roc_auc(sex, .pred_F)
 ```
 
