@@ -100,18 +100,29 @@ augment(fit, test_data) %>%
 
 ## Fit Model 2
 ```{r}
-model2_wf <- workflow() %>%
-  add_model(mod) %>%
-  add_recipe(recipe(sex ~ ., train_data) %>%
-  step_dummy(all_nominal_predictors())) %>%
-  last_fit(split_data) 
+mod2_aug <- mod %>%
+  fit(sex ~ name:n, train_data) %>%
+  augment(new_data = test_data)
 
-model2_wf %>%
-  collect_predictions() %>%
+mod2_aug %>%
+  roc_auc(sex, .pred_F)
+
+mod2_aug %>%
   roc_curve(sex, .pred_F) %>%
   autoplot()
+```
 
-model2_wf %>%
-  collect_metrics()
+
+## Both models plot
+```{r}
+fit %>%
+  augment(test_data) %>%
+  mutate(model = "1") %>%
+  bind_rows(mod2_aug %>%
+              mutate(model = "2")) %>%
+  group_by(model) %>%
+  roc_curve(sex, .pred_F) %>%
+  autoplot() +
+  labs(title = "Both Models")
 ```
 

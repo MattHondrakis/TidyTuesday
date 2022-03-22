@@ -138,7 +138,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
+    ## * Search for functions across packages at https://www.tidymodels.org/find/
 
 ``` r
 set.seed(123)
@@ -189,27 +189,39 @@ augment(fit, test_data) %>%
 ## Fit Model 2
 
 ``` r
-model2_wf <- workflow() %>%
-  add_model(mod) %>%
-  add_recipe(recipe(sex ~ ., train_data) %>%
-  step_dummy(all_nominal_predictors())) %>%
-  last_fit(split_data) 
+mod2_aug <- mod %>%
+  fit(sex ~ name:n, train_data) %>%
+  augment(new_data = test_data)
 
-model2_wf %>%
-  collect_predictions() %>%
+mod2_aug %>%
+  roc_auc(sex, .pred_F)
+```
+
+    ## # A tibble: 1 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 roc_auc binary         0.928
+
+``` r
+mod2_aug %>%
   roc_curve(sex, .pred_F) %>%
   autoplot()
 ```
 
 ![](BabyNames_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
+## Both models plot
+
 ``` r
-model2_wf %>%
-  collect_metrics()
+fit %>%
+  augment(test_data) %>%
+  mutate(model = "1") %>%
+  bind_rows(mod2_aug %>%
+              mutate(model = "2")) %>%
+  group_by(model) %>%
+  roc_curve(sex, .pred_F) %>%
+  autoplot() +
+  labs(title = "Both Models")
 ```
 
-    ## # A tibble: 2 x 4
-    ##   .metric  .estimator .estimate .config             
-    ##   <chr>    <chr>          <dbl> <chr>               
-    ## 1 accuracy binary         0.804 Preprocessor1_Model1
-    ## 2 roc_auc  binary         0.900 Preprocessor1_Model1
+![](BabyNames_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
