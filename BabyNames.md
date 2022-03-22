@@ -170,14 +170,6 @@ mod_wf <- workflow() %>%
 fit <- fit(mod_wf, train_data)
 
 augment(fit, test_data) %>%
-  roc_curve(sex, .pred_F) %>%
-  autoplot()
-```
-
-![](BabyNames_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-``` r
-augment(fit, test_data) %>%
   roc_auc(sex, .pred_F)
 ```
 
@@ -191,7 +183,7 @@ augment(fit, test_data) %>%
 ``` r
 mod2_aug <- mod %>%
   fit(sex ~ name:n, train_data) %>%
-  augment(new_data = test_data)
+  augment(test_data)
 
 mod2_aug %>%
   roc_auc(sex, .pred_F)
@@ -203,14 +195,20 @@ mod2_aug %>%
     ## 1 roc_auc binary         0.928
 
 ``` r
-mod2_aug %>%
-  roc_curve(sex, .pred_F) %>%
-  autoplot()
+mod3_aug <- mod %>%
+  fit(sex ~ name, train_data) %>%
+  augment(test_data)
+
+mod3_aug %>%
+  roc_auc(sex, .pred_F)
 ```
 
-![](BabyNames_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+    ## # A tibble: 1 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 roc_auc binary         0.895
 
-## Both models plot
+## All models plot
 
 ``` r
 fit %>%
@@ -218,10 +216,62 @@ fit %>%
   mutate(model = "1") %>%
   bind_rows(mod2_aug %>%
               mutate(model = "2")) %>%
+  bind_rows(mod3_aug %>%
+              mutate(model = "3")) %>%
   group_by(model) %>%
   roc_curve(sex, .pred_F) %>%
   autoplot() +
-  labs(title = "Both Models")
+  labs(title = "Both Models") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](BabyNames_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](BabyNames_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+### Checking wrongly predicted names of Model 2
+
+``` r
+(names <- mod2_aug %>%
+  filter(sex != .pred_class) %>%
+  count(name, sort = TRUE))
+```
+
+    ## # A tibble: 32 x 2
+    ##    name         n
+    ##    <chr>    <int>
+    ##  1 Allyn       28
+    ##  2 Cameron     23
+    ##  3 Courtney    21
+    ##  4 Elisha      19
+    ##  5 Ian         19
+    ##  6 Shannon     16
+    ##  7 Ben         15
+    ##  8 Romaine     14
+    ##  9 Raven       13
+    ## 10 Tristan     12
+    ## # ... with 22 more rows
+
+``` r
+train_data %>%
+  filter(name %in% names$name) %>%
+  ggplot(aes(y = name, fill = sex)) + geom_bar(position = "dodge")
+```
+
+![](BabyNames_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+test_data %>%
+  filter(name %in% names$name) %>%
+  ggplot(aes(y = name, fill = sex)) + geom_bar(position = "dodge")
+```
+
+![](BabyNames_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+train_data %>%
+  filter(name %in% names$name[1:6]) %>%
+  ggplot(aes(year, n, color = sex)) + geom_line() +
+  facet_wrap(~name, scales = "free") +
+  labs(title = "Top 6 Names incorrectly classified")
+```
+
+![](BabyNames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
