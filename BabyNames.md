@@ -138,7 +138,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Search for functions across packages at https://www.tidymodels.org/find/
+    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
 set.seed(123)
@@ -275,3 +275,41 @@ train_data %>%
 ```
 
 ![](BabyNames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+# Increase in name popularity
+
+``` r
+(prop_names <- babynames %>%
+  filter(year == max(year)) %>%
+  group_by(name) %>%
+  summarize(max = max(sum(n))) %>%
+  arrange(-max))
+```
+
+    ## # A tibble: 29,910 x 2
+    ##    name       max
+    ##    <chr>    <dbl>
+    ##  1 Emma     19752
+    ##  2 Liam     18764
+    ##  3 Olivia   18642
+    ##  4 Noah     18496
+    ##  5 Ava      15914
+    ##  6 Isabella 15112
+    ##  7 Logan    15077
+    ##  8 William  14922
+    ##  9 Sophia   14848
+    ## 10 James    14309
+    ## # ... with 29,900 more rows
+
+``` r
+babynames %>%
+  group_by(name, year) %>%
+  summarize(total = sum(n)) %>%
+  filter(name %in% prop_names$name[1:6]) %>%
+  ggplot(aes(year, total)) + geom_point() + facet_wrap(~name)
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+![](BabyNames_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

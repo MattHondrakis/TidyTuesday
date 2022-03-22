@@ -158,3 +158,20 @@ train_data %>%
   labs(title = "Top 6 Names incorrectly classified")
 ```
 
+
+
+# Increase in name popularity
+```{r}
+(prop_names <- babynames %>%
+  filter(year == max(year)) %>%
+  group_by(name) %>%
+  summarize(max = max(sum(n))) %>%
+  arrange(-max))
+
+babynames %>%
+  group_by(name, year) %>%
+  summarize(total = sum(n)) %>%
+  filter(name %in% prop_names$name[1:6]) %>%
+  ggplot(aes(year, total)) + geom_point() + facet_wrap(~name)
+```
+
