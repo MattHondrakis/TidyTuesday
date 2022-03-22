@@ -138,12 +138,14 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Search for functions across packages at https://www.tidymodels.org/find/
+    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
 set.seed(123)
+```
 
-split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)))
+``` r
+split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)), strata = name)
 
 train_data <- training(split_data)
 test_data <- testing(split_data)
@@ -155,7 +157,7 @@ test_data <- testing(split_data)
 mod <- logistic_reg()
 
 rec <- recipe(sex ~ name + n, train_data) %>%
-  step_dummy(all_nominal_predictors()) 
+  step_dummy(all_nominal_predictors())
   
 mod_wf <- workflow() %>%
   add_model(mod) %>%
@@ -172,7 +174,7 @@ augment(fit, test_data) %>%
   autoplot()
 ```
 
-![](BabyNames_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](BabyNames_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 augment(fit, test_data) %>%
@@ -183,3 +185,31 @@ augment(fit, test_data) %>%
     ##   .metric .estimator .estimate
     ##   <chr>   <chr>          <dbl>
     ## 1 roc_auc binary         0.900
+
+## Fit Model 2
+
+``` r
+model2_wf <- workflow() %>%
+  add_model(mod) %>%
+  add_recipe(recipe(sex ~ ., train_data) %>%
+  step_dummy(all_nominal_predictors())) %>%
+  last_fit(split_data) 
+
+model2_wf %>%
+  collect_predictions() %>%
+  roc_curve(sex, .pred_F) %>%
+  autoplot()
+```
+
+![](BabyNames_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+model2_wf %>%
+  collect_metrics()
+```
+
+    ## # A tibble: 2 x 4
+    ##   .metric  .estimator .estimate .config             
+    ##   <chr>    <chr>          <dbl> <chr>               
+    ## 1 accuracy binary         0.804 Preprocessor1_Model1
+    ## 2 roc_auc  binary         0.900 Preprocessor1_Model1
