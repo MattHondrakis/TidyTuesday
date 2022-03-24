@@ -149,6 +149,12 @@ test_data %>%
 ```
 
 
+```{r}
+train_data %>%
+  distinct(name) %>%
+  anti_join(test_data %>% distinct(name))
+```
+
 
 ```{r, dpi = 500}
 train_data %>%
@@ -157,7 +163,6 @@ train_data %>%
   facet_wrap(~name, scales = "free") +
   labs(title = "Top 6 Names incorrectly classified")
 ```
-
 
 
 # Increase in name popularity
@@ -174,4 +179,5 @@ babynames %>%
   filter(name %in% prop_names$name[1:6]) %>%
   ggplot(aes(year, total)) + geom_point() + facet_wrap(~name)
 ```
+
 
