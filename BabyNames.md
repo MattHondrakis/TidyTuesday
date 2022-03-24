@@ -138,14 +138,14 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
+    ## * Search for functions across packages at https://www.tidymodels.org/find/
 
 ``` r
 set.seed(123)
 ```
 
 ``` r
-split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)), strata = name)
+split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)), strata = sex)
 
 train_data <- training(split_data)
 test_data <- testing(split_data)
@@ -176,7 +176,7 @@ augment(fit, test_data) %>%
     ## # A tibble: 1 x 3
     ##   .metric .estimator .estimate
     ##   <chr>   <chr>          <dbl>
-    ## 1 roc_auc binary         0.900
+    ## 1 roc_auc binary         0.901
 
 ## Fit Model 2
 
@@ -192,7 +192,7 @@ mod2_aug %>%
     ## # A tibble: 1 x 3
     ##   .metric .estimator .estimate
     ##   <chr>   <chr>          <dbl>
-    ## 1 roc_auc binary         0.928
+    ## 1 roc_auc binary         0.934
 
 ``` r
 mod3_aug <- mod %>%
@@ -206,7 +206,7 @@ mod3_aug %>%
     ## # A tibble: 1 x 3
     ##   .metric .estimator .estimate
     ##   <chr>   <chr>          <dbl>
-    ## 1 roc_auc binary         0.895
+    ## 1 roc_auc binary         0.900
 
 ## All models plot
 
@@ -235,20 +235,20 @@ fit %>%
   count(name, sort = TRUE))
 ```
 
-    ## # A tibble: 32 x 2
+    ## # A tibble: 31 x 2
     ##    name         n
     ##    <chr>    <int>
-    ##  1 Allyn       28
+    ##  1 Allyn       26
     ##  2 Cameron     23
     ##  3 Courtney    21
-    ##  4 Elisha      19
-    ##  5 Ian         19
-    ##  6 Shannon     16
-    ##  7 Ben         15
-    ##  8 Romaine     14
-    ##  9 Raven       13
-    ## 10 Tristan     12
-    ## # ... with 22 more rows
+    ##  4 Ben         20
+    ##  5 Gay         19
+    ##  6 Romaine     15
+    ##  7 Shannon     15
+    ##  8 Elisha      14
+    ##  9 Cooper      12
+    ## 10 Raven        9
+    ## # ... with 21 more rows
 
 ``` r
 train_data %>%

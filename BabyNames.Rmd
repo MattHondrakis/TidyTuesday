@@ -65,7 +65,7 @@ set.seed(123)
 
 
 ```{r}
-split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)), strata = name)
+split_data <- initial_split(babynames %>% filter(name %in% sample(babynames$name, 100)), strata = sex)
 
 train_data <- training(split_data)
 test_data <- testing(split_data)
