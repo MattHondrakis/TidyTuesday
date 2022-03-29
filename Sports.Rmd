@@ -1,0 +1,58 @@
+---
+title: "Sports"
+author: "Matthew"
+date: "3/29/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+
+```{r}
+sports <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-29/sports.csv')
+```
+
+
+# EDA
+```{r}
+sports %>%
+  keep(is.numeric) %>%
+  select(-year) %>%
+  gather() %>%
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+
+```{r}
+sports %>%
+  keep(is.numeric) %>%
+  summarize_all(~ mean(is.na(.))) %>%
+  select_if(. > 0) %>%
+  gather() %>%
+  arrange(-value)
+
+sports %>%
+  select(partic_coed_men) %>%
+  count(partic_coed_men, sort = TRUE)
+```
+
+
+```{r}
+sports %>% 
+  filter(!is.na(total_exp_menwomen)) %>% 
+  group_by(state_cd) %>%
+  summarize(n = sum(total_exp_menwomen)/1e9) %>%
+  arrange(-n) %>% 
+  head(15) %>%
+  ggplot(aes(n, fct_reorder(state_cd,n))) + geom_col() +
+  labs(y = "", x = "Total Expenditure (in millions)", title = "Total Spent by State") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
