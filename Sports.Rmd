@@ -14,9 +14,11 @@ theme_set(theme_bw())
 ```
 
 
-
 ```{r}
 sports <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-29/sports.csv')
+sports <- sports %>% 
+  rename(state = state_cd) %>% 
+  rename_with( ~ gsub("_menwomen","",.x))
 ```
 
 
@@ -46,13 +48,45 @@ sports %>%
 
 ```{r}
 sports %>% 
-  filter(!is.na(total_exp_menwomen)) %>% 
-  group_by(state_cd) %>%
-  summarize(n = sum(total_exp_menwomen)/1e9) %>%
+  filter(!is.na(total_exp)) %>% 
+  group_by(state) %>%
+  summarize(n = sum(total_exp)/1e9) %>%
   arrange(-n) %>% 
   head(15) %>%
-  ggplot(aes(n, fct_reorder(state_cd,n))) + geom_col() +
+  ggplot(aes(n, fct_reorder(state,n))) + geom_col() +
   labs(y = "", x = "Total Expenditure (in millions)", title = "Total Spent by State") +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+(names <- sports %>%
+  filter(!is.na(total_exp) & !is.na(state)) %>%
+  select(sports, state, total_exp) %>%
+  mutate(sports = str_replace(sports, ", Indoor|, Outdoor|, X-Country", "")) %>% 
+  group_by(state) %>% 
+  summarize(n = sum(total_exp)) %>% 
+  arrange(-n) %>%
+  pull(state))
+
+sports %>%
+  filter(!is.na(total_exp) & state %in% names[1:10]) %>%
+  select(sports, state, total_exp) %>%
+  mutate(sports = str_replace(sports, ", Indoor|, Outdoor|, X-Country", "")) %>% 
+  group_by(state, sports) %>% 
+  summarize(n = sum(total_exp)/1e6) %>%
+  top_n(5, n) %>% 
+  ggplot(aes(n, fct_reorder(state, n, .fun = sum), fill = sports)) +
+  geom_col() + labs(y = "", x = "Total Spent (in millions)", fill = "", title = "Top 3 Sports for each State") +
+  theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(labels = scales::dollar)
+```
+
+
+```{r}
+sports %>% 
+  filter(state == "TX" & !is.na(total_exp)) %>% 
+  group_by(sports) %>% 
+  summarize(n = sum(total_exp)) %>%
+  arrange(-n)
 ```
 
