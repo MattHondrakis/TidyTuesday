@@ -18,7 +18,8 @@ sports <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesda
 
 ``` r
 sports <- sports %>% 
-  rename(state = state_cd) %>% 
+  rename(state = state_cd,
+         sport = sports) %>% 
   rename_with( ~ gsub("_menwomen","",.x))
 ```
 
@@ -80,6 +81,8 @@ sports %>%
     ## 10              12     34
     ## # ... with 42 more rows
 
+## Total Expenditure
+
 ``` r
 sports %>% 
   filter(!is.na(total_exp)) %>% 
@@ -96,11 +99,11 @@ sports %>%
 
 ``` r
 (names <- sports %>%
-  filter(!is.na(total_exp) & !is.na(state)) %>%
-  select(sports, state, total_exp) %>%
-  mutate(sports = str_replace(sports, ", Indoor|, Outdoor|, X-Country", "")) %>% 
+  filter(!is.na(state)) %>%
+  select(state, sport, total_exp) %>%
+  mutate(sport = str_replace(sport, ", Indoor|, Outdoor|, X-Country", "")) %>% 
   group_by(state) %>% 
-  summarize(n = sum(total_exp)) %>% 
+  summarize(n = sum(total_exp, na.rm = TRUE)) %>% 
   arrange(-n) %>%
   pull(state))
 ```
@@ -113,14 +116,18 @@ sports %>%
 ``` r
 sports %>%
   filter(!is.na(total_exp) & state %in% names[1:10]) %>%
-  select(sports, state, total_exp) %>%
-  mutate(sports = str_replace(sports, ", Indoor|, Outdoor|, X-Country", "")) %>% 
-  group_by(state, sports) %>% 
-  summarize(n = sum(total_exp)/1e6) %>%
+  select(sport, state, total_exp) %>%
+  mutate(sport = str_replace(sport, ", Indoor|, Outdoor|, X-Country", "")) %>% 
+  group_by(state, sport) %>% 
+  summarize(n = sum(total_exp)/1e9) %>%
   top_n(5, n) %>% 
-  ggplot(aes(n, fct_reorder(state, n, .fun = sum), fill = sports)) +
-  geom_col() + labs(y = "", x = "Total Spent (in millions)", fill = "", title = "Top 3 Sports for each State") +
-  theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(labels = scales::dollar)
+  ggplot(aes(n, fct_reorder(state, n, .fun = sum), fill = sport)) +
+  geom_col() + 
+  labs(y = "", x = "Total Spent (in billions)", fill = "", title = "Top 5 Sports for each State",
+                    subtitle = "From 2015 to 2019", 
+       caption = "The sum is only accounting for the top 5 sports spent in each state") +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + 
+  scale_x_continuous(labels = scales::dollar)
 ```
 
     ## `summarise()` has grouped output by 'state'. You can override using the
@@ -131,13 +138,13 @@ sports %>%
 ``` r
 sports %>% 
   filter(state == "TX" & !is.na(total_exp)) %>% 
-  group_by(sports) %>% 
+  group_by(sport) %>% 
   summarize(n = sum(total_exp)) %>%
   arrange(-n)
 ```
 
     ## # A tibble: 28 x 2
-    ##    sports                       n
+    ##    sport                        n
     ##    <chr>                    <dbl>
     ##  1 Football            1573261890
     ##  2 Basketball           990202120
@@ -150,3 +157,37 @@ sports %>%
     ##  9 Tennis               153503816
     ## 10 Swimming and Diving   85114855
     ## # ... with 18 more rows
+
+## Sex Differences
+
+``` r
+sports %>% 
+  select(sport, exp_men, exp_women, total_exp) %>%
+  mutate(exp_men = ifelse(is.na(exp_men), 0, exp_men),
+         exp_women = ifelse(is.na(exp_women), 0, exp_women)) %>% 
+  summarize(sum = exp_men + exp_women,
+            total_exp) %>% 
+  summarize(correct = mean(sum == total_exp, na.rm = TRUE),
+            missing = mean(is.na(sum) | is.na(total_exp)))
+```
+
+    ## # A tibble: 1 x 2
+    ##   correct missing
+    ##     <dbl>   <dbl>
+    ## 1       1   0.342
+
+``` r
+sports %>% 
+  select(state, exp_men, exp_women) %>% 
+  filter(!is.na(exp_men) & !is.na(exp_women)) %>% 
+  group_by(state) %>% 
+  summarize(n = sum(exp_men - exp_women)/1e6) %>%
+  filter(!is.na(state)) %>% 
+  ggplot(aes(fct_reorder(state,n),n)) + geom_col() +
+  labs(y = "", x = "", title = "Amount Spent More on Men by State",
+       subtitle = "In millions") + 
+  scale_y_continuous(labels = scales::dollar) +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+![](Sports_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
