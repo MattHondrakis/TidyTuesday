@@ -191,3 +191,51 @@ sports %>%
 ```
 
 ![](Sports_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+sports %>% 
+  select(state, exp_men, exp_women, year) %>% 
+  filter(!is.na(exp_men) & !is.na(exp_women)) %>% 
+  group_by(state, year) %>% 
+  summarize(n = sum(exp_men - exp_women)/1e6) %>%
+  filter(!is.na(state)) %>% 
+  ggplot(aes(fct_reorder(state,n), n, fill = year)) + geom_col() +
+  labs(y = "", x = "", title = "Amount Spent More on Men by State",
+       subtitle = "In millions") + 
+  scale_y_continuous(labels = scales::dollar) +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+    ## `summarise()` has grouped output by 'state'. You can override using the
+    ## `.groups` argument.
+
+![](Sports_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+sports %>%
+  select(rev_men, exp_men) %>% 
+  drop_na() %>% 
+  ggplot(aes(rev_men, exp_men)) + geom_point(alpha = 0.2) 
+```
+
+![](Sports_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+sports %>% 
+  select(rev_women, exp_women) %>% 
+  drop_na() %>% 
+  ggplot(aes(rev_women, exp_women)) + geom_point(alpha = 0.2) 
+```
+
+![](Sports_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+sports %>% 
+  filter(!is.na(sector_name) & !is.na(total_exp)) %>% 
+  group_by(sector_name) %>% 
+  summarize(n = sum(total_exp)/1e6) %>% 
+  ggplot(aes(n, fct_reorder(sector_name, n, max))) + geom_col() +
+  scale_x_log10(labels = scales::dollar) + labs(y = "", x = "Total Spent in millions")
+```
+
+![](Sports_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
