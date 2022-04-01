@@ -229,6 +229,8 @@ sports %>%
 
 ![](Sports_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
+# Sectors
+
 ``` r
 sports %>% 
   filter(!is.na(sector_name) & !is.na(total_exp)) %>% 
@@ -239,3 +241,62 @@ sports %>%
 ```
 
 ![](Sports_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+sports %>%
+  filter(state %in% names) %>%
+  group_by(state, sector_name) %>% 
+  summarize(n = sum(total_exp, na.rm = TRUE)/1e6) %>% 
+  filter(state %in% c("TX","NY","CA","FL","PA","AL","MI","OH")) %>%
+  top_n(3, n) %>% 
+  ggplot(aes(n, fct_reorder(state, n, max), fill = sector_name)) +
+  geom_col(position = "dodge") + 
+  labs(y = "", x = "Total Spent (in millions)", fill = "",
+       title = "State spending by Sector") + 
+  scale_x_continuous(labels = scales::dollar)
+```
+
+    ## `summarise()` has grouped output by 'state'. You can override using the
+    ## `.groups` argument.
+
+![](Sports_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+## Proportion of States where Public expending is more than Private
+
+``` r
+sports %>%
+  filter(sector_name %in% c("Public, 4-year or above", "Private nonprofit, 4-year or above")) %>% 
+  group_by(state, sector_name) %>% 
+  summarize(t = sum(total_exp, na.rm = TRUE)) %>% 
+  pivot_wider(names_from = sector_name, values_from = t) %>%
+  rename(public = "Public, 4-year or above", private = "Private nonprofit, 4-year or above") %>% 
+  ungroup() %>% 
+  summarize(prop = mean(public > private, na.rm = TRUE))
+```
+
+    ## `summarise()` has grouped output by 'state'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 1 x 1
+    ##    prop
+    ##   <dbl>
+    ## 1  0.74
+
+``` r
+sports %>%
+  filter(!is.na(state)) %>% 
+  group_by(state, sector_name) %>% 
+  mutate(sector_name = ifelse(str_detect(sector_name, "^Public"), "Public", "Private")) %>% 
+  summarize(n = sum(total_exp, na.rm = TRUE)/1e6) %>% 
+  pivot_wider(names_from = sector_name, values_from = n) %>% 
+  ungroup() %>% 
+  summarize(prop = mean(Public > Private, na.rm = TRUE))
+```
+
+    ## `summarise()` has grouped output by 'state'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 1 x 1
+    ##    prop
+    ##   <dbl>
+    ## 1  0.74
