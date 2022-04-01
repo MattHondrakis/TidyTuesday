@@ -253,7 +253,7 @@ sports %>%
   geom_col(position = "dodge") + 
   labs(y = "", x = "Total Spent (in millions)", fill = "",
        title = "State spending by Sector") + 
-  scale_x_continuous(labels = scales::dollar)
+  scale_x_continuous(labels = scales::dollar) + scale_fill_viridis_d()
 ```
 
     ## `summarise()` has grouped output by 'state'. You can override using the
