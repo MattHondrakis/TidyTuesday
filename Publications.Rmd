@@ -1,0 +1,42 @@
+---
+title: "Digital Publications"
+author: "Matthew"
+date: "4/5/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(tidymodels)
+theme_set(theme_bw())
+```
+
+
+```{r}
+news <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-05/news_orgs.csv')
+skimr::skim(news)
+```
+
+
+# EDA
+## Owner/Founder
+```{r}
+news %>% 
+  group_by(state) %>% 
+  summarize(n = mean(is_owner_founder == "Yes")) %>% 
+  arrange(-n) %>% 
+  head(10) %>% 
+  ggplot(aes(n, fct_reorder(state,n))) + geom_col() +
+  labs(y = "", x = "", title = "Proportion of Publications Where the Owner is the Founder by State")
+```
+
+
+```{r}
+news %>% 
+  filter(state == "MB") %>% 
+  count(is_owner_founder)
+```
+
