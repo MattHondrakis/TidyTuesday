@@ -40,3 +40,14 @@ news %>%
   count(is_owner_founder)
 ```
 
+
+```{r}
+news %>% 
+  filter(country != "United States") %>% 
+  count(state, sort = TRUE)
+
+news %>% 
+  group_by(country) %>% 
+  distinct(state) %>% 
+  summarize(n = n())
+```
