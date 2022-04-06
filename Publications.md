@@ -18,6 +18,8 @@ news <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+news <- news %>% 
+  select(-url)
 skimr::skim(news)
 ```
 
@@ -25,10 +27,10 @@ skimr::skim(news)
 |:-------------------------------------------------|:-----|
 | Name                                             | news |
 | Number of rows                                   | 741  |
-| Number of columns                                | 40   |
+| Number of columns                                | 39   |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |      |
 | Column type frequency:                           |      |
-| character                                        | 33   |
+| character                                        | 32   |
 | logical                                          | 6    |
 | numeric                                          | 1    |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |      |
@@ -42,7 +44,6 @@ Data summary
 |:--------------------------------------------------|-----------:|---------------:|----:|-----:|------:|----------:|-----------:|
 | publication\_name                                 |          0 |           1.00 |   3 |   51 |     0 |       739 |          0 |
 | parent\_publication                               |        683 |           0.08 |   7 |   91 |     0 |        42 |          0 |
-| url                                               |          0 |           1.00 |  14 |   80 |     0 |       735 |          0 |
 | owner                                             |        482 |           0.35 |   4 |   92 |     0 |       244 |          0 |
 | is\_owner\_founder                                |          0 |           1.00 |   2 |    3 |     0 |         2 |          0 |
 | city                                              |         43 |           0.94 |   3 |   39 |     0 |       468 |          0 |
@@ -117,3 +118,88 @@ news %>%
     ##   is_owner_founder     n
     ##   <chr>            <int>
     ## 1 Yes                  1
+
+``` r
+news %>% 
+  filter(country != "United States") %>% 
+  count(state, sort = TRUE)
+```
+
+    ## # A tibble: 10 x 2
+    ##    state     n
+    ##    <chr> <int>
+    ##  1 ON       26
+    ##  2 BC       16
+    ##  3 AB        9
+    ##  4 NS        3
+    ##  5 QC        3
+    ##  6 NT        2
+    ##  7 SK        2
+    ##  8 MB        1
+    ##  9 NB        1
+    ## 10 <NA>      1
+
+``` r
+news %>% 
+  group_by(country) %>% 
+  distinct(state) %>% 
+  summarize(n = n())
+```
+
+    ## # A tibble: 3 x 2
+    ##   country                 n
+    ##   <chr>               <int>
+    ## 1 Canada                  9
+    ## 2 U.S. Virgin Islands     1
+    ## 3 United States          50
+
+``` r
+news %>% 
+  count(tax_status_current, sort = TRUE)
+```
+
+    ## # A tibble: 10 x 2
+    ##    tax_status_current                          n
+    ##    <chr>                                   <int>
+    ##  1 For Profit                                348
+    ##  2 LLC                                       128
+    ##  3 Not for Profit                            116
+    ##  4 Nonprofit 501c(3) or Canadian nonprofit    52
+    ##  5 Sole Proprietor/no specific tax status     39
+    ##  6 S Corp                                     29
+    ##  7 Under umbrella of a 501c(3)                18
+    ##  8 Partnership                                 4
+    ##  9 Public-benefit corporation                  4
+    ## 10 <NA>                                        3
+
+``` r
+news %>% 
+  filter(is.na(year_founded))
+```
+
+    ## # A tibble: 5 x 39
+    ##   publication_name   parent_publicat~ owner is_owner_founder city  state country
+    ##   <chr>              <chr>            <chr> <chr>            <chr> <chr> <chr>  
+    ## 1 Eye On Annapolis   <NA>             <NA>  Yes              Anna~ MD    United~
+    ## 2 Hoptown Chronicle  <NA>             <NA>  Yes              Hopk~ KY    United~
+    ## 3 North Penn Now     <NA>             <NA>  Yes              Lans~ PA    United~
+    ## 4 The Oaklandside    <NA>             <NA>  Yes              Oakl~ CA    United~
+    ## 5 Webb City Sentinel <NA>             Zinc~ No               Webb~ MO    United~
+    ## # ... with 32 more variables: primary_language <chr>,
+    ## #   primary_language_other <lgl>, tax_status_founded <chr>,
+    ## #   tax_status_current <chr>, year_founded <dbl>, total_employees <chr>,
+    ## #   budget_percent_editorial <chr>, budget_percent_revenue_generation <chr>,
+    ## #   budget_percent_product_technology <chr>,
+    ## #   budget_percent_administration <chr>, products <chr>, products_other <chr>,
+    ## #   distribution <chr>, distribution_method_other <chr>, ...
+
+``` r
+news %>% 
+  filter(!is.na(tax_status_current), !is.na(year_founded)) %>% 
+  group_by(year_founded) %>% 
+  ggplot(aes(fill = year_founded, y = tax_status_current, group = year_founded)) + 
+  geom_bar(position = "dodge") +
+  scale_fill_viridis_c() + labs(y = "", x = "", title = "Number of Publications", fill = "Year")
+```
+
+![](Publications_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->

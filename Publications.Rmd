@@ -17,6 +17,8 @@ theme_set(theme_bw())
 
 ```{r}
 news <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-05/news_orgs.csv')
+news <- news %>% 
+  select(-url)
 skimr::skim(news)
 ```
 
@@ -51,3 +53,20 @@ news %>%
   distinct(state) %>% 
   summarize(n = n())
 ```
+
+
+```{r}
+news %>% 
+  count(tax_status_current, sort = TRUE)
+
+news %>% 
+  filter(is.na(year_founded))
+
+news %>% 
+  filter(!is.na(tax_status_current), !is.na(year_founded)) %>% 
+  group_by(year_founded) %>% 
+  ggplot(aes(fill = year_founded, y = tax_status_current, group = year_founded)) + 
+  geom_bar(position = "dodge") +
+  scale_fill_viridis_c() + labs(y = "", x = "", title = "Number of Publications", fill = "Year")
+```
+
