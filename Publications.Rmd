@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
 library(tidyverse)
 library(tidymodels)
 theme_set(theme_bw())
@@ -18,7 +18,9 @@ theme_set(theme_bw())
 ```{r}
 news <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-05/news_orgs.csv')
 news <- news %>% 
-  select(-url)
+  select(-url) %>% 
+  mutate(primary_language = 
+           ifelse(primary_language == "Spanish, English", "Bilingual (Spanish & English)", primary_language))
 skimr::skim(news)
 ```
 
@@ -61,18 +63,22 @@ news %>% count(primary_language, sort = TRUE)
 
 
 ## Primary Language
-```{r, dpi=600}
+```{r}
 news %>% 
   group_by(country) %>% 
   count(primary_language, sort = TRUE) %>% 
   filter(!is.na(primary_language)) %>% 
   ggplot(aes(n, fct_reorder(country, n), fill = fct_reorder(primary_language, n))) + 
   geom_col(position = position_dodge2(preserve = "single")) +
-  scale_x_sqrt() + labs(y = "Country")
+  scale_x_sqrt() + labs(y = "")
 
 news %>% 
   filter(!is.na(primary_language)) %>% 
   ggplot(aes(year_founded, col = primary_language)) + geom_density()
+
+news %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(year_founded)) + geom_histogram() + facet_wrap(~primary_language)
 ```
 
 

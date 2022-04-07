@@ -19,7 +19,9 @@ news <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/
 
 ``` r
 news <- news %>% 
-  select(-url)
+  select(-url) %>% 
+  mutate(primary_language = 
+           ifelse(primary_language == "Spanish, English", "Bilingual (Spanish & English)", primary_language))
 skimr::skim(news)
 ```
 
@@ -49,7 +51,7 @@ Data summary
 | city                                              |         43 |           0.94 |   3 |   39 |     0 |       468 |          0 |
 | state                                             |         13 |           0.98 |   2 |    2 |     0 |        58 |          0 |
 | country                                           |          0 |           1.00 |   6 |   19 |     0 |         3 |          0 |
-| primary\_language                                 |          3 |           1.00 |   7 |   29 |     0 |         4 |          0 |
+| primary\_language                                 |          3 |           1.00 |   7 |   29 |     0 |         3 |          0 |
 | tax\_status\_founded                              |        450 |           0.39 |   3 |   39 |     0 |         8 |          0 |
 | tax\_status\_current                              |          3 |           1.00 |   3 |   39 |     0 |         9 |          0 |
 | total\_employees                                  |        444 |           0.40 |   1 |   10 |     0 |         8 |          0 |
@@ -169,14 +171,13 @@ news %>%
 news %>% count(primary_language, sort = TRUE)
 ```
 
-    ## # A tibble: 5 x 2
+    ## # A tibble: 4 x 2
     ##   primary_language                  n
     ##   <chr>                         <int>
     ## 1 English                         707
     ## 2 Spanish                          26
-    ## 3 Bilingual (Spanish & English)     4
+    ## 3 Bilingual (Spanish & English)     5
     ## 4 <NA>                              3
-    ## 5 Spanish, English                  1
 
 ## Primary Language
 
@@ -187,7 +188,7 @@ news %>%
   filter(!is.na(primary_language)) %>% 
   ggplot(aes(n, fct_reorder(country, n), fill = fct_reorder(primary_language, n))) + 
   geom_col(position = position_dodge2(preserve = "single")) +
-  scale_x_sqrt() + labs(y = "Country")
+  scale_x_sqrt() + labs(y = "")
 ```
 
 ![](Publications_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -199,6 +200,16 @@ news %>%
 ```
 
 ![](Publications_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+news %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(year_founded)) + geom_histogram() + facet_wrap(~primary_language)
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
 
 ## Tax Status
 
