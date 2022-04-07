@@ -52,9 +52,31 @@ news %>%
   group_by(country) %>% 
   distinct(state) %>% 
   summarize(n = n())
+
+news %>% 
+  count(country, sort = TRUE)
+
+news %>% count(primary_language, sort = TRUE)
 ```
 
 
+## Primary Language
+```{r, dpi=600}
+news %>% 
+  group_by(country) %>% 
+  count(primary_language, sort = TRUE) %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(n, fct_reorder(country, n), fill = fct_reorder(primary_language, n))) + 
+  geom_col(position = position_dodge2(preserve = "single")) +
+  scale_x_sqrt() + labs(y = "Country")
+
+news %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(year_founded, col = primary_language)) + geom_density()
+```
+
+
+## Tax Status
 ```{r}
 news %>% 
   count(tax_status_current, sort = TRUE)

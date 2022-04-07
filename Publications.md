@@ -155,6 +155,55 @@ news %>%
 
 ``` r
 news %>% 
+  count(country, sort = TRUE)
+```
+
+    ## # A tibble: 3 x 2
+    ##   country                 n
+    ##   <chr>               <int>
+    ## 1 United States         677
+    ## 2 Canada                 63
+    ## 3 U.S. Virgin Islands     1
+
+``` r
+news %>% count(primary_language, sort = TRUE)
+```
+
+    ## # A tibble: 5 x 2
+    ##   primary_language                  n
+    ##   <chr>                         <int>
+    ## 1 English                         707
+    ## 2 Spanish                          26
+    ## 3 Bilingual (Spanish & English)     4
+    ## 4 <NA>                              3
+    ## 5 Spanish, English                  1
+
+## Primary Language
+
+``` r
+news %>% 
+  group_by(country) %>% 
+  count(primary_language, sort = TRUE) %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(n, fct_reorder(country, n), fill = fct_reorder(primary_language, n))) + 
+  geom_col(position = position_dodge2(preserve = "single")) +
+  scale_x_sqrt() + labs(y = "Country")
+```
+
+![](Publications_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+news %>% 
+  filter(!is.na(primary_language)) %>% 
+  ggplot(aes(year_founded, col = primary_language)) + geom_density()
+```
+
+![](Publications_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+## Tax Status
+
+``` r
+news %>% 
   count(tax_status_current, sort = TRUE)
 ```
 
@@ -202,4 +251,4 @@ news %>%
   scale_fill_viridis_c() + labs(y = "", x = "", title = "Number of Publications", fill = "Year")
 ```
 
-![](Publications_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Publications_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
