@@ -103,21 +103,29 @@ news %>%
 ```
 
 
-# Attempting to figure out total_employees
+# Attempting to figure out the "numeric" columns
 ```{r}
-news %>% 
-  select(total_employees) %>% 
-  filter(!is.na(total_employees)) %>% 
-  View()
+char_fun <- function(x){
+  news %>% 
+    filter(!is.na({{x}})) %>% 
+    separate({{x}}, c("a","b")) %>% 
+    select(a,b) %>% 
+    mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
+    summarize(n = case_when(is.na(b) ~ a,
+                            !is.na(b) ~ (a + b)/2)) %>% 
+    ggplot(aes(n)) + geom_histogram()
+}
 
-news %>% 
-  filter(!is.na(total_employees)) %>% 
-  separate(total_employees, c("a","b")) %>% 
-  select(a,b) %>% 
-  mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
-  summarize(n = case_when(is.na(b) ~ a,
-                          !is.na(b) ~ (a + b)/2)) %>% 
-  ggplot(aes(n)) + geom_histogram()
+char_fun(total_employees) + ggtitle("total_employees")
+
+char_fun(budget_percent_editorial) + ggtitle("budget_percent_editorial")
+
+char_fun(budget_percent_revenue_generation) + ggtitle("budget_percent_revenue_generation")
+
+char_fun(budget_percent_product_technology) + ggtitle("budget_percent_product_technology")
+
+char_fun(budget_percent_administration) + ggtitle("budget_percent_administration")
+
 ```
 
 

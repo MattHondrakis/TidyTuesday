@@ -255,24 +255,55 @@ news %>%
 
 ![](Publications_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-# Attempting to figure out total\_employees
+# Attempting to figure out the “numeric” columns
 
 ``` r
-news %>% 
-  select(total_employees) %>% 
-  filter(!is.na(total_employees)) %>% 
-  View()
+char_fun <- function(x){
+  news %>% 
+    filter(!is.na({{x}})) %>% 
+    separate({{x}}, c("a","b")) %>% 
+    select(a,b) %>% 
+    mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
+    summarize(n = case_when(is.na(b) ~ a,
+                            !is.na(b) ~ (a + b)/2)) %>% 
+    ggplot(aes(n)) + geom_histogram()
+}
 
-news %>% 
-  filter(!is.na(total_employees)) %>% 
-  separate(total_employees, c("a","b")) %>% 
-  select(a,b) %>% 
-  mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
-  summarize(n = case_when(is.na(b) ~ a,
-                          !is.na(b) ~ (a + b)/2)) %>% 
-  ggplot(aes(n)) + geom_histogram()
+char_fun(total_employees) + ggtitle("total_employees")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](Publications_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+char_fun(budget_percent_editorial) + ggtitle("budget_percent_editorial")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+char_fun(budget_percent_revenue_generation) + ggtitle("budget_percent_revenue_generation")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+char_fun(budget_percent_product_technology) + ggtitle("budget_percent_product_technology")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+``` r
+char_fun(budget_percent_administration) + ggtitle("budget_percent_administration")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-7-5.png)<!-- -->
