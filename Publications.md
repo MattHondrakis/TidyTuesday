@@ -22,6 +22,9 @@ news <- news %>%
   select(-url) %>% 
   mutate(primary_language = 
            ifelse(primary_language == "Spanish, English", "Bilingual (Spanish & English)", primary_language))
+
+news <- news[ , colSums(is.na(news)) < nrow(news)]
+
 skimr::skim(news)
 ```
 
@@ -29,11 +32,10 @@ skimr::skim(news)
 |:-------------------------------------------------|:-----|
 | Name                                             | news |
 | Number of rows                                   | 741  |
-| Number of columns                                | 39   |
+| Number of columns                                | 33   |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |      |
 | Column type frequency:                           |      |
 | character                                        | 32   |
-| logical                                          | 6    |
 | numeric                                          | 1    |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |      |
 | Group variables                                  | None |
@@ -76,17 +78,6 @@ Data summary
 | advertising\_products                             |        466 |           0.37 |   5 |  171 |     0 |        65 |          0 |
 | real\_world\_impacts                              |        522 |           0.30 |  34 | 2533 |     0 |       218 |          0 |
 | summary                                           |         58 |           0.92 |  24 |  591 |     0 |       677 |          0 |
-
-**Variable type: logical**
-
-| skim\_variable                    | n\_missing | complete\_rate | mean | count |
-|:----------------------------------|-----------:|---------------:|-----:|:------|
-| primary\_language\_other          |        741 |              0 |  NaN | :     |
-| coverage\_topics\_other           |        741 |              0 |  NaN | :     |
-| revenue\_stream\_other            |        741 |              0 |  NaN | :     |
-| revenue\_stream\_additional\_info |        741 |              0 |  NaN | :     |
-| paywall\_or\_gateway\_other       |        741 |              0 |  NaN | :     |
-| advertising\_product\_other       |        741 |              0 |  NaN | :     |
 
 **Variable type: numeric**
 
@@ -237,7 +228,7 @@ news %>%
   filter(is.na(year_founded))
 ```
 
-    ## # A tibble: 5 x 39
+    ## # A tibble: 5 x 33
     ##   publication_name   parent_publicat~ owner is_owner_founder city  state country
     ##   <chr>              <chr>            <chr> <chr>            <chr> <chr> <chr>  
     ## 1 Eye On Annapolis   <NA>             <NA>  Yes              Anna~ MD    United~
@@ -245,13 +236,13 @@ news %>%
     ## 3 North Penn Now     <NA>             <NA>  Yes              Lans~ PA    United~
     ## 4 The Oaklandside    <NA>             <NA>  Yes              Oakl~ CA    United~
     ## 5 Webb City Sentinel <NA>             Zinc~ No               Webb~ MO    United~
-    ## # ... with 32 more variables: primary_language <chr>,
-    ## #   primary_language_other <lgl>, tax_status_founded <chr>,
+    ## # ... with 26 more variables: primary_language <chr>, tax_status_founded <chr>,
     ## #   tax_status_current <chr>, year_founded <dbl>, total_employees <chr>,
     ## #   budget_percent_editorial <chr>, budget_percent_revenue_generation <chr>,
     ## #   budget_percent_product_technology <chr>,
     ## #   budget_percent_administration <chr>, products <chr>, products_other <chr>,
-    ## #   distribution <chr>, distribution_method_other <chr>, ...
+    ## #   distribution <chr>, distribution_method_other <chr>, geographic_area <chr>,
+    ## #   core_editorial_strategy_characteristics <chr>, ...
 
 ``` r
 news %>% 
@@ -263,3 +254,25 @@ news %>%
 ```
 
 ![](Publications_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+# Attempting to figure out total\_employees
+
+``` r
+news %>% 
+  select(total_employees) %>% 
+  filter(!is.na(total_employees)) %>% 
+  View()
+
+news %>% 
+  filter(!is.na(total_employees)) %>% 
+  separate(total_employees, c("a","b")) %>% 
+  select(a,b) %>% 
+  mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
+  summarize(n = case_when(is.na(b) ~ a,
+                          !is.na(b) ~ (a + b)/2)) %>% 
+  ggplot(aes(n)) + geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Publications_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->

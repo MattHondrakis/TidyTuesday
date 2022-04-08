@@ -21,8 +21,12 @@ news <- news %>%
   select(-url) %>% 
   mutate(primary_language = 
            ifelse(primary_language == "Spanish, English", "Bilingual (Spanish & English)", primary_language))
+
+news <- news[ , colSums(is.na(news)) < nrow(news)]
+
 skimr::skim(news)
 ```
+
 
 
 # EDA
@@ -97,4 +101,24 @@ news %>%
   geom_bar(position = "dodge") +
   scale_fill_viridis_c() + labs(y = "", x = "", title = "Number of Publications", fill = "Year")
 ```
+
+
+# Attempting to figure out total_employees
+```{r}
+news %>% 
+  select(total_employees) %>% 
+  filter(!is.na(total_employees)) %>% 
+  View()
+
+news %>% 
+  filter(!is.na(total_employees)) %>% 
+  separate(total_employees, c("a","b")) %>% 
+  select(a,b) %>% 
+  mutate(a = as.numeric(a), b = as.numeric(b)) %>%  
+  summarize(n = case_when(is.na(b) ~ a,
+                          !is.na(b) ~ (a + b)/2)) %>% 
+  ggplot(aes(n)) + geom_histogram()
+```
+
+
 
