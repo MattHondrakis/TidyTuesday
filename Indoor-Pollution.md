@@ -149,3 +149,36 @@ indoor_pollution %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+tidy_pollution %>% 
+  filter(term == "year" & p.value > 0.05)
+```
+
+    ## # A tibble: 13 x 8
+    ##    entity              data     model term  estimate std.error statistic p.value
+    ##    <chr>               <list>   <lis> <chr>    <dbl>     <dbl>     <dbl>   <dbl>
+    ##  1 Central African Re~ <tibble> <lm>  year  -2.86e-2   0.0146     -1.96   0.0601
+    ##  2 Democratic Republi~ <tibble> <lm>  year  -9.72e-4   0.00864    -0.112  0.911 
+    ##  3 Eastern sub-Sahara~ <tibble> <lm>  year  -2.08e-3   0.0109     -0.190  0.850 
+    ##  4 Eritrea             <tibble> <lm>  year  -2.11e-3   0.0139     -0.152  0.881 
+    ##  5 Ethiopia            <tibble> <lm>  year  -1.24e-2   0.00627    -1.98   0.0581
+    ##  6 Malawi              <tibble> <lm>  year   4.05e-2   0.0200      2.03   0.0522
+    ##  7 Mali                <tibble> <lm>  year   1.49e-3   0.00416     0.357  0.724 
+    ##  8 Philippines         <tibble> <lm>  year  -1.39e-2   0.0181     -0.767  0.449 
+    ##  9 Rwanda              <tibble> <lm>  year   5.16e-2   0.0385      1.34   0.191 
+    ## 10 Senegal             <tibble> <lm>  year  -2.05e-2   0.0116     -1.77   0.0878
+    ## 11 Tanzania            <tibble> <lm>  year   1.31e-2   0.0173      0.756  0.456 
+    ## 12 Zambia              <tibble> <lm>  year  -2.89e-2   0.0161     -1.80   0.0834
+    ## 13 Zimbabwe            <tibble> <lm>  year   3.27e-2   0.0351      0.933  0.359
+
+``` r
+indoor_pollution %>% 
+  filter(entity %in% (tidy_pollution %>% filter(term == "year" & p.value > 0.05) %>% pull(entity))) %>% 
+  ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~entity)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->

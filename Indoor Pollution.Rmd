@@ -77,3 +77,14 @@ indoor_pollution %>%
   facet_wrap(~entity)
 ```
 
+
+```{r}
+tidy_pollution %>% 
+  filter(term == "year" & p.value > 0.05)
+
+indoor_pollution %>% 
+  filter(entity %in% (tidy_pollution %>% filter(term == "year" & p.value > 0.05) %>% pull(entity))) %>% 
+  ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~entity)
+```
+
