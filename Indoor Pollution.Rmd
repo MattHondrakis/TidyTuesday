@@ -1,0 +1,79 @@
+---
+title: "Indoor Pollution"
+author: "Matthew"
+date: "4/11/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+indoor_pollution <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/indoor_pollution.csv')
+
+indoor_pollution <- indoor_pollution %>% 
+  rename(deaths_pct = "Deaths - Cause: All causes - Risk: Household air pollution from solid fuels - Sex: Both - Age: Age-standardized (Percent)") %>% 
+  rename_with(tolower)
+```
+
+# EDA
+```{r}
+indoor_pollution %>% 
+  count(entity)
+
+indoor_pollution %>% 
+  distinct(year) %>% 
+  arrange(-year)
+```
+
+
+## Deaths over time
+```{r}
+indoor_pollution %>% 
+  group_by(entity) %>% 
+  summarize(diff = deaths_pct[year == 1990] - deaths_pct[year == 2019]) %>% 
+  arrange(-diff)
+
+tidy_pollution <- indoor_pollution %>% 
+  nest(-entity) %>% 
+  mutate(model = map(data, ~lm(deaths_pct ~ year, .x)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy)
+
+tidy_pollution %>% 
+  filter(term == "year") %>% 
+  arrange(-abs(estimate))
+```
+
+
+```{r}
+x <- tidy_pollution %>%
+  filter(term == "year") %>% 
+  arrange(-abs(estimate)) %>% 
+  pull(entity)
+
+y <- indoor_pollution %>% 
+  group_by(entity) %>% 
+  summarize(diff = deaths_pct[year == min(year)] - deaths_pct[year == max(year)]) %>% 
+  arrange(-abs(diff)) %>% 
+  pull(entity)
+
+mean(x[1:10] == y[1:10])
+mean(x == y)
+
+```
+
+
+```{r}
+indoor_pollution %>% 
+  filter(entity %in% x[1:10]) %>% 
+  ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~entity)
+```
+
