@@ -15,11 +15,30 @@ theme_set(theme_bw())
 
 
 ```{r}
-indoor_pollution <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/indoor_pollution.csv')
+indoor_pollution <- 
+  read_csv(
+    'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/indoor_pollution.csv')
+
+fuel_access <- 
+  read_csv(
+    'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/fuel_gdp.csv')
+```
+
+
+
+```{r}
+fuel_access <- fuel_access %>% 
+  rename_with(tolower) %>% 
+  rename(access_pct = "access to clean fuels and technologies for cooking (% of population)") %>% 
+  rename(gdp = `gdp per capita, ppp (constant 2017 international $)`) %>% 
+  rename(population = `population (historical estimates)`)
 
 indoor_pollution <- indoor_pollution %>% 
   rename(deaths_pct = "Deaths - Cause: All causes - Risk: Household air pollution from solid fuels - Sex: Both - Age: Age-standardized (Percent)") %>% 
   rename_with(tolower)
+
+joined_data <- indoor_pollution %>% 
+  full_join(fuel_access) 
 ```
 
 # EDA
@@ -32,6 +51,28 @@ indoor_pollution %>%
   arrange(-year)
 ```
 
+
+```{r}
+joined_data %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+
+joined_data %>%
+  filter(year < 0) %>% 
+  arrange(year)
+
+fuel_access %>% 
+  filter(year < 0)
+
+indoor_pollution %>% 
+  filter(year < 0)
+
+joined_data <- 
+  joined_data %>% 
+  filter(year > 1900)
+
+```
 
 ## Deaths over time
 ```{r}
@@ -86,5 +127,19 @@ indoor_pollution %>%
   filter(entity %in% (tidy_pollution %>% filter(term == "year" & p.value > 0.05) %>% pull(entity))) %>% 
   ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~entity)
+```
+
+
+## Access
+```{r}
+fuel_access %>% 
+  filter(!is.na(access_pct) & !is.na(continent)) %>% 
+  ggplot(aes(access_pct, color = fct_reorder(continent, access_pct, median, .desc = TRUE))) + 
+  geom_density() + labs(color = "Continent (Ordered by median)")
+
+fuel_access %>% 
+  mutate(alpha = ifelse(is.na(continent), 0.1, 1)) %>% 
+  filter(!is.na(access_pct) & !is.na(gdp)) %>% 
+  ggplot(aes(gdp, access_pct, color = continent)) + geom_point(aes(alpha = alpha)) + scale_x_log10()
 ```
 

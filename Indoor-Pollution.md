@@ -4,7 +4,9 @@ Matthew
 4/11/2022
 
 ``` r
-indoor_pollution <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/indoor_pollution.csv')
+indoor_pollution <- 
+  read_csv(
+    'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/indoor_pollution.csv')
 ```
 
     ## Rows: 8010 Columns: 4
@@ -17,10 +19,36 @@ indoor_pollution <- read_csv('https://raw.githubusercontent.com/rfordatascience/
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+fuel_access <- 
+  read_csv(
+    'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-04-12/fuel_gdp.csv')
+```
+
+    ## Rows: 57108 Columns: 7
+    ## -- Column specification --------------------------------------------------------
+    ## Delimiter: ","
+    ## chr (3): Entity, Code, Continent
+    ## dbl (4): Year, Access to clean fuels and technologies for cooking (% of popu...
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+fuel_access <- fuel_access %>% 
+  rename_with(tolower) %>% 
+  rename(access_pct = "access to clean fuels and technologies for cooking (% of population)") %>% 
+  rename(gdp = `gdp per capita, ppp (constant 2017 international $)`) %>% 
+  rename(population = `population (historical estimates)`)
+
 indoor_pollution <- indoor_pollution %>% 
   rename(deaths_pct = "Deaths - Cause: All causes - Risk: Household air pollution from solid fuels - Sex: Both - Age: Age-standardized (Percent)") %>% 
   rename_with(tolower)
+
+joined_data <- indoor_pollution %>% 
+  full_join(fuel_access) 
 ```
+
+    ## Joining, by = c("entity", "code", "year")
 
 # EDA
 
@@ -64,6 +92,72 @@ indoor_pollution %>%
     ##  9  2011
     ## 10  2010
     ## # ... with 20 more rows
+
+``` r
+joined_data %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+joined_data %>%
+  filter(year < 0) %>% 
+  arrange(year)
+```
+
+    ## # A tibble: 1,797 x 8
+    ##    entity           code   year deaths_pct access_pct   gdp population continent
+    ##    <chr>            <chr> <dbl>      <dbl>      <dbl> <dbl>      <dbl> <chr>    
+    ##  1 Afghanistan      AFG    -1e4         NA         NA    NA      14737 <NA>     
+    ##  2 Africa           <NA>   -1e4         NA         NA    NA     227611 <NA>     
+    ##  3 Albania          ALB    -1e4         NA         NA    NA       1199 <NA>     
+    ##  4 Algeria          DZA    -1e4         NA         NA    NA      12090 <NA>     
+    ##  5 Andorra          AND    -1e4         NA         NA    NA         25 <NA>     
+    ##  6 Angola           AGO    -1e4         NA         NA    NA        379 <NA>     
+    ##  7 Antigua and Bar~ ATG    -1e4         NA         NA    NA          1 <NA>     
+    ##  8 Argentina        ARG    -1e4         NA         NA    NA      27969 <NA>     
+    ##  9 Armenia          ARM    -1e4         NA         NA    NA       9614 <NA>     
+    ## 10 Asia             <NA>   -1e4         NA         NA    NA    1184300 <NA>     
+    ## # ... with 1,787 more rows
+
+``` r
+fuel_access %>% 
+  filter(year < 0)
+```
+
+    ## # A tibble: 1,797 x 7
+    ##    entity      code    year access_pct   gdp population continent
+    ##    <chr>       <chr>  <dbl>      <dbl> <dbl>      <dbl> <chr>    
+    ##  1 Afghanistan AFG   -10000         NA    NA      14737 <NA>     
+    ##  2 Afghanistan AFG    -9000         NA    NA      20405 <NA>     
+    ##  3 Afghanistan AFG    -8000         NA    NA      28253 <NA>     
+    ##  4 Afghanistan AFG    -7000         NA    NA      39120 <NA>     
+    ##  5 Afghanistan AFG    -6000         NA    NA      54166 <NA>     
+    ##  6 Afghanistan AFG    -5000         NA    NA      74999 <NA>     
+    ##  7 Afghanistan AFG    -4000         NA    NA     306250 <NA>     
+    ##  8 Afghanistan AFG    -3000         NA    NA     537500 <NA>     
+    ##  9 Afghanistan AFG    -2000         NA    NA     768751 <NA>     
+    ## 10 Afghanistan AFG    -1000         NA    NA     999998 <NA>     
+    ## # ... with 1,787 more rows
+
+``` r
+indoor_pollution %>% 
+  filter(year < 0)
+```
+
+    ## # A tibble: 0 x 4
+    ## # ... with 4 variables: entity <chr>, code <chr>, year <dbl>, deaths_pct <dbl>
+
+``` r
+joined_data <- 
+  joined_data %>% 
+  filter(year > 1900)
+```
 
 ## Deaths over time
 
@@ -148,7 +242,7 @@ indoor_pollution %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 tidy_pollution %>% 
@@ -181,4 +275,24 @@ indoor_pollution %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Access
+
+``` r
+fuel_access %>% 
+  filter(!is.na(access_pct) & !is.na(continent)) %>% 
+  ggplot(aes(access_pct, color = fct_reorder(continent, access_pct, median, .desc = TRUE))) + 
+  geom_density() + labs(color = "Continent (Ordered by median)")
+```
+
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+fuel_access %>% 
+  mutate(alpha = ifelse(is.na(continent), 0.1, 1)) %>% 
+  filter(!is.na(access_pct) & !is.na(gdp)) %>% 
+  ggplot(aes(gdp, access_pct, color = continent)) + geom_point(aes(alpha = alpha)) + scale_x_log10()
+```
+
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
