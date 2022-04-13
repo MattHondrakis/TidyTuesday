@@ -143,3 +143,14 @@ fuel_access %>%
   ggplot(aes(gdp, access_pct, color = continent)) + geom_point(aes(alpha = alpha)) + scale_x_log10()
 ```
 
+
+
+```{r}
+joined_data %>% 
+  filter(!is.na(deaths_pct) & !is.na(access_pct)) %>% 
+  gather("key", "value", c("deaths_pct", "access_pct")) %>% 
+  group_by(year, key) %>% 
+  summarize(avg = mean(value)) %>% 
+  ggplot(aes(year, avg, color = key)) + geom_line() + geom_point()
+```
+

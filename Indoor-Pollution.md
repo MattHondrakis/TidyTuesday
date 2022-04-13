@@ -296,3 +296,17 @@ fuel_access %>%
 ```
 
 ![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+
+``` r
+joined_data %>% 
+  filter(!is.na(deaths_pct) & !is.na(access_pct)) %>% 
+  gather("key", "value", c("deaths_pct", "access_pct")) %>% 
+  group_by(year, key) %>% 
+  summarize(avg = mean(value)) %>% 
+  ggplot(aes(year, avg, color = key)) + geom_line() + geom_point()
+```
+
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
+
+![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
