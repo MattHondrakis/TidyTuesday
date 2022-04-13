@@ -237,7 +237,10 @@ mean(x == y)
 indoor_pollution %>% 
   filter(entity %in% x[1:10]) %>% 
   ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~entity)
+  facet_wrap(~entity) + 
+  labs(title = "Top 10 Countries by absolute value of slope Coefficient", y = "Percentage of deaths", x = "") + 
+  scale_x_continuous(breaks = c(1995,2005,2015)) + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1))
 ```
 
     ## `geom_smooth()` using formula 'y ~ x'
@@ -270,7 +273,10 @@ tidy_pollution %>%
 indoor_pollution %>% 
   filter(entity %in% (tidy_pollution %>% filter(term == "year" & p.value > 0.05) %>% pull(entity))) %>% 
   ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~entity)
+  facet_wrap(~entity) +
+  labs(title = "Countries with P.Values greather than 5% for slope coefficient", y = "Percentage of deaths", x = "") + 
+  scale_x_continuous(breaks = c(1995,2005,2015)) + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1))
 ```
 
     ## `geom_smooth()` using formula 'y ~ x'
@@ -283,7 +289,9 @@ indoor_pollution %>%
 fuel_access %>% 
   filter(!is.na(access_pct) & !is.na(continent)) %>% 
   ggplot(aes(access_pct, color = fct_reorder(continent, access_pct, median, .desc = TRUE))) + 
-  geom_density() + labs(color = "Continent (Ordered by median)")
+  geom_density() + labs(color = "Continent (Ordered by median)") +
+  labs(x = "Access to clean fuel", title = "Proportion Access to Clean Fuel for each Continent") + 
+  scale_x_continuous(labels = scales::percent_format(scale = 1))
 ```
 
 ![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
@@ -292,7 +300,10 @@ fuel_access %>%
 fuel_access %>% 
   mutate(alpha = ifelse(is.na(continent), 0.1, 1)) %>% 
   filter(!is.na(access_pct) & !is.na(gdp)) %>% 
-  ggplot(aes(gdp, access_pct, color = continent)) + geom_point(aes(alpha = alpha)) + scale_x_log10()
+  ggplot(aes(gdp, access_pct, color = continent)) + geom_point(aes(alpha = alpha)) + 
+  scale_x_log10(labels = scales::comma) + scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  guides(alpha = "none") + 
+  labs(color = "Continent", y = "Access to Clean Fuel", x = "GDP", title = "Access to fuel by GDP")
 ```
 
 ![](Indoor-Pollution_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
@@ -303,7 +314,11 @@ joined_data %>%
   gather("key", "value", c("deaths_pct", "access_pct")) %>% 
   group_by(year, key) %>% 
   summarize(avg = mean(value)) %>% 
-  ggplot(aes(year, avg, color = key)) + geom_line() + geom_point()
+  ggplot(aes(year, avg, color = key)) + geom_line() + geom_point() +
+  labs(y = "Average", color = "", title = "Average Fuel and Deaths by Year") + 
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  scale_color_discrete(labels = c("Access to Fuel", "Deaths")) + 
+  theme(legend.position = "top", plot.title = element_text(hjust = 0.5))
 ```
 
     ## `summarise()` has grouped output by 'year'. You can override using the
