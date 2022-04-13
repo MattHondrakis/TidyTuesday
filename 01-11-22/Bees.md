@@ -67,7 +67,8 @@ stressor %>%
   scale_y_continuous(labels = scales::percent_format(scale = 1))
 ```
 
-    ## `summarise()` has grouped output by 'year'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
 
 ![](Bees_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
