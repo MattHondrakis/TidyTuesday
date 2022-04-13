@@ -210,7 +210,8 @@ chocolate %>%
        caption = "Color indicates whether the beans come from that country")
 ```
 
-    ## `summarise()` has grouped output by 'company_location'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'company_location'. You can override using
+    ## the `.groups` argument.
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
@@ -230,7 +231,8 @@ chocolate %>%
        caption = "Color indicates whether the beans come from that country", palette = "npg")
 ```
 
-    ## `summarise()` has grouped output by 'company_location'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'company_location'. You can override using
+    ## the `.groups` argument.
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
@@ -249,7 +251,8 @@ chocolate %>%
        caption = "Color indicates whether the company and the beans are from the same country")
 ```
 
-    ## `summarise()` has grouped output by 'company_manufacturer'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'company_manufacturer'. You can override
+    ## using the `.groups` argument.
 
 ![](Chocolate_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
