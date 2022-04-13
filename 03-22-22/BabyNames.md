@@ -138,7 +138,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Search for functions across packages at https://www.tidymodels.org/find/
+    ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
 set.seed(123)
@@ -268,13 +268,26 @@ test_data %>%
 
 ``` r
 train_data %>%
+  distinct(name) %>%
+  anti_join(test_data %>% distinct(name))
+```
+
+    ## Joining, by = "name"
+
+    ## # A tibble: 1 x 1
+    ##   name     
+    ##   <chr>    
+    ## 1 Brooksley
+
+``` r
+train_data %>%
   filter(name %in% names$name[1:6]) %>%
   ggplot(aes(year, n, color = sex)) + geom_line() +
   facet_wrap(~name, scales = "free") +
   labs(title = "Top 6 Names incorrectly classified")
 ```
 
-![](BabyNames_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](BabyNames_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 # Increase in name popularity
 
@@ -312,4 +325,4 @@ babynames %>%
     ## `summarise()` has grouped output by 'name'. You can override using the
     ## `.groups` argument.
 
-![](BabyNames_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](BabyNames_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
