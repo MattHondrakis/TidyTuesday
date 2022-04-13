@@ -283,8 +283,8 @@ gplot2(wishing) + scale_x_log10() + geom_smooth(method = "lm") +
   labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a log10 scale")
 ```
 
-    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
-
+    ## `summarise()` has grouped output by 'wishing'. You can override using the
+    ## `.groups` argument.
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
@@ -294,7 +294,8 @@ gplot2(wishing) + scale_x_sqrt() + geom_smooth(method = "lm") +
   labs(title = "Comparison of Average vs Bayes Average", subtitle = "X is on a square root scale")
 ```
 
-    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'wishing'. You can override using the
+    ## `.groups` argument.
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
@@ -387,12 +388,12 @@ library(tidymodels)
 
     ## -- Attaching packages -------------------------------------- tidymodels 0.1.4 --
 
-    ## v broom        0.7.10     v rsample      0.1.1 
-    ## v dials        0.0.10     v tune         0.1.6 
+    ## v broom        0.7.12     v rsample      0.1.1 
+    ## v dials        0.1.0      v tune         0.1.6 
     ## v infer        1.0.0      v workflows    0.2.4 
-    ## v modeldata    0.1.1      v workflowsets 0.1.0 
-    ## v parsnip      0.1.7      v yardstick    0.0.9 
-    ## v recipes      0.1.17
+    ## v modeldata    0.1.1      v workflowsets 0.2.1 
+    ## v parsnip      0.2.0      v yardstick    0.0.9 
+    ## v recipes      0.2.0
 
     ## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
     ## x scales::discard() masks purrr::discard()
@@ -401,7 +402,8 @@ library(tidymodels)
     ## x dplyr::lag()      masks stats::lag()
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
-    ## * Learn how to get started at https://www.tidymodels.org/start/
+    ## x tune::tune()      masks parsnip::tune()
+    ## * Use tidymodels_prefer() to resolve common conflicts.
 
 ``` r
 library(mgcv)
@@ -416,7 +418,7 @@ library(mgcv)
     ## 
     ##     collapse
 
-    ## This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
+    ## This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
 
 ``` r
 games_split <- initial_split(games, strata = bayes_average)
@@ -437,22 +439,22 @@ model %>% summary()
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -5.5321 -0.0595  0.0038  0.0579  1.1030 
+    ## -5.5347 -0.0596  0.0036  0.0574  1.1350 
     ## 
     ## Coefficients:
     ##                               Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)                  5.203e+00  9.941e-03 523.361  < 2e-16 ***
-    ## sqrt(wishing)                1.946e-02  4.243e-04  45.853  < 2e-16 ***
-    ## sqrt(wanting)                2.457e-02  8.481e-04  28.975  < 2e-16 ***
-    ## minplayers                   2.441e-02  1.713e-03  14.252  < 2e-16 ***
-    ## average                      2.069e-02  1.496e-03  13.831  < 2e-16 ***
-    ## sqrt(wishing):sqrt(wanting) -3.716e-05  9.746e-06  -3.813 0.000138 ***
+    ## (Intercept)                  5.196e+00  9.829e-03 528.658  < 2e-16 ***
+    ## sqrt(wishing)                2.066e-02  4.281e-04  48.259  < 2e-16 ***
+    ## sqrt(wanting)                2.250e-02  8.531e-04  26.375  < 2e-16 ***
+    ## minplayers                   2.477e-02  1.703e-03  14.549  < 2e-16 ***
+    ## average                      2.140e-02  1.473e-03  14.528  < 2e-16 ***
+    ## sqrt(wishing):sqrt(wanting) -5.039e-05  9.705e-06  -5.192 2.11e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.1477 on 16215 degrees of freedom
-    ## Multiple R-squared:  0.8374, Adjusted R-squared:  0.8374 
-    ## F-statistic: 1.671e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 0.1458 on 16215 degrees of freedom
+    ## Multiple R-squared:  0.8403, Adjusted R-squared:  0.8403 
+    ## F-statistic: 1.707e+04 on 5 and 16215 DF,  p-value: < 2.2e-16
 
 ``` r
 games_test %>%
@@ -504,18 +506,18 @@ model2 %>% summary()
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 5.683226   0.001148    4950   <2e-16 ***
+    ## (Intercept) 5.682879   0.001128    5037   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
     ##              edf Ref.df    F p-value    
-    ## s(wishing) 8.915  8.998 9503  <2e-16 ***
+    ## s(wishing) 8.917  8.998 9816  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.841   Deviance explained = 84.1%
-    ## GCV = 0.021396  Scale est. = 0.021383  n = 16221
+    ## R-sq.(adj) =  0.845   Deviance explained = 84.5%
+    ## GCV = 0.020658  Scale est. = 0.020646  n = 16221
 
 ``` r
 games_test %>%
@@ -567,7 +569,8 @@ games_test %>%
   labs(title = "Both models fitted", subtitle = "Square root scale")
 ```
 
-    ## `summarise()` has grouped output by 'wishing'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'wishing'. You can override using the
+    ## `.groups` argument.
 
 ![](BoardGames_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
@@ -678,7 +681,7 @@ games_test %>%
     ## # A tibble: 1 x 2
     ##    rmse relerr
     ##   <dbl>  <dbl>
-    ## 1 0.140 0.0238
+    ## 1 0.148 0.0262
 
 #### Model 3
 
