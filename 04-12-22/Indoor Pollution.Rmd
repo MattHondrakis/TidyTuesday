@@ -108,6 +108,10 @@ y <- indoor_pollution %>%
 mean(x[1:10] == y[1:10])
 mean(x == y)
 
+x <- data.frame(x = x[1:20])
+y <- data.frame(x = y[1:20])
+
+x %>% anti_join(y)
 ```
 
 
@@ -168,4 +172,3 @@ joined_data %>%
   scale_color_discrete(labels = c("Access to Fuel", "Deaths")) + 
   theme(legend.position = "top", plot.title = element_text(hjust = 0.5))
 ```
-
