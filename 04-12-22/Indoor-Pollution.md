@@ -234,6 +234,19 @@ mean(x == y)
     ## [1] 0.1011236
 
 ``` r
+df_x <- data.frame(x = x[1:20])
+df_y <- data.frame(x = y[1:20])
+
+df_x %>% anti_join(df_y)
+```
+
+    ## Joining, by = "x"
+
+    ##         x
+    ## 1  Bhutan
+    ## 2 Moldova
+
+``` r
 indoor_pollution %>% 
   filter(entity %in% x[1:10]) %>% 
   ggplot(aes(year, deaths_pct)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
