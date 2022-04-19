@@ -24,6 +24,17 @@ times <-
 
 # EDA
 ```{r}
+big_dave %>% 
+  count(definition, sort = TRUE)
+
+times %>% 
+  count(definition, sort = TRUE)
+
+big_dave %>% 
+  count(puzzle_name, sort = TRUE)
+
+times %>% 
+  count(puzzle_name, sort = TRUE)
 
 ```
 
