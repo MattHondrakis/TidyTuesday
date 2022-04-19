@@ -16,3 +16,4 @@ Diving into the weekly datasets of TidyTuesday!
 * [Collegiate Sports Budgets](https://github.com/MattHondrakis/TidyTuesday/blob/main/03-29-22/Sports.md)
 * [Digital Publications](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-05-22/Publications.md)
 * [Indoor Air Pollution](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-12-22/Indoor-Pollution.md)
+* [Crossword Puzzle](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-19-22/Crossword-Puzzle.md)
