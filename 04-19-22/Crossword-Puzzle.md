@@ -114,3 +114,26 @@ times %>%
     ##  9 Jumbo 1222                 62
     ## 10 Jumbo 1230                 62
     ## # ... with 3,443 more rows
+
+``` r
+big_dave %>% 
+  filter(!is.na(definition)) %>% 
+  filter(definition == "Bird") %>% 
+  group_by(year = lubridate::year(puzzle_date)) %>% 
+  summarize(n = n()) %>% 
+  ggplot(aes(year, n)) + geom_line()
+```
+
+![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+big_dave %>% 
+  filter(!is.na(definition)) %>% 
+  filter(definition %in% pull(big_dave %>% count(definition, sort = TRUE) %>% head(10), definition)) %>% 
+  group_by(year = lubridate::year(puzzle_date), definition) %>% 
+  ggplot(aes(year, color = definition)) + geom_density() +
+  scale_x_continuous(breaks = seq(2010,2022,2)) +
+  labs(title = "Yearly Proportion of 10 most common definitions", y = "", x = "")
+```
+
+![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
