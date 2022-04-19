@@ -159,7 +159,7 @@ times %>%
 big_dave %>% 
   filter(!is.na(definition)) %>% 
   filter(definition == "Bird") %>% 
-  group_by(year = lubridate::year(puzzle_date)) %>% 
+  group_by(year = year(puzzle_date)) %>% 
   summarize(n = n()) %>% 
   ggplot(aes(year, n)) + geom_line()
 ```
@@ -170,7 +170,7 @@ big_dave %>%
 big_dave %>% 
   filter(!is.na(definition)) %>% 
   filter(definition %in% pull(big_dave %>% count(definition, sort = TRUE) %>% head(10), definition)) %>% 
-  group_by(year = lubridate::year(puzzle_date), definition) %>% 
+  group_by(year = year(puzzle_date), definition) %>% 
   ggplot(aes(year, color = definition)) + geom_density() +
   scale_x_continuous(breaks = seq(2010,2022,2)) +
   labs(title = "Yearly Proportion of 10 most common definitions", y = "", x = "")
@@ -178,10 +178,12 @@ big_dave %>%
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
+## Number of words per Month
+
 ``` r
 big_dave %>% 
   unnest_tokens(word, definition) %>% 
-  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
+  group_by(month = month(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
   arrange(-n) %>% 
   ggplot(aes(month, n, group = 1)) + geom_line() +
@@ -193,7 +195,7 @@ big_dave %>%
 ``` r
 big_dave %>% 
   unnest_tokens(word, clue) %>% 
-  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
+  group_by(month = month(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
   ggplot(aes(month, n, group = 1)) + geom_line() +
   labs(title = "Total number of words in clues per month")
@@ -201,20 +203,28 @@ big_dave %>%
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
+## Number of words per Week
+
 ``` r
 week_count <- big_dave %>%
-  group_by(week = lubridate::wday(puzzle_date, label = TRUE)) %>% 
+  group_by(week = wday(puzzle_date, label = TRUE)) %>% 
   summarize(count = n())
 
-big_dave %>% 
+p <- big_dave %>% 
   unnest_tokens(word, clue) %>% 
-  group_by(week = lubridate::wday(puzzle_date, label = TRUE)) %>% 
+  group_by(week = wday(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
   inner_join(week_count) %>% 
-  ggplot(aes(week, n/count, group = 1)) + geom_line() +
-  labs(title = "Average number of words in clues by Weekday")
+  ggplot(aes(week, n/count, group = 1)) + labs(y = "", x = "")
 ```
 
     ## Joining, by = "week"
+
+``` r
+(p + geom_line()) +
+  (p + geom_col(aes(fill = week)) + scale_fill_discrete(guide = "none")) + 
+  plot_annotation(title = "Average Words in Clues per Weekday",
+                  theme = theme(plot.title = element_text(hjust = 0.5)))
+```
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
