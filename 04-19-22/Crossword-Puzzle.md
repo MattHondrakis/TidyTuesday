@@ -117,6 +117,46 @@ times %>%
 
 ``` r
 big_dave %>% 
+  count(clue_number, sort = TRUE)
+```
+
+    ## # A tibble: 658 x 2
+    ##    clue_number     n
+    ##    <chr>       <int>
+    ##  1 2d           7269
+    ##  2 3d           7187
+    ##  3 10a          6792
+    ##  4 5d           6775
+    ##  5 7d           6657
+    ##  6 4d           6426
+    ##  7 12a          6407
+    ##  8 6d           6188
+    ##  9 11a          5990
+    ## 10 1a           5871
+    ## # ... with 648 more rows
+
+``` r
+times %>% 
+  count(clue_number, sort = TRUE)
+```
+
+    ## # A tibble: 536 x 2
+    ##    clue_number     n
+    ##    <chr>       <int>
+    ##  1 2d           3285
+    ##  2 1a           3175
+    ##  3 3d           3146
+    ##  4 6d           3115
+    ##  5 7d           3028
+    ##  6 4d           3006
+    ##  7 10a          2857
+    ##  8 5d           2838
+    ##  9 1d           2651
+    ## 10 11a          2602
+    ## # ... with 526 more rows
+
+``` r
+big_dave %>% 
   filter(!is.na(definition)) %>% 
   filter(definition == "Bird") %>% 
   group_by(year = lubridate::year(puzzle_date)) %>% 
@@ -137,3 +177,26 @@ big_dave %>%
 ```
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+big_dave %>% 
+  unnest_tokens(word, definition) %>% 
+  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n) %>% 
+  ggplot(aes(month, n, group = 1)) + geom_line() +
+  labs(title = "Total Number of Words in the definition per month")
+```
+
+![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+big_dave %>% 
+  unnest_tokens(word, clue) %>% 
+  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
+  summarize(n = n()) %>% 
+  ggplot(aes(month, n, group = 1)) + geom_line() +
+  labs(title = "Total number of words in clues per month")
+```
+
+![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->

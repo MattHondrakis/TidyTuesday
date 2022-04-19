@@ -68,9 +68,18 @@ big_dave %>%
 ```{r}
 big_dave %>% 
   unnest_tokens(word, definition) %>% 
-  group_by(rowid) %>% 
+  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
-  arrange(-n)
+  arrange(-n) %>% 
+  ggplot(aes(month, n, group = 1)) + geom_line() +
+  labs(title = "Total Number of Words in the definition per month")
+
+big_dave %>% 
+  unnest_tokens(word, clue) %>% 
+  group_by(month = lubridate::month(puzzle_date, label = TRUE)) %>% 
+  summarize(n = n()) %>% 
+  ggplot(aes(month, n, group = 1)) + geom_line() +
+  labs(title = "Total number of words in clues per month")
 ```
 
 
