@@ -200,3 +200,21 @@ big_dave %>%
 ```
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
+week_count <- big_dave %>%
+  group_by(week = lubridate::wday(puzzle_date, label = TRUE)) %>% 
+  summarize(count = n())
+
+big_dave %>% 
+  unnest_tokens(word, clue) %>% 
+  group_by(week = lubridate::wday(puzzle_date, label = TRUE)) %>% 
+  summarize(n = n()) %>% 
+  inner_join(week_count) %>% 
+  ggplot(aes(week, n/count, group = 1)) + geom_line() +
+  labs(title = "Average number of words in clues by Weekday")
+```
+
+    ## Joining, by = "week"
+
+![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
