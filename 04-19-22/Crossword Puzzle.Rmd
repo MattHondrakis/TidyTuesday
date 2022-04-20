@@ -107,3 +107,17 @@ p <- puzzles %>%
 
 
 
+```{r}
+puzzles %>% 
+  mutate(week = wday(puzzle_date, label = TRUE)) %>% 
+  select(puzzle_date,week, source) %>% 
+  group_by(source) %>% 
+  summarize(mean(is.na(week)))
+
+puzzles %>% 
+  mutate(week = wday(puzzle_date, label = TRUE)) %>% 
+  filter(is.na(week)) %>% 
+  select(puzzle_date, week)
+```
+ 
+ 

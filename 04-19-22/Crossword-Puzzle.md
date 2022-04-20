@@ -183,3 +183,39 @@ p <- puzzles %>%
 ```
 
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+puzzles %>% 
+  mutate(week = wday(puzzle_date, label = TRUE)) %>% 
+  select(puzzle_date,week, source) %>% 
+  group_by(source) %>% 
+  summarize(mean(is.na(week)))
+```
+
+    ## # A tibble: 2 x 2
+    ##   source          `mean(is.na(week))`
+    ##   <chr>                         <dbl>
+    ## 1 bigdave44                    0     
+    ## 2 times_xwd_times              0.0630
+
+``` r
+puzzles %>% 
+  mutate(week = wday(puzzle_date, label = TRUE)) %>% 
+  filter(is.na(week)) %>% 
+  select(puzzle_date, week)
+```
+
+    ## # A tibble: 6,337 x 2
+    ##    puzzle_date week 
+    ##    <date>      <ord>
+    ##  1 NA          <NA> 
+    ##  2 NA          <NA> 
+    ##  3 NA          <NA> 
+    ##  4 NA          <NA> 
+    ##  5 NA          <NA> 
+    ##  6 NA          <NA> 
+    ##  7 NA          <NA> 
+    ##  8 NA          <NA> 
+    ##  9 NA          <NA> 
+    ## 10 NA          <NA> 
+    ## # ... with 6,327 more rows
