@@ -33,130 +33,83 @@ times <-
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+``` r
+puzzles <- big_dave %>% 
+  bind_rows(times)
+
+rm(list = c("big_dave","times"))
+```
+
 # EDA
 
 ``` r
-big_dave %>% 
+puzzles %>% 
+  group_by(source) %>% 
   count(definition, sort = TRUE)
 ```
 
-    ## # A tibble: 86,912 x 2
-    ##    definition     n
-    ##    <chr>      <int>
-    ##  1 <NA>       69595
-    ##  2 Bird         249
-    ##  3 drink        202
-    ##  4 game         194
-    ##  5 Country      179
-    ##  6 plant        176
-    ##  7 Plant        163
-    ##  8 country      160
-    ##  9 fish         154
-    ## 10 Drink        149
-    ## # ... with 86,902 more rows
+    ## # A tibble: 151,289 x 3
+    ## # Groups:   source [2]
+    ##    source          definition     n
+    ##    <chr>           <chr>      <int>
+    ##  1 bigdave44       <NA>       69595
+    ##  2 times_xwd_times <NA>        3215
+    ##  3 bigdave44       Bird         249
+    ##  4 bigdave44       drink        202
+    ##  5 bigdave44       game         194
+    ##  6 bigdave44       Country      179
+    ##  7 bigdave44       plant        176
+    ##  8 bigdave44       Plant        163
+    ##  9 bigdave44       country      160
+    ## 10 bigdave44       fish         154
+    ## # ... with 151,279 more rows
 
 ``` r
-times %>% 
-  count(definition, sort = TRUE)
-```
-
-    ## # A tibble: 64,377 x 2
-    ##    definition     n
-    ##    <chr>      <int>
-    ##  1 <NA>        3215
-    ##  2 Bird         150
-    ##  3 plant        147
-    ##  4 Girl         131
-    ##  5 drink        114
-    ##  6 fish         108
-    ##  7 Fish         108
-    ##  8 game         108
-    ##  9 Plant        108
-    ## 10 this         105
-    ## # ... with 64,367 more rows
-
-``` r
-big_dave %>% 
+puzzles %>%
+  group_by(source) %>% 
   count(puzzle_name, sort = TRUE)
 ```
 
-    ## # A tibble: 7,328 x 2
-    ##    puzzle_name               n
-    ##    <chr>                 <int>
-    ##  1 MPP – 061                72
-    ##  2 Double Toughie 100003    64
-    ##  3 Toughie 2766             64
-    ##  4 Double Toughie 100011    63
-    ##  5 NTSPP – 210              60
-    ##  6 Toughie 758              58
-    ##  7 Double Toughie 100007    57
-    ##  8 NTSPP – 200              57
-    ##  9 Sunday Telegraph 2789    56
-    ## 10 Toughie 2635             55
-    ## # ... with 7,318 more rows
+    ## # A tibble: 10,781 x 3
+    ## # Groups:   source [2]
+    ##    source          puzzle_name                 n
+    ##    <chr>           <chr>                   <int>
+    ##  1 times_xwd_times Jumbo 1423                 90
+    ##  2 times_xwd_times Saturday,                  86
+    ##  3 times_xwd_times Times 27195                76
+    ##  4 bigdave44       MPP – 061                  72
+    ##  5 bigdave44       Double Toughie 100003      64
+    ##  6 bigdave44       Toughie 2766               64
+    ##  7 bigdave44       Double Toughie 100011      63
+    ##  8 times_xwd_times Bank Holiday Jumbo 1326    62
+    ##  9 times_xwd_times Jumbo 1197                 62
+    ## 10 times_xwd_times Jumbo 1210                 62
+    ## # ... with 10,771 more rows
 
 ``` r
-times %>% 
-  count(puzzle_name, sort = TRUE)
-```
-
-    ## # A tibble: 3,453 x 2
-    ##    puzzle_name                 n
-    ##    <chr>                   <int>
-    ##  1 Jumbo 1423                 90
-    ##  2 Saturday,                  86
-    ##  3 Times 27195                76
-    ##  4 Bank Holiday Jumbo 1326    62
-    ##  5 Jumbo 1197                 62
-    ##  6 Jumbo 1210                 62
-    ##  7 Jumbo 1212                 62
-    ##  8 Jumbo 1215                 62
-    ##  9 Jumbo 1222                 62
-    ## 10 Jumbo 1230                 62
-    ## # ... with 3,443 more rows
-
-``` r
-big_dave %>% 
+puzzles %>% 
+  group_by(source) %>% 
   count(clue_number, sort = TRUE)
 ```
 
-    ## # A tibble: 658 x 2
-    ##    clue_number     n
-    ##    <chr>       <int>
-    ##  1 2d           7269
-    ##  2 3d           7187
-    ##  3 10a          6792
-    ##  4 5d           6775
-    ##  5 7d           6657
-    ##  6 4d           6426
-    ##  7 12a          6407
-    ##  8 6d           6188
-    ##  9 11a          5990
-    ## 10 1a           5871
-    ## # ... with 648 more rows
+    ## # A tibble: 1,194 x 3
+    ## # Groups:   source [2]
+    ##    source    clue_number     n
+    ##    <chr>     <chr>       <int>
+    ##  1 bigdave44 2d           7269
+    ##  2 bigdave44 3d           7187
+    ##  3 bigdave44 10a          6792
+    ##  4 bigdave44 5d           6775
+    ##  5 bigdave44 7d           6657
+    ##  6 bigdave44 4d           6426
+    ##  7 bigdave44 12a          6407
+    ##  8 bigdave44 6d           6188
+    ##  9 bigdave44 11a          5990
+    ## 10 bigdave44 1a           5871
+    ## # ... with 1,184 more rows
 
 ``` r
-times %>% 
-  count(clue_number, sort = TRUE)
-```
-
-    ## # A tibble: 536 x 2
-    ##    clue_number     n
-    ##    <chr>       <int>
-    ##  1 2d           3285
-    ##  2 1a           3175
-    ##  3 3d           3146
-    ##  4 6d           3115
-    ##  5 7d           3028
-    ##  6 4d           3006
-    ##  7 10a          2857
-    ##  8 5d           2838
-    ##  9 1d           2651
-    ## 10 11a          2602
-    ## # ... with 526 more rows
-
-``` r
-big_dave %>% 
+puzzles %>% 
   filter(!is.na(definition)) %>% 
   filter(definition == "Bird") %>% 
   group_by(year = year(puzzle_date)) %>% 
@@ -167,9 +120,9 @@ big_dave %>%
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
-big_dave %>% 
+puzzles %>% 
   filter(!is.na(definition)) %>% 
-  filter(definition %in% pull(big_dave %>% count(definition, sort = TRUE) %>% head(10), definition)) %>% 
+  filter(definition %in% pull(puzzles %>% count(definition, sort = TRUE) %>% head(10), definition)) %>% 
   group_by(year = year(puzzle_date), definition) %>% 
   ggplot(aes(year, color = definition)) + geom_density() +
   scale_x_continuous(breaks = seq(2010,2022,2)) +
@@ -181,7 +134,7 @@ big_dave %>%
 ## Number of words per Month
 
 ``` r
-big_dave %>% 
+puzzles %>% 
   unnest_tokens(word, definition) %>% 
   group_by(month = month(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
@@ -193,7 +146,7 @@ big_dave %>%
 ![](Crossword-Puzzle_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
-big_dave %>% 
+puzzles %>% 
   unnest_tokens(word, clue) %>% 
   group_by(month = month(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
@@ -206,11 +159,11 @@ big_dave %>%
 ## Number of words per Week
 
 ``` r
-week_count <- big_dave %>%
+week_count <- puzzles %>%
   group_by(week = wday(puzzle_date, label = TRUE)) %>% 
   summarize(count = n())
 
-p <- big_dave %>% 
+p <- puzzles %>% 
   unnest_tokens(word, clue) %>% 
   group_by(week = wday(puzzle_date, label = TRUE)) %>% 
   summarize(n = n()) %>% 
