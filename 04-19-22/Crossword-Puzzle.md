@@ -36,8 +36,6 @@ times <-
 ``` r
 puzzles <- big_dave %>% 
   bind_rows(times)
-
-rm(list = c("big_dave","times"))
 ```
 
 # EDA
@@ -137,6 +135,7 @@ puzzles %>%
 puzzles %>% 
   unnest_tokens(word, definition) %>% 
   group_by(month = month(puzzle_date, label = TRUE)) %>% 
+  filter(!is.na(month)) %>% 
   summarize(n = n()) %>% 
   arrange(-n) %>% 
   ggplot(aes(month, n, group = 1)) + geom_line() +
@@ -149,6 +148,7 @@ puzzles %>%
 puzzles %>% 
   unnest_tokens(word, clue) %>% 
   group_by(month = month(puzzle_date, label = TRUE)) %>% 
+  filter(!is.na(month)) %>% 
   summarize(n = n()) %>% 
   ggplot(aes(month, n, group = 1)) + geom_line() +
   labs(title = "Total number of words in clues per month")
@@ -161,11 +161,13 @@ puzzles %>%
 ``` r
 week_count <- puzzles %>%
   group_by(week = wday(puzzle_date, label = TRUE)) %>% 
+  filter(!is.na(week)) %>% 
   summarize(count = n())
 
 p <- puzzles %>% 
   unnest_tokens(word, clue) %>% 
   group_by(week = wday(puzzle_date, label = TRUE)) %>% 
+  filter(!is.na(week)) %>% 
   summarize(n = n()) %>% 
   inner_join(week_count) %>% 
   ggplot(aes(week, n/count, group = 1)) + labs(y = "", x = "")
