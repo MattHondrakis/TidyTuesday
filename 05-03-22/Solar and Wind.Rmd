@@ -39,3 +39,12 @@ average_cost <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidy
                   theme = theme(plot.title = element_text(hjust = 0.5, size = 18)))
 ```
 
+
+
+```{r}
+capacity %>% 
+  pivot_longer(-c(type, year)) %>% 
+  ggplot(aes(year, value, color = type)) + geom_line() +
+  facet_wrap(~name, scales = "free")
+```
+

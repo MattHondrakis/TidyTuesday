@@ -23,3 +23,12 @@ Matthew
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Solar-and-Wind_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+capacity %>% 
+  pivot_longer(-c(type, year)) %>% 
+  ggplot(aes(year, value, color = type)) + geom_line() +
+  facet_wrap(~name, scales = "free")
+```
+
+![](Solar-and-Wind_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
