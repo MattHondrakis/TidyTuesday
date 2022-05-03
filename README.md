@@ -17,3 +17,4 @@ Diving into the weekly datasets of TidyTuesday!
 * [Digital Publications](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-05-22/Publications.md)
 * [Indoor Air Pollution](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-12-22/Indoor-Pollution.md)
 * [Crossword Puzzle](https://github.com/MattHondrakis/TidyTuesday/blob/main/04-19-22/Crossword-Puzzle.md)
+* [Solar and Wind](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-03-22/Solar-and-Wind.md)
