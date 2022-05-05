@@ -37,6 +37,17 @@ average_cost <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidy
   plot_layout(guides = 'collect') + 
   plot_annotation(title = "Price per Energy", 
                   theme = theme(plot.title = element_text(hjust = 0.5, size = 18)))
+
+
+
+average_cost %>% 
+  pivot_longer(-year) %>% 
+  nest(-name) %>% 
+  mutate(model = map(data, ~ lm(value ~ year, .)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy) %>% 
+  filter(term == "year") %>% 
+  arrange(-abs(estimate))
 ```
 
 
@@ -49,7 +60,26 @@ capacity %>%
 ```
 
 
-```{r}
 
+```{r}
+solar %>% 
+  pivot_longer(-date) %>% 
+  ggplot(aes(date, value)) + geom_line() +
+  facet_wrap(~name)
+```
+
+
+
+```{r}
+wind %>% 
+  pivot_longer(-date) %>% 
+  ggplot(aes(date, value)) + geom_line() +
+  facet_wrap(~name)
+
+wind %>% 
+  select(date, wind_capacity) %>% 
+  summarize(diff = diff(date)) %>% 
+  count(diff) %>% 
+  arrange(-n)
 ```
 
