@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(patchwork)
+library(lubridate)
 theme_set(theme_bw())
 ```
 
@@ -66,6 +67,13 @@ solar %>%
   pivot_longer(-date) %>% 
   ggplot(aes(date, value)) + geom_line() +
   facet_wrap(~name)
+
+solar %>% 
+  mutate(month = month(date, label = TRUE)) %>% 
+  select(month, solar_capacity, solar_mwh) %>% 
+  pivot_longer(-month) %>% 
+  ggplot(aes(month, value)) + geom_boxplot() +
+  facet_wrap(~name, ncol = 1, scales = "free")
 ```
 
 
@@ -81,5 +89,12 @@ wind %>%
   summarize(diff = diff(date)) %>% 
   count(diff) %>% 
   arrange(-n)
+
+wind %>% 
+  mutate(month = month(date, label = TRUE)) %>% 
+  select(month, wind_capacity, wind_mwh) %>% 
+  pivot_longer(-month) %>% 
+  ggplot(aes(month, value)) + geom_boxplot() +
+  facet_wrap(~name, ncol = 1, scales = "free")
 ```
 
