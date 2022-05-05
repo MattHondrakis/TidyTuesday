@@ -61,6 +61,17 @@ solar %>%
 ![](Solar-and-Wind_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
+solar %>% 
+  mutate(month = month(date, label = TRUE)) %>% 
+  select(month, solar_capacity, solar_mwh) %>% 
+  pivot_longer(-month) %>% 
+  ggplot(aes(month, value)) + geom_boxplot() +
+  facet_wrap(~name, ncol = 1, scales = "free")
+```
+
+![](Solar-and-Wind_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
 wind %>% 
   pivot_longer(-date) %>% 
   ggplot(aes(date, value)) + geom_line() +
@@ -91,3 +102,14 @@ wind %>%
     ##  9  3 days    11
     ## 10 12 days    11
     ## # ... with 48 more rows
+
+``` r
+wind %>% 
+  mutate(month = month(date, label = TRUE)) %>% 
+  select(month, wind_capacity, wind_mwh) %>% 
+  pivot_longer(-month) %>% 
+  ggplot(aes(month, value)) + geom_boxplot() +
+  facet_wrap(~name, ncol = 1, scales = "free")
+```
+
+![](Solar-and-Wind_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
