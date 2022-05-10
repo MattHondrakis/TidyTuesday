@@ -60,10 +60,17 @@ nyt %>%
 
 ``` r
 nyt %>% 
-  filter(author %in% (nyt %>% count(author, sort = TRUE) %>% head(10) %>% pull(author))) %>% 
+  filter(author %in% 
+    (nyt %>% 
+    group_by(author) %>% 
+    distinct(title) %>% 
+    summarize(n = n()) %>% 
+    arrange(-n) %>% 
+    head(10) %>% 
+    pull(author))) %>% 
   group_by(author) %>% 
-  ggplot(aes(rank, fct_reorder(author, rank, median))) + geom_boxplot() + 
-  labs(y = "", title = "Top 10 most popular authors")
+  ggplot(aes(rank, fct_reorder(author, rank, median, .desc = TRUE))) + geom_boxplot() + 
+  labs(y = "", title = "Top 10 most prolific authors")
 ```
 
 ![](NYT-Best-Sellers_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
