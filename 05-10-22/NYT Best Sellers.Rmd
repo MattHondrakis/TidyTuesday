@@ -1,0 +1,36 @@
+---
+title: "NY Times Best Sellers"
+author: "Matthew"
+date: "5/10/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+nyt_titles <- read_tsv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-05-10/nyt_titles.tsv')
+nyt_full <- read_tsv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-05-10/nyt_full.tsv')
+
+nyt <- nyt_titles %>% 
+  full_join(nyt_full)
+```
+
+
+```{r}
+nyt %>% 
+  count(author, sort = TRUE)
+
+nyt %>% 
+  filter(author %in% (nyt %>% count(author, sort = TRUE) %>% head(10) %>% pull(author))) %>% 
+  group_by(author) %>% 
+  ggplot(aes(rank, fct_reorder(author, rank, median))) + geom_boxplot() + 
+  labs(y = "", title = "Top 10 most popular authors")
+```
+
