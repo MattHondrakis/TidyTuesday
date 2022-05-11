@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
+library(scales)
 theme_set(theme_bw())
 ```
 
@@ -27,18 +28,103 @@ nyt <- nyt_titles %>%
 nyt %>% 
   count(author, sort = TRUE)
 
+p_authors <- nyt %>% 
+  group_by(author) %>% 
+  distinct(title) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n) %>% 
+  pull(author)
 
 nyt %>% 
-  filter(author %in% 
-    (nyt %>% 
+  filter(author %in% head(p_authors,10)) %>% 
+  group_by(author) %>% 
+  ggplot(aes(rank, fct_reorder(author, rank, median, .desc = TRUE))) +
+  geom_boxplot() + scale_x_reverse(breaks = seq(1:20)) +
+  labs(y = "", title = "Top 10 most prolific authors") +
+  theme(panel.grid.minor = element_blank())
+```
+
+
+```{r}
+gplot <- function(x) {
+  nyt_titles %>% 
+    filter(author == {{x}}) %>% 
+    group_by(first_week) %>% 
+    summarize(m = mean(debut_rank, na.rm = TRUE)) %>% 
+    ggplot(aes(first_week, m)) + geom_line() +
+    scale_y_reverse(breaks = pretty_breaks(12)) +
+    labs(y = "Average Debut Rank", title = "Stephen King's Debut Rankings") +
+    theme(panel.grid.minor = element_blank())
+}
+gplot("Stephen King")
+```
+
+
+```{r}
+mult_author <- nyt_titles %>% 
+  group_by(author) %>% 
+  distinct(first_week) %>% 
+  summarize(n = n()) %>% 
+  filter(n > 1) %>% 
+  pull(author)
+
+nyt_titles %>% 
+  filter(author %in% mult_author) %>% 
+  group_by(author) %>% 
+  summarize(m = mean(debut_rank)) %>% 
+  arrange(-m) 
+
+gplot("Richard Powell")
+gplot("Theodore H. White")
+```
+
+
+```{r}
+nyt_titles %>% 
+  inner_join((nyt_titles %>% 
     group_by(author) %>% 
     distinct(title) %>% 
-    summarize(n = n()) %>% 
-    arrange(-n) %>% 
-    head(10) %>% 
-    pull(author))) %>% 
-  group_by(author) %>% 
-  ggplot(aes(rank, fct_reorder(author, rank, median, .desc = TRUE))) + geom_boxplot() + 
-  labs(y = "", title = "Top 10 most prolific authors")
+    summarize(num_titles = n())), by = "author") %>% 
+  filter(author != "Danielle Steel") %>% 
+  group_by(num_titles) %>% 
+  summarize(m = mean(debut_rank)) %>% 
+  ggplot(aes(num_titles, m)) + geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
 ```
+
+
+```{r}
+nyt_titles %>% 
+  group_by(author) %>% 
+  distinct(title) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n) %>% 
+  head(20) %>% 
+  ggplot(aes(n, fct_reorder(author, n), fill = author)) + geom_col() +
+  scale_x_continuous(breaks = pretty_breaks(10)) +
+  theme(legend.position = "none", panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  labs(y = "", title = "Number of Published Titles")
+
+nyt_titles %>% 
+  filter(author == "Danielle Steel") %>% 
+  distinct(title)
+```
+
+
+```{r}
+nyt_titles %>% 
+  filter(author == "Danielle Steel") %>% 
+  group_by(title) %>% 
+  summarize(m = mean(debut_rank)) %>% 
+  count(m) %>% 
+  ggplot(aes(n, fct_rev(factor(m)))) + geom_col() +
+  scale_x_continuous(breaks = pretty_breaks(8)) +
+  theme(panel.grid.minor = element_blank()) +
+  labs(y = "Debut Rank", x = "Number of Titles", 
+       title = "Danielle Steel's Debut Rankings")
+```
+
+
+
 
