@@ -127,4 +127,18 @@ nyt_titles %>%
 
 
 
+```{r}
+nyt %>% 
+  group_by(author) %>% 
+  summarize(total_weeks = max(total_weeks)) %>% 
+  arrange(-total_weeks) %>% 
+  head(20) %>% 
+  inner_join((nyt %>% select(total_weeks, author, title)), by = c("total_weeks", "author")) %>% 
+  distinct(author, total_weeks, title) %>% 
+  ggplot(aes(total_weeks, fct_reorder(author, total_weeks), label = title)) + 
+  geom_col(fill = "yellow", color = "black") + 
+  geom_text(aes(family = "mono", fontface = "bold"), nudge_x = -14) +
+  labs(y = "", x = "Total Weeks", title = "Top 20 Authors Longest Weeks on Best Sellers") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+```
 
