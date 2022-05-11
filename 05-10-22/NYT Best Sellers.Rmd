@@ -138,7 +138,7 @@ nyt %>%
   ggplot(aes(total_weeks, fct_reorder(author, total_weeks), label = title)) + 
   geom_col(fill = "yellow", color = "black") + 
   geom_text(aes(family = "mono", fontface = "bold"), nudge_x = -14) +
-  labs(y = "", x = "Total Weeks", title = "Top 20 Authors Longest Weeks on Best Sellers") +
+  labs(y = "Author", x = "Total Weeks", title = "Top 20 Longest Longest Weeks on Best Sellers") +
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
 ```
 
