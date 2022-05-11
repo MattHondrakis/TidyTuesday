@@ -53,7 +53,7 @@ gplot <- function(x) {
     summarize(m = mean(debut_rank, na.rm = TRUE)) %>% 
     ggplot(aes(first_week, m)) + geom_line() +
     scale_y_reverse(breaks = pretty_breaks(12)) +
-    labs(y = "Average Debut Rank", title = "Stephen King's Debut Rankings") +
+    labs(y = "Average Debut Rank", title = {{x}}) +
     theme(panel.grid.minor = element_blank())
 }
 gplot("Stephen King")
