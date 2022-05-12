@@ -26,6 +26,11 @@ nyt <- nyt_titles %>%
 
 ```{r}
 nyt %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+
+nyt %>% 
   count(author, sort = TRUE)
 
 p_authors <- nyt %>% 

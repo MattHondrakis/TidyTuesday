@@ -40,6 +40,17 @@ nyt <- nyt_titles %>%
 
 ``` r
 nyt %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](NYT-Best-Sellers_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+nyt %>% 
   count(author, sort = TRUE)
 ```
 
@@ -75,7 +86,7 @@ nyt %>%
   theme(panel.grid.minor = element_blank())
 ```
 
-![](NYT-Best-Sellers_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](NYT-Best-Sellers_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
 gplot <- function(x) {
