@@ -34,9 +34,25 @@ skimr::skim(eurovision)
 
 # EDA
 ```{r}
+eurovision %>% 
+  group_by(artist_country) %>% 
+  summarize(total_first = sum(rank == 1, na.rm = TRUE)) %>% 
+  arrange(-total_first)
 
+
+eurovision %>% 
+  group_by(artist_country) %>% 
+  summarize(total_wins = sum(winner)) %>% 
+  arrange(-total_wins)
+
+eurovision %>% 
+  group_by(artist_country) %>% 
+  summarize(mean_rank = mean(rank, na.rm = TRUE)) %>% 
+  arrange(mean_rank)
 ```
 
 
+```{r}
 
+```
 
