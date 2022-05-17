@@ -1,0 +1,42 @@
+---
+title: "Eurovision"
+author: "Matthew"
+date: "5/16/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(scales)
+theme_set(theme_bw())
+```
+
+
+```{r}
+eurovision <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-05-17/eurovision.csv')
+
+```
+
+
+
+```{r}
+head(eurovision)
+
+eurovision <- eurovision %>% 
+  select(!contains("url"))
+
+skimr::skim(eurovision)
+```
+
+
+# EDA
+```{r}
+
+```
+
+
+
+
