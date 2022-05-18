@@ -17,6 +17,8 @@ eurovision <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+# EDA
+
 ``` r
 head(eurovision)
 ```
@@ -86,7 +88,51 @@ Data summary
 | total\_points  |         92 |           0.95 |   81.53 | 81.97 |    0 |   23.00 |   61.0 |  111 |  758 | ▇▁▁▁▁ |
 | rank           |         41 |           0.98 |   10.82 |  6.46 |    1 |    5.00 |   10.0 |   16 |   28 | ▇▆▇▃▁ |
 
-# EDA
+``` r
+eurovision %>% 
+  filter(rank == parse_number(rank_ordinal))
+```
+
+    ## # A tibble: 1,964 x 15
+    ##    event      host_city  year host_country section   artist song  artist_country
+    ##    <chr>      <chr>     <dbl> <chr>        <chr>     <chr>  <chr> <chr>         
+    ##  1 Turin 2022 Turin      2022 Italy        first-se~ Kalus~ Stef~ Ukraine       
+    ##  2 Turin 2022 Turin      2022 Italy        first-se~ S10    De D~ Netherlands   
+    ##  3 Turin 2022 Turin      2022 Italy        first-se~ Amand~ Die ~ Greece        
+    ##  4 Turin 2022 Turin      2022 Italy        first-se~ MARO   Saud~ Portugal      
+    ##  5 Turin 2022 Turin      2022 Italy        first-se~ Intel~ Inte~ Bulgaria      
+    ##  6 Turin 2022 Turin      2022 Italy        first-se~ LPS    Disko Slovenia      
+    ##  7 Turin 2022 Turin      2022 Italy        first-se~ Rosa ~ Snap  Armenia       
+    ##  8 Turin 2022 Turin      2022 Italy        first-se~ Subwo~ Give~ Norway        
+    ##  9 Turin 2022 Turin      2022 Italy        first-se~ Monik~ Sent~ Lithuania     
+    ## 10 Turin 2022 Turin      2022 Italy        first-se~ Zdob ~ Tren~ Moldova       
+    ## # ... with 1,954 more rows, and 7 more variables: country_emoji <chr>,
+    ## #   running_order <dbl>, total_points <dbl>, rank <dbl>, rank_ordinal <chr>,
+    ## #   qualified <lgl>, winner <lgl>
+
+``` r
+eurovision %>% 
+  filter(is.na(rank_ordinal))
+```
+
+    ## # A tibble: 41 x 15
+    ##    event        host_city  year host_country section artist song  artist_country
+    ##    <chr>        <chr>     <dbl> <chr>        <chr>   <chr>  <chr> <chr>         
+    ##  1 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Ana S~ Voda  Slovenia      
+    ##  2 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Ulrik~ Atte~ Norway        
+    ##  3 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Eden ~ Feke~ Israel        
+    ##  4 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Sandro Runn~ Cyprus        
+    ##  5 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Efendi Cleo~ Azerbaijan    
+    ##  6 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Go_A   Solo~ Ukraine       
+    ##  7 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Hoove~ Rele~ Belgium       
+    ##  8 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Littl~ Uno   Russia        
+    ##  9 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Vasil  YOU   North Macedon~
+    ## 10 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ The R~ On F~ Lithuania     
+    ## # ... with 31 more rows, and 7 more variables: country_emoji <chr>,
+    ## #   running_order <dbl>, total_points <dbl>, rank <dbl>, rank_ordinal <chr>,
+    ## #   qualified <lgl>, winner <lgl>
+
+## Wins and Rank
 
 ``` r
 eurovision %>% 
@@ -176,16 +222,7 @@ eurovision %>%
     ## 10 Russia             9
     ## # ... with 39 more rows
 
-``` r
-eurovision %>% 
-  filter(artist_country == "Greece" & winner == TRUE) %>% 
-  View
-
-eurovision %>% 
-  arrange(-year, -total_points) %>% 
-  select(artist_country, total_points, year, winner) %>% 
-  View
-```
+## Artists
 
 ``` r
 eurovision %>% 
@@ -213,49 +250,7 @@ eurovision %>%
     ## 10 Lys Assia             4 Switzerland   
     ## # ... with 1,561 more rows
 
-``` r
-eurovision %>% 
-  filter(rank == parse_number(rank_ordinal))
-```
-
-    ## # A tibble: 1,964 x 15
-    ##    event      host_city  year host_country section   artist song  artist_country
-    ##    <chr>      <chr>     <dbl> <chr>        <chr>     <chr>  <chr> <chr>         
-    ##  1 Turin 2022 Turin      2022 Italy        first-se~ Kalus~ Stef~ Ukraine       
-    ##  2 Turin 2022 Turin      2022 Italy        first-se~ S10    De D~ Netherlands   
-    ##  3 Turin 2022 Turin      2022 Italy        first-se~ Amand~ Die ~ Greece        
-    ##  4 Turin 2022 Turin      2022 Italy        first-se~ MARO   Saud~ Portugal      
-    ##  5 Turin 2022 Turin      2022 Italy        first-se~ Intel~ Inte~ Bulgaria      
-    ##  6 Turin 2022 Turin      2022 Italy        first-se~ LPS    Disko Slovenia      
-    ##  7 Turin 2022 Turin      2022 Italy        first-se~ Rosa ~ Snap  Armenia       
-    ##  8 Turin 2022 Turin      2022 Italy        first-se~ Subwo~ Give~ Norway        
-    ##  9 Turin 2022 Turin      2022 Italy        first-se~ Monik~ Sent~ Lithuania     
-    ## 10 Turin 2022 Turin      2022 Italy        first-se~ Zdob ~ Tren~ Moldova       
-    ## # ... with 1,954 more rows, and 7 more variables: country_emoji <chr>,
-    ## #   running_order <dbl>, total_points <dbl>, rank <dbl>, rank_ordinal <chr>,
-    ## #   qualified <lgl>, winner <lgl>
-
-``` r
-eurovision %>% 
-  filter(is.na(rank_ordinal))
-```
-
-    ## # A tibble: 41 x 15
-    ##    event        host_city  year host_country section artist song  artist_country
-    ##    <chr>        <chr>     <dbl> <chr>        <chr>   <chr>  <chr> <chr>         
-    ##  1 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Ana S~ Voda  Slovenia      
-    ##  2 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Ulrik~ Atte~ Norway        
-    ##  3 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Eden ~ Feke~ Israel        
-    ##  4 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Sandro Runn~ Cyprus        
-    ##  5 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Efendi Cleo~ Azerbaijan    
-    ##  6 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Go_A   Solo~ Ukraine       
-    ##  7 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Hoove~ Rele~ Belgium       
-    ##  8 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Littl~ Uno   Russia        
-    ##  9 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ Vasil  YOU   North Macedon~
-    ## 10 Rotterdam 2~ Rotterdam  2020 Netherlands  first-~ The R~ On F~ Lithuania     
-    ## # ... with 31 more rows, and 7 more variables: country_emoji <chr>,
-    ## #   running_order <dbl>, total_points <dbl>, rank <dbl>, rank_ordinal <chr>,
-    ## #   qualified <lgl>, winner <lgl>
+## Trend over time
 
 ``` r
 eurotidy <- eurovision %>% 
@@ -280,7 +275,7 @@ eurovision %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Eurovision_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Eurovision_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 (euro_summary <-  eurovision %>% 
@@ -322,4 +317,4 @@ eurovision %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Eurovision_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Eurovision_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->

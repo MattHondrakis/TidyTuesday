@@ -21,7 +21,7 @@ eurovision <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
 ```
 
 
-
+# EDA
 ```{r}
 head(eurovision)
 
@@ -31,7 +31,17 @@ eurovision <- eurovision %>%
 skimr::skim(eurovision)
 ```
 
-# EDA
+
+```{r}
+eurovision %>% 
+  filter(rank == parse_number(rank_ordinal))
+
+eurovision %>% 
+  filter(is.na(rank_ordinal))
+```
+
+
+## Wins and Rank
 ```{r}
 eurovision %>% 
   group_by(artist_country) %>% 
@@ -56,19 +66,7 @@ eurovision %>%
 ```
 
 
-
-```{r}
-eurovision %>% 
-  filter(artist_country == "Greece" & winner == TRUE) %>% 
-  View
-
-eurovision %>% 
-  arrange(-year, -total_points) %>% 
-  select(artist_country, total_points, year, winner) %>% 
-  View
-```
-
-
+## Artists
 ```{r}
 eurovision %>% 
   count(artist, sort = TRUE) %>% 
@@ -79,17 +77,7 @@ eurovision %>%
 ```
 
 
-```{r}
-eurovision %>% 
-  filter(rank == parse_number(rank_ordinal))
-
-eurovision %>% 
-  filter(is.na(rank_ordinal))
-```
-
-
-
-
+## Trend over time
 ```{r}
 eurotidy <- eurovision %>% 
   select(year, total_points, artist_country) %>% 
