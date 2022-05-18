@@ -256,3 +256,70 @@ eurovision %>%
     ## # ... with 31 more rows, and 7 more variables: country_emoji <chr>,
     ## #   running_order <dbl>, total_points <dbl>, rank <dbl>, rank_ordinal <chr>,
     ## #   qualified <lgl>, winner <lgl>
+
+``` r
+eurotidy <- eurovision %>% 
+  select(year, total_points, artist_country) %>% 
+  nest(-artist_country) %>% 
+  mutate(model = map(data, ~ lm(total_points ~ year,.)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy) %>% 
+  filter(term == "year") %>% 
+  arrange(-abs(estimate))
+
+x <- eurotidy %>% 
+  head(10) %>% 
+  pull(artist_country)
+
+eurovision %>% 
+  filter(artist_country %in% x) %>% 
+  ggplot(aes(year, total_points)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  geom_point() +
+  facet_wrap(~artist_country)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Eurovision_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+(euro_summary <-  eurovision %>% 
+  group_by(artist_country) %>% 
+  summarize(diff = total_points[year == max(year)] - total_points[year == min(year)]) %>% 
+  arrange(-abs(diff)))
+```
+
+    ## `summarise()` has grouped output by 'artist_country'. You can override using
+    ## the `.groups` argument.
+
+    ## # A tibble: 81 x 2
+    ## # Groups:   artist_country [52]
+    ##    artist_country  diff
+    ##    <chr>          <dbl>
+    ##  1 Ukraine          601
+    ##  2 United Kingdom   460
+    ##  3 Spain            451
+    ##  4 Sweden           428
+    ##  5 Sweden           386
+    ##  6 Ukraine          307
+    ##  7 Czech Republic   226
+    ##  8 Greece           208
+    ##  9 Estonia          207
+    ## 10 Greece           204
+    ## # ... with 71 more rows
+
+``` r
+y <- euro_summary %>% 
+  head(10) %>% 
+  pull(artist_country)
+
+eurovision %>% 
+  filter(artist_country %in% y) %>% 
+  ggplot(aes(year, total_points)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  geom_point() + 
+  facet_wrap(~artist_country)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Eurovision_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
