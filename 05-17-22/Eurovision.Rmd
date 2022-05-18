@@ -31,7 +31,6 @@ eurovision <- eurovision %>%
 skimr::skim(eurovision)
 ```
 
-
 # EDA
 ```{r}
 eurovision %>% 
@@ -49,10 +48,41 @@ eurovision %>%
   group_by(artist_country) %>% 
   summarize(mean_rank = mean(rank, na.rm = TRUE)) %>% 
   arrange(mean_rank)
+
+eurovision %>% 
+  filter(winner == TRUE) %>% 
+  distinct(artist_country, year) %>% 
+  count(artist_country, sort = TRUE)
+```
+
+
+
+```{r}
+eurovision %>% 
+  filter(artist_country == "Greece" & winner == TRUE) %>% 
+  View
+
+eurovision %>% 
+  arrange(-year, -total_points) %>% 
+  select(artist_country, total_points, year, winner) %>% 
+  View
 ```
 
 
 ```{r}
-
+eurovision %>% 
+  count(artist, sort = TRUE) %>% 
+  inner_join(eurovision %>% 
+               distinct(artist_country, artist) %>% 
+               select(artist, artist_country)) %>% 
+  arrange(-n, artist_country)
 ```
 
+
+```{r}
+eurovision %>% 
+  filter(rank == parse_number(rank_ordinal))
+
+eurovision %>% 
+  filter(is.na(rank_ordinal))
+```
