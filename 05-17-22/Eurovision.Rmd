@@ -119,13 +119,30 @@ eurovision %>%
 
 ```{r}
 eurovision %>% 
-  mutate(countries = countrycode(eurovision$artist_country, "country.name", "iso2c")) %>% 
   filter(year > 2000 & winner == TRUE & section %in% c('final', 'grand-final')) %>% 
+  mutate(countries = countrycode(artist_country, "country.name", "iso2c")) %>% 
   ggplot(aes(year, total_points, label = countries)) + 
   geom_flag(aes(image = countries)) + geom_line(linetype = "dashed", alpha = 0.5) +
   geom_text(aes(family = "mono", fontface = "bold"), nudge_y = 20) + theme_classic() +
   scale_x_continuous(breaks = seq(2000,2022,2)) + 
-  labs(y = "", x = "Year", title = "Eurovision Winners' Points over Time") +
-  theme(panel.background = element_rect(fill = "linen"))
+  labs(y = "", x = "Year", title = "21st Century Eurovision Winners' Points") +
+  theme(panel.background = element_rect(fill = "linen"), plot.title = element_text(hjust = 0.5)) 
 ```
+
+
+
+```{r}
+eurovision %>% 
+  filter(winner == TRUE & section %in% c('final', 'grand-final')) %>% 
+  count(artist_country, sort = TRUE) %>% 
+  head(20) %>% 
+  mutate(countries = countrycode(artist_country, "country.name", "iso2c")) %>%
+  ggplot(aes(n, fct_reorder(artist_country, n))) + geom_col(aes(fill = n), color = "black") + 
+  geom_flag(x = -.5, aes(image = countries)) + expand_limits(x = -.5) +
+  labs(y = "", x = "Wins", title = "Top 20 Countries' Total Eurovision Wins") + 
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_rect(fill = "linen"),
+        legend.position = "none")
+```
+
+
 
