@@ -328,6 +328,8 @@ eurovision %>%
   ggplot(aes(year, total_points, label = countries)) + 
   geom_flag(aes(image = countries)) + geom_line(linetype = "dashed") +
   geom_text(aes(family = "mono", fontface = "bold"), nudge_y = 20) + theme_classic() +
+  scale_x_continuous(breaks = seq(2000,2022,2)) + 
+  labs(y = "", x = "Year", title = "Eurovision Winners' Points over Time") +
   theme(panel.background = element_rect(fill = "linen"))
 ```
 
