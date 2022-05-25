@@ -54,10 +54,6 @@ gplot(fifteens, winner) + labs(y = "", title = "Fifteens") +
 sevens %>% 
   count(stage, sort = TRUE)
 
-fifteens %>% 
-  count(stage, sort = TRUE)
-
-
 gplot(sevens %>% filter(stage == "Final"), winner) + 
   labs(title = "Number of Finals Won", y = "") +
   theme(plot.title = element_text(hjust = 0.5))
@@ -74,7 +70,7 @@ sevens %>%
            pull(winner))) %>% 
   arrange(date) %>% 
   group_by(winner) %>% 
-  mutate(c = 1, counter = cumsum(c)) %>% View
+  mutate(c = 1, counter = cumsum(c)) %>% 
   ggplot(aes(date, counter, 
              color = fct_reorder(winner, counter, max, .desc = TRUE))) +
   geom_line() + labs(y = "Cumulative Wins", 
