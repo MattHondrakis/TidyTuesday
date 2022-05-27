@@ -108,6 +108,28 @@ gplot(sevens %>% filter(stage == "Final"), winner) +
 ``` r
 sevens %>% 
   filter(stage == "Final") %>% 
+  count(winner, sort = TRUE) %>% 
+  head(10)
+```
+
+    ## # A tibble: 10 x 2
+    ##    winner           n
+    ##    <chr>        <int>
+    ##  1 New Zealand     38
+    ##  2 Japan           22
+    ##  3 Australia       21
+    ##  4 Brazil          21
+    ##  5 Canada          15
+    ##  6 England         15
+    ##  7 China           12
+    ##  8 Russia          10
+    ##  9 South Africa    10
+    ## 10 France           9
+
+``` r
+sevens %>% 
+  select(stage, winner, date) %>% 
+  filter(stage == "Final") %>% 
   filter(winner %in% (sevens %>% 
            filter(stage == "Final") %>% 
            count(winner, sort = TRUE) %>% 
@@ -115,7 +137,29 @@ sevens %>%
            pull(winner))) %>% 
   arrange(date) %>% 
   group_by(winner) %>% 
-  mutate(c = 1, counter = cumsum(c)) %>% 
+  mutate(c = 1, counter = cumsum(c)) %>%
+  bind_rows(
+    sevens %>% 
+      select(stage, winner, date) %>% 
+      filter(stage == "Final",
+             winner %in% (sevens %>% 
+           filter(stage == "Final") %>% 
+           count(winner, sort = TRUE) %>% 
+           head(10) %>% 
+           pull(winner))) %>% 
+      mutate(date = max(date), 
+             c = 1, 
+             counter = case_when(winner == "New Zealand" ~ 38,
+                                 winner == "Japan" ~ 22,
+                                 winner == "Australia" ~ 21,
+                                 winner == "Brazil" ~ 21,
+                                 winner == "Canada" ~ 15,
+                                 winner == "England" ~ 15,
+                                 winner == "China" ~ 12,
+                                 winner == "Russia" ~ 10,
+                                 winner == "South Africa" ~ 10,
+                                 winner == "France" ~ 9))
+  ) %>%
   ggplot(aes(date, counter, 
              color = fct_reorder(winner, counter, max, .desc = TRUE))) +
   geom_line() + labs(y = "Cumulative Wins", 
