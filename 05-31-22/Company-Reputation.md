@@ -106,3 +106,50 @@ reputation %>%
 ```
 
 ![](Company-Reputation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+reputation %>% 
+  arrange(-score) %>% 
+  select(4,5)
+```
+
+    ## # A tibble: 700 x 2
+    ##    score  rank
+    ##    <dbl> <dbl>
+    ##  1  84.9     1
+    ##  2  84.8     1
+    ##  3  84.5     1
+    ##  4  84.3     3
+    ##  5  84.3     2
+    ##  6  84.2     4
+    ##  7  84.1     2
+    ##  8  84.1     3
+    ##  9  84.1     4
+    ## 10  84.1     5
+    ## # ... with 690 more rows
+
+``` r
+reputation %>% 
+  ggplot(aes(score, rank)) + geom_point() +
+  facet_wrap(vars(name))
+```
+
+![](Company-Reputation_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+names <- poll %>% 
+  arrange(-`2022_rq`) %>%
+  distinct(company) %>% 
+  head(20) %>% 
+  pull(company)
+```
+
+``` r
+poll %>% 
+  filter(company %in% names) %>% 
+  ggplot(aes(`2022_rq`, fct_reorder(company, `2022_rq`), 
+             fill = -`2022_rank`)) + geom_col() + labs(y = "", x = "") +
+  theme(legend.position = "none")
+```
+
+![](Company-Reputation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

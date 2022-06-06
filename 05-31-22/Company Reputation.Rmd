@@ -66,3 +66,38 @@ reputation %>%
   xlim(0, 85) + labs(y = ""))
 ```
 
+
+
+```{r}
+reputation %>% 
+  arrange(-score) %>% 
+  select(4,5)
+```
+
+
+```{r}
+reputation %>% 
+  ggplot(aes(score, rank)) + geom_point() +
+  facet_wrap(vars(name))
+```
+
+
+
+```{r}
+names <- poll %>% 
+  arrange(-`2022_rq`) %>%
+  distinct(company) %>% 
+  head(20) %>% 
+  pull(company)
+```
+
+
+```{r}
+poll %>% 
+  filter(company %in% names) %>% 
+  ggplot(aes(`2022_rq`, fct_reorder(company, `2022_rq`), 
+             fill = -`2022_rank`)) + geom_col() + labs(y = "", x = "") +
+  theme(legend.position = "none")
+
+```
+
