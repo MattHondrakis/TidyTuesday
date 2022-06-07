@@ -33,16 +33,33 @@ fortune_aggregates <- fortune_aggregates %>%
   rename_with(~ sub('# of ', '', .x))
 
 fortune_aggregates %>% 
-  arrange(-`total contributed`) %>% 
-  head(10) %>% 
+  arrange(-`total contributed`) %>%
   filter(company != "Grand Total") %>% 
+  head(20) %>% 
   ggplot(aes(`total contributed`, 
              fct_reorder(company, `total contributed`),
              label = `politicians contributed to`)) + 
   geom_col(color = "black", fill = "lightblue") + 
   labs(y = "Company", fill = "Politicians",
        title = "Contributions made to anti-LGBTQ Politicians") +
-  scale_x_continuous(labels = dollar) + geom_text(nudge_x = -40000)
+  scale_x_continuous(labels = dollar) + geom_text(nudge_x = -30000)
+```
+
+
+```{r}
+static_list %>% 
+  filter(`Pride?` == TRUE) %>% 
+  arrange(-`Amount Contributed Across States`) %>% 
+  head(20) %>% 
+  ggplot(aes(`Amount Contributed Across States`, 
+             fct_reorder(Company, 
+                         `Amount Contributed Across States`),
+             label = `# of Politicians Contributed to`)) +
+  geom_col(color = "black", fill = "lightblue") + 
+  geom_text(nudge_x = -2) + 
+  labs(y = "", x = "Dollars (log-scale)",
+       title = "Contributions made to pro-LGBTQ Politicians") +
+  scale_x_log10(labels = dollar)
 ```
 
 
@@ -53,9 +70,9 @@ fortune_aggregates %>%
   pull(`total contributed`)
 
 corp_by_politicians %>% 
-  arrange(-`SUM of Amount`) %>% 
+  arrange(-`SUM of Amount`) %>%
+  filter(Politician != "Grand Total") %>%
   head(20) %>% 
-  filter(Politician != "Grand Total") %>% 
   ggplot(aes(`SUM of Amount`, 
              fct_reorder(Politician, `SUM of Amount`), 
              fill = fct_reorder(Title, 
@@ -70,12 +87,13 @@ corp_by_politicians %>%
 ```
 
 
+# Checking 'Grand Total'
 ```{r}
-static_list %>% 
-  filter(grepl('Enterprise', Company)) %>% View
+fortune_aggregates %>% 
+  mutate(grand = ifelse(company == "Grand Total", "Yes", "No")) %>% 
+  group_by(grand) %>% 
+  summarize(sum(`total contributed`))
 ```
-
-
 
 
 
