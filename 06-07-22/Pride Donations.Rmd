@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(patchwork)
+library(scales)
 theme_set(theme_bw())
 ```
 
