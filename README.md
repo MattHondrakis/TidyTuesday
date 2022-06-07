@@ -20,3 +20,5 @@ Diving into the weekly datasets of TidyTuesday!
 * [Solar and Wind](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-03-22/Solar-and-Wind.md)
 * [NY Times Best Sellers](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-10-22/NYT-Best-Sellers.md)
 * [Eurovision](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-17-22/Eurovision.md)
+* [Women's Rugby](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-24-22/Women-s-Rugby.md)
+* [Company Reputation](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-31-22/Company-Reputation.md)
