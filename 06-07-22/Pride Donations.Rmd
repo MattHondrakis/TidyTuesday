@@ -20,7 +20,7 @@ pride_aggregates <- read_csv('https://raw.githubusercontent.com/rfordatascience/
 fortune_aggregates <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/fortune_aggregates.csv')
 static_list <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/static_list.csv')
 pride_sponsors <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/pride_sponsors.csv')
-corp_by_politicians <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/corp_by_politicians.csv')
+corp_by_politicians <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/corp_by_politician.csv')
 donors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-07/donors.csv')
 ```
 
@@ -28,6 +28,56 @@ donors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 
 
 ```{r}
+fortune_aggregates <- fortune_aggregates %>% 
+  rename_with(tolower) %>% 
+  rename_with(~ sub('# of ', '', .x))
 
+fortune_aggregates %>% 
+  arrange(-`total contributed`) %>% 
+  head(10) %>% 
+  filter(company != "Grand Total") %>% 
+  ggplot(aes(`total contributed`, 
+             fct_reorder(company, `total contributed`),
+             label = `politicians contributed to`)) + 
+  geom_col(color = "black", fill = "lightblue") + 
+  labs(y = "Company", fill = "Politicians",
+       title = "Contributions made to anti-LGBTQ Politicians") +
+  scale_x_continuous(labels = dollar) + geom_text(nudge_x = -40000)
 ```
+
+
+
+```{r}
+fortune_aggregates %>% 
+  filter(grepl("Enterprise", company)) %>% 
+  pull(`total contributed`)
+
+corp_by_politicians %>% 
+  arrange(-`SUM of Amount`) %>% 
+  head(20) %>% 
+  filter(Politician != "Grand Total") %>% 
+  ggplot(aes(`SUM of Amount`, 
+             fct_reorder(Politician, `SUM of Amount`), 
+             fill = fct_reorder(Title, 
+                                `SUM of Amount`, 
+                                max, 
+                                .desc = TRUE))) + 
+  geom_col(color = "black") +
+  scale_x_log10(labels = dollar) + 
+  labs(y = "Politician",
+       x = "Dollars (log scale)", fill = "Title",
+       title = "Contributions received by anti-LGBTQ politicians")
+```
+
+
+```{r}
+static_list %>% 
+  filter(grepl('Enterprise', Company)) %>% View
+```
+
+
+
+
+
+
 
