@@ -22,3 +22,4 @@ Diving into the weekly datasets of TidyTuesday!
 * [Eurovision](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-17-22/Eurovision.md)
 * [Women's Rugby](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-24-22/Women-s-Rugby.md)
 * [Company Reputation](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-31-22/Company-Reputation.md)
+* [Pride Donations](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-07-22/Pride-Donations.md)
