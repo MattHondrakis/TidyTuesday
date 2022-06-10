@@ -82,6 +82,8 @@ donors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+# Contributions to anti-LGBTQ Politicians
+
 ``` r
 fortune_aggregates <- fortune_aggregates %>% 
   rename_with(tolower) %>% 
@@ -101,6 +103,8 @@ fortune_aggregates %>%
 ```
 
 ![](Pride-Donations_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+# Contributions made to pro-LGBTQ Politicians
 
 ``` r
 static_list %>% 
@@ -162,3 +166,20 @@ fortune_aggregates %>%
     ##   <chr>                        <dbl>
     ## 1 No                        2933719.
     ## 2 Yes                       2933719.
+
+``` r
+pride_sponsors %>% 
+  count(`Pride Event Sponsored`, sort = TRUE)
+```
+
+    ## # A tibble: 8 x 2
+    ##   `Pride Event Sponsored`     n
+    ##   <chr>                   <int>
+    ## 1 NYC Pride                 126
+    ## 2 Miami Pride                76
+    ## 3 Houston Pride              44
+    ## 4 Atlanta Pride              35
+    ## 5 SF Pride                   34
+    ## 6 Chicago Pridefest          21
+    ## 7 Seattle Pridefest          16
+    ## 8 LA Pride                   12

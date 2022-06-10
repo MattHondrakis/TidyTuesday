@@ -27,7 +27,7 @@ donors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 
 
 
-
+# Contributions to anti-LGBTQ Politicians
 ```{r}
 fortune_aggregates <- fortune_aggregates %>% 
   rename_with(tolower) %>% 
@@ -47,6 +47,7 @@ fortune_aggregates %>%
 ```
 
 
+# Contributions made to pro-LGBTQ Politicians
 ```{r}
 static_list %>% 
   filter(`Pride?` == TRUE) %>% 
@@ -97,6 +98,11 @@ fortune_aggregates %>%
 ```
 
 
+
+```{r}
+pride_sponsors %>% 
+  count(`Pride Event Sponsored`, sort = TRUE)
+```
 
 
 
