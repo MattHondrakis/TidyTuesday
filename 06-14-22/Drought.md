@@ -105,7 +105,7 @@ drought %>%
 
 ``` r
 drought %>% 
-  ggplot(aes(W4, D4)) + geom_point(alpha = 0.5) +
+  ggplot(aes(W4, D4)) + geom_point(alpha = 0.2) +
   labs(title = "Inverse Relationship with D4 and W4")
 ```
 
