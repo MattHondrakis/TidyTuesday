@@ -1,0 +1,71 @@
+---
+title: "Drought"
+author: "Matthew"
+date: '2022-06-14'
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(patchwork)
+library(scales)
+theme_set(theme_bw())
+```
+
+
+# Read and Process
+```{r}
+drought <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-14/drought.csv')
+drought_fips <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-14/drought-fips.csv')
+
+drought <- drought %>% 
+  select(-"-9",-"0")
+
+drought <- drought %>% 
+  mutate(DATE = gsub('d_',"", DATE)) %>% 
+  rename(date = DATE)
+
+drought <- drought %>% 
+  mutate(date = as.Date(date, format = "%Y%m%d"),   #convert to date
+         state = str_to_title(state))               #capitalize first letter
+```
+
+
+# EDA
+```{r}
+drought %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key)
+```
+
+
+
+```{r}
+drought %>% 
+  arrange(-D4) %>% 
+  select(date, D4, state)
+
+drought %>% 
+  group_by(state) %>% 
+  summarize_if(is.numeric, mean) %>% 
+  arrange(-D4)
+```
+
+
+
+## Comparison of D4 and w4
+```{r}
+drought %>% 
+  ggplot(aes(W4, D4)) + geom_point(alpha = 0.5) +
+  labs(title = "Inverse Relationship with D4 and W4")
+```
+
+
+
+
+
+
