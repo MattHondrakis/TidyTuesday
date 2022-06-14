@@ -110,3 +110,20 @@ drought %>%
 ```
 
 ![](Drought_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Drought by State
+
+``` r
+drought_fips %>% 
+  group_by(State) %>% 
+  summarize(m = mean(DSCI)) %>% 
+  arrange(-m) %>% 
+  head(25) %>% 
+  ggplot(aes(m, fct_reorder(State,m))) + geom_col(color = "black", fill = "lightblue") +
+  labs(y = "", x = "Average Drought", 
+       title = "Top 25 States with Most Severe Drought", subtitle = "Drought Scale goes from 0 to 500")  +
+  theme(plot.title = element_text(hjust = 0.5), 
+        plot.subtitle = element_text(hjust = 0.5))
+```
+
+![](Drought_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
