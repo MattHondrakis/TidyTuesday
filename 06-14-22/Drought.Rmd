@@ -124,7 +124,7 @@ acf2(timeseries)
 sarima(timeseries, 3, 0, 0)
 
 sarima.for(timeseries, 52, 3, 0, 0)
-title(main = "One year forcast", sub = "Grey Shades are 1 and 2 standard errors")
+title(main = "One year forcast")
 ```
 
 

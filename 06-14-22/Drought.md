@@ -367,7 +367,7 @@ sarima.for(timeseries, 52, 3, 0, 0)
     ## [50] 34.238753 34.285134 34.328521
 
 ``` r
-title(main = "One year forcast", sub = "Grey Shades are 1 and 2 standard errors")
+title(main = "One year forcast")
 ```
 
 ![](Drought_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
