@@ -131,30 +131,57 @@ drought_fips %>%
 ``` r
 avg_drought <- drought_fips %>% 
   group_by(date) %>% 
-  summarize(avg_drought = mean(DSCI)) %>% 
-  mutate(month = month(date, label = TRUE))
+  summarize(drought = mean(DSCI)) %>% 
+  mutate(month = month(date, label = TRUE),
+         season = case_when(grepl("Dec|Jan|Feb", month) ~ "Winter",
+                            grepl("Mar|Apr|May", month) ~ "Spring",
+                            grepl("Jun|Jul|Aug", month) ~ "Summer",
+                            grepl("Sep|Oct|Nov", month) ~ "Fall"))
 
 avg_drought %>% 
-  ggplot(aes(date, avg_drought)) + geom_line() + 
-  geom_point(aes(color = as.numeric(month))) + facet_wrap(~year(date), scales = "free") +
-  scale_color_gradient2(low = "blue", mid = "black", high = "blue", midpoint = 6)
+  ggplot(aes(date, drought)) + geom_line() + 
+  geom_point(aes(color = season)) + facet_wrap(~year(date), scales = "free")
 ```
 
 ![](Drought_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 avg_drought %>% 
-  ggplot(aes(date, avg_drought)) + geom_line() + 
-  geom_point(aes(color = month))
+  ggplot(aes(date, drought)) + geom_line() + 
+  geom_point(aes(color = season))
 ```
 
 ![](Drought_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+``` r
+(avg_drought %>% 
+  ggplot(aes(drought, fct_rev(month), fill = season)) + geom_col() +
+  labs(y = "", fill = "")) /
+(avg_drought %>% 
+   ggplot(aes(drought, season, fill = season)) + geom_boxplot() +
+   labs(y = "", fill = "") + theme(legend.position = "none")) + plot_layout(guides = 'collect')
+```
+
+![](Drought_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+
+``` r
+anova(aov(drought ~ season, avg_drought))
+```
+
+    ## Analysis of Variance Table
+    ## 
+    ## Response: drought
+    ##             Df  Sum Sq Mean Sq F value    Pr(>F)    
+    ## season       3   23097  7699.2   6.289 0.0003117 ***
+    ## Residuals 1167 1428664  1224.2                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 # Fitting an AR model on the timeseries
 
 ``` r
 library(astsa)
-timeseries <- ts(avg_drought$avg_drought, start = c(2000, 1), freq = 52)
+timeseries <- ts(avg_drought$drought, start = c(2000, 1), freq = 52)
 
 plot(timeseries)
 ```
@@ -312,8 +339,6 @@ sarima(timeseries, 3, 0, 0)
 sarima.for(timeseries, 52, 3, 0, 0)
 ```
 
-![](Drought_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
-
     ## $pred
     ## Time Series:
     ## Start = c(2022, 28) 
@@ -340,3 +365,9 @@ sarima.for(timeseries, 52, 3, 0, 0)
     ## [36] 33.121747 33.241455 33.353191 33.457511 33.554929 33.645921 33.730926
     ## [43] 33.810353 33.884580 33.953958 34.018813 34.079449 34.136145 34.189166
     ## [50] 34.238753 34.285134 34.328521
+
+``` r
+title(main = "One year forcast", sub = "Grey Shades are 1 and 2 standard errors")
+```
+
+![](Drought_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->

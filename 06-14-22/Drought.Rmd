@@ -86,24 +86,36 @@ drought_fips %>%
 ```{r}
 avg_drought <- drought_fips %>% 
   group_by(date) %>% 
-  summarize(avg_drought = mean(DSCI)) %>% 
-  mutate(month = month(date, label = TRUE))
+  summarize(drought = mean(DSCI)) %>% 
+  mutate(month = month(date, label = TRUE),
+         season = case_when(grepl("Dec|Jan|Feb", month) ~ "Winter",
+                            grepl("Mar|Apr|May", month) ~ "Spring",
+                            grepl("Jun|Jul|Aug", month) ~ "Summer",
+                            grepl("Sep|Oct|Nov", month) ~ "Fall"))
 
 avg_drought %>% 
-  ggplot(aes(date, avg_drought)) + geom_line() + 
-  geom_point(aes(color = as.numeric(month))) + facet_wrap(~year(date), scales = "free") +
-  scale_color_gradient2(low = "blue", mid = "black", high = "blue", midpoint = 6)
+  ggplot(aes(date, drought)) + geom_line() + 
+  geom_point(aes(color = season)) + facet_wrap(~year(date), scales = "free")
 
 avg_drought %>% 
-  ggplot(aes(date, avg_drought)) + geom_line() + 
-  geom_point(aes(color = month))
+  ggplot(aes(date, drought)) + geom_line() + 
+  geom_point(aes(color = season))
+
+(avg_drought %>% 
+  ggplot(aes(drought, fct_rev(month), fill = season)) + geom_col() +
+  labs(y = "", fill = "")) /
+(avg_drought %>% 
+   ggplot(aes(drought, season, fill = season)) + geom_boxplot() +
+   labs(y = "", fill = "") + theme(legend.position = "none")) + plot_layout(guides = 'collect')
+
+anova(aov(drought ~ season, avg_drought))
 ```
 
 
 # Fitting an AR model on the timeseries
 ```{r}
 library(astsa)
-timeseries <- ts(avg_drought$avg_drought, start = c(2000, 1), freq = 52)
+timeseries <- ts(avg_drought$drought, start = c(2000, 1), freq = 52)
 
 plot(timeseries)
 
@@ -112,6 +124,7 @@ acf2(timeseries)
 sarima(timeseries, 3, 0, 0)
 
 sarima.for(timeseries, 52, 3, 0, 0)
+title(main = "One year forcast", sub = "Grey Shades are 1 and 2 standard errors")
 ```
 
 
