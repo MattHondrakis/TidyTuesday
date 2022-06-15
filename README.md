@@ -23,3 +23,4 @@ Diving into the weekly datasets of TidyTuesday!
 * [Women's Rugby](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-24-22/Women-s-Rugby.md)
 * [Company Reputation](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-31-22/Company-Reputation.md)
 * [Pride Donations](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-07-22/Pride-Donations.md)
+* [Droughts](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-14-22/Drought.md)
