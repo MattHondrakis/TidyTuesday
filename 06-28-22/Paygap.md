@@ -178,9 +178,10 @@ gplot(diff_mean_hourly_percent)
 ![](Paygap_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
 
 ``` r
-paygap %>% 
+paygap_joined <- paygap %>% 
   separate_rows(sic_codes, sep = ":") %>% 
-  left_join(SIC, by = c("sic_codes" = "SIC Code")) %>% 
+  left_join(SIC, by = c("sic_codes" = "SIC Code"))
+paygap_joined %>% 
   group_by(Description) %>% 
   summarize(m = mean(diff_median_hourly_percent)) %>% 
   arrange(-abs(m)) %>% 
@@ -198,9 +199,7 @@ paygap %>%
 ![](Paygap_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
-paygap %>% 
-  separate_rows(sic_codes, sep = ":") %>% 
-  left_join(SIC, by = c("sic_codes" = "SIC Code")) %>% 
+paygap_joined %>% 
   group_by(Description) %>% 
   summarize(m = mean(diff_mean_hourly_percent)) %>% 
   arrange(-abs(m)) %>% 
