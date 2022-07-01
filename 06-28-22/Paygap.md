@@ -19,6 +19,18 @@ paygap <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesda
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+SIC <- read_csv("C:/Users/Matthew Hondrakis/Downloads/SIC07_CH_condensed_list_en.csv")
+```
+
+    ## Rows: 731 Columns: 2
+    ## -- Column specification --------------------------------------------------------
+    ## Delimiter: ","
+    ## chr (2): SIC Code, Description
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 paygap %>% 
   arrange(-abs(diff_mean_hourly_percent)) %>% 
   select(employer_name, diff_mean_hourly_percent, employer_size)
@@ -164,3 +176,42 @@ gplot(diff_mean_hourly_percent)
     ## `.groups` argument.
 
 ![](Paygap_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+
+``` r
+paygap %>% 
+  separate_rows(sic_codes, sep = ":") %>% 
+  left_join(SIC, by = c("sic_codes" = "SIC Code")) %>% 
+  group_by(Description) %>% 
+  summarize(m = mean(diff_median_hourly_percent)) %>% 
+  arrange(-abs(m)) %>% 
+  mutate(col = ifelse(m > 0, "Men", "Women"),
+         m = abs(m)) %>% 
+  head(20) %>% 
+  ggplot(aes(m, fct_reorder(Description, m), fill = col)) + geom_col(color = "black") +
+  scale_x_continuous(labels = scales::label_percent(scale = 1)) + 
+  scale_fill_brewer(palette = "Set2", direction = -1) +
+  labs(y = "Industry", x = "Average Percent Difference", title = "Average Median Gender Paygap Difference",
+       subtitle = "Average of median hourly paygap") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+![](Paygap_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+paygap %>% 
+  separate_rows(sic_codes, sep = ":") %>% 
+  left_join(SIC, by = c("sic_codes" = "SIC Code")) %>% 
+  group_by(Description) %>% 
+  summarize(m = mean(diff_mean_hourly_percent)) %>% 
+  arrange(-abs(m)) %>% 
+  mutate(col = ifelse(m > 0, "Men", "Women"),
+         m = abs(m)) %>% 
+  head(20) %>% 
+  ggplot(aes(m, fct_reorder(Description, m), fill = col)) + geom_col(color = "black") +
+  scale_x_continuous(labels = scales::label_percent(scale = 1)) + 
+  scale_fill_brewer(palette = "Set2", direction = -1) +
+  labs(y = "Industry", x = "Average Percent Difference", title = "Average Gender Paygap Difference") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+![](Paygap_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
