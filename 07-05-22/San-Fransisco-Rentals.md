@@ -92,6 +92,17 @@ Data summary
 | lon           |    196484 |          0.02 |     -122.21 |     0.78 |     -123.20 |     -122.42 |     -122.26 |     -122.0 |      -74.20 | ▇▁▁▁▁ |
 
 ``` r
+rent %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
 (rent %>% 
   group_by(year) %>% 
   summarize(price = median(price)) %>% 
@@ -101,7 +112,7 @@ Data summary
    ggplot(aes(year, price, group = year)) + geom_boxplot())
 ```
 
-![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 rent %>% 
@@ -109,8 +120,27 @@ rent %>%
   group_by(county) %>% 
   mutate(med = median(price),
          county = str_to_title(county)) %>% 
-  slice_max(med, n = 10) %>% 
   ggplot(aes(fct_reorder(county, med), price)) + geom_boxplot()
 ```
 
-![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+lm(price ~ 0 + ., 
+   rent %>% 
+    keep(is.numeric) %>% 
+    drop_na()) %>% broom::tidy() %>% 
+  arrange(-abs(estimate))
+```
+
+    ## # A tibble: 8 x 5
+    ##   term          estimate std.error statistic   p.value
+    ##   <chr>            <dbl>     <dbl>     <dbl>     <dbl>
+    ## 1 lon         -2897.      154.       -18.8   1.06e- 72
+    ## 2 lat         -2306.      127.       -18.1   5.11e- 68
+    ## 3 year          354.      741.         0.478 6.33e-  1
+    ## 4 room_in_apt  -206.      327.        -0.631 5.28e-  1
+    ## 5 beds         -125.       39.5       -3.17  1.54e-  3
+    ## 6 baths          11.8      53.3        0.222 8.25e-  1
+    ## 7 sqft            2.09      0.0656    31.8   3.96e-180
+    ## 8 date           -0.0486    0.0742    -0.655 5.12e-  1

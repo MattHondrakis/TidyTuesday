@@ -33,6 +33,16 @@ skimr::skim(rent)
 
 
 ```{r}
+rent %>% 
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
+
+
+
+
+```{r}
 (rent %>% 
   group_by(year) %>% 
   summarize(price = median(price)) %>% 
@@ -50,7 +60,20 @@ rent %>%
   group_by(county) %>% 
   mutate(med = median(price),
          county = str_to_title(county)) %>% 
-  slice_max(med, n = 10) %>% 
   ggplot(aes(fct_reorder(county, med), price)) + geom_boxplot()
 ```
+
+
+
+```{r}
+lm(price ~ 0 + ., 
+   rent %>% 
+    keep(is.numeric) %>% 
+    drop_na()) %>% broom::tidy() %>% 
+  arrange(-abs(estimate))
+```
+
+
+
+
 
