@@ -25,7 +25,32 @@ new_construction <- read_csv('https://raw.githubusercontent.com/rfordatascience/
 ```
 
 
-```{r}
 
+```{r}
+skimr::skim(rent)
+```
+ 
+
+
+```{r}
+(rent %>% 
+  group_by(year) %>% 
+  summarize(price = median(price)) %>% 
+  ggplot(aes(year, price)) + geom_line()) /
+(rent %>% 
+   group_by(year) %>% 
+   ggplot(aes(year, price, group = year)) + geom_boxplot())
+```
+
+
+
+```{r}
+rent %>% 
+  filter(!is.na(county)) %>% 
+  group_by(county) %>% 
+  mutate(med = median(price),
+         county = str_to_title(county)) %>% 
+  slice_max(med, n = 10) %>% 
+  ggplot(aes(fct_reorder(county, med), price)) + geom_boxplot()
 ```
 
