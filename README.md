@@ -24,4 +24,4 @@ Diving into the weekly datasets of TidyTuesday!
 * [Company Reputation](https://github.com/MattHondrakis/TidyTuesday/blob/main/05-31-22/Company-Reputation.md)
 * [Pride Donations](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-07-22/Pride-Donations.md)
 * [Droughts](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-14-22/Drought.md)
-* [Paygap](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-28-22/Paygap.md)
+* [UK Gender Paygap](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-28-22/Paygap.md)
