@@ -1,4 +1,4 @@
-UK Paygap
+UK Gender Paygap
 ================
 Matthew Hondrakis
 2022-06-29

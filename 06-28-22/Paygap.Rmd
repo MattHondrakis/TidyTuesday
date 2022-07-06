@@ -1,5 +1,5 @@
 ---
-title: "UK Paygap"
+title: "UK Gender Paygap"
 author: "Matthew Hondrakis"
 date: '2022-06-29'
 output: github_document
