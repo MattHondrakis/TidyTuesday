@@ -144,3 +144,52 @@ lm(price ~ 0 + .,
     ## 6 baths          11.8      53.3        0.222 8.25e-  1
     ## 7 sqft            2.09      0.0656    31.8   3.96e-180
     ## 8 date           -0.0486    0.0742    -0.655 5.12e-  1
+
+``` r
+hoods <- rent %>% 
+  group_by(nhood) %>%
+  mutate(medianp = median(price)) %>%
+  distinct(medianp) %>% 
+  arrange(-medianp) %>% 
+  head(10) %>% pull(nhood)
+
+rent %>% 
+  filter(nhood %in% hoods) %>% 
+  ggplot(aes(price, fct_reorder(nhood, price, median))) + geom_boxplot()
+```
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+rent %>% 
+  ggplot(aes(lon, lat, color = log(price))) + geom_point() +
+  xlim(-125, -120) + ylim(36, 39)
+```
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+sfmap <- map_data("county", region = "California")
+
+sfmap_joined <- rent %>% 
+  group_by(county) %>% 
+  summarize(price = median(price)) %>% 
+  left_join(sfmap, by = c("county" = "subregion"))
+```
+
+``` r
+sfmap_joined %>% 
+  ggplot(aes(long, lat, group = group, fill = price)) + geom_polygon()
+```
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+rent %>% 
+  keep(is.numeric) %>% 
+  select(-date, -lat, -lon) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
+```
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

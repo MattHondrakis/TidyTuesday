@@ -75,5 +75,50 @@ lm(price ~ 0 + .,
 
 
 
+```{r}
+hoods <- rent %>% 
+  group_by(nhood) %>%
+  mutate(medianp = median(price)) %>%
+  distinct(medianp) %>% 
+  arrange(-medianp) %>% 
+  head(10) %>% pull(nhood)
+
+rent %>% 
+  filter(nhood %in% hoods) %>% 
+  ggplot(aes(price, fct_reorder(nhood, price, median))) + geom_boxplot()
+```
+
+
+
+```{r}
+rent %>% 
+  ggplot(aes(lon, lat, color = log(price))) + geom_point() +
+  xlim(-125, -120) + ylim(36, 39)
+
+sfmap <- map_data("county", region = "California")
+
+sfmap_joined <- rent %>% 
+  group_by(county) %>% 
+  summarize(price = median(price)) %>% 
+  left_join(sfmap, by = c("county" = "subregion"))
+```
+
+
+
+```{r}
+sfmap_joined %>% 
+  ggplot(aes(long, lat, group = group, fill = price)) + geom_polygon()
+```
+
+
+
+```{r}
+rent %>% 
+  keep(is.numeric) %>% 
+  select(-date, -lat, -lon) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
+```
+
 
 
