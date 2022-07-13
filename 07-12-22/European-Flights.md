@@ -72,12 +72,10 @@ flights %>%
 ``` r
 flights %>% 
   filter(state_name == "Greece") %>% 
+  mutate(month_mon = fct_reorder(month_mon, month_num)) %>% 
   group_by(month_mon) %>% 
   summarize(diff = sum(flt_arr_1) - sum(flt_dep_1)) %>% 
-  left_join(flights %>% select(contains("month"))) %>% 
-  ggplot(aes(diff, fct_reorder(month_mon, month_num))) + geom_col()
+  ggplot(aes(diff, month_mon)) + geom_col()
 ```
-
-    ## Joining, by = "month_mon"
 
 ![](European-Flights_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
