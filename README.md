@@ -25,3 +25,6 @@ Diving into the weekly datasets of TidyTuesday!
 * [Pride Donations](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-07-22/Pride-Donations.md)
 * [Droughts](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-14-22/Drought.md)
 * [UK Gender Paygap](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-28-22/Paygap.md)
+* [San Francisco Rentals](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-05-22/San-Fransisco-Rentals.md)
+* [European Flights](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-12-22/European-Flights.md)
+
