@@ -58,3 +58,15 @@ flights %>%
 ```
 
 
+```{r}
+flights %>% 
+  filter(state_name == "Greece") %>% 
+  group_by(month_mon) %>% 
+  summarize(diff = sum(flt_arr_1) - sum(flt_dep_1)) %>% 
+  left_join(flights %>% select(contains("month"))) %>% 
+  ggplot(aes(diff, fct_reorder(month_mon, month_num))) + geom_col()
+```
+
+
+
+
