@@ -94,11 +94,10 @@ Data summary
 ``` r
 rent %>% 
   keep(is.numeric) %>% 
-  gather() %>% 
-  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+  select(-date, -lat, -lon) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
 ```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
@@ -186,10 +185,58 @@ sfmap_joined %>%
 
 ``` r
 rent %>% 
-  keep(is.numeric) %>% 
-  select(-date, -lat, -lon) %>% 
-  pivot_longer(-price) %>% 
-  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
+  ggplot(aes(baths, price, color = county)) + geom_point()
 ```
 
 ![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+rent %>% 
+  filter(baths == 1) %>% 
+  arrange(-price) %>% 
+  select(price, year, county, sqft)
+```
+
+    ## # A tibble: 17,644 x 4
+    ##    price  year county         sqft
+    ##    <dbl> <dbl> <chr>         <dbl>
+    ##  1 22985  2015 san francisco  4000
+    ##  2 22000  2015 marin          4700
+    ##  3 21200  2014 san francisco    NA
+    ##  4 20990  2015 san francisco    NA
+    ##  5 20000  2014 santa clara    5300
+    ##  6 17500  2014 san francisco  6194
+    ##  7 15000  2011 alameda          NA
+    ##  8 14500  2017 san mateo      2342
+    ##  9 14500  2014 san francisco  3045
+    ## 10 14000  2004 san mateo        NA
+    ## # ... with 17,634 more rows
+
+``` r
+permits %>% 
+  group_by(y = year(filed_date)) %>% 
+  count(permit_type_definition, sort = TRUE) %>% 
+  ggplot(aes(y, n, color = permit_type_definition)) + geom_line()
+```
+
+![](San-Fransisco-Rentals_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+permits %>% 
+  count(proposed_use, sort = TRUE)
+```
+
+    ## # A tibble: 92 x 2
+    ##    proposed_use             n
+    ##    <chr>                <int>
+    ##  1 1 family dwelling    18614
+    ##  2 office               18238
+    ##  3 apartments           17546
+    ##  4 2 family dwelling    12514
+    ##  5 retail sales          4476
+    ##  6 <NA>                  3175
+    ##  7 food/beverage hndlng  2845
+    ##  8 tourist hotel/motel   1194
+    ##  9 school                 665
+    ## 10 warehouse,no frnitur   449
+    ## # ... with 82 more rows

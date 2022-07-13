@@ -35,9 +35,11 @@ skimr::skim(rent)
 ```{r}
 rent %>% 
   keep(is.numeric) %>% 
-  gather() %>% 
-  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+  select(-date, -lat, -lon) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
 ```
+
 
 
 
@@ -114,11 +116,27 @@ sfmap_joined %>%
 
 ```{r}
 rent %>% 
-  keep(is.numeric) %>% 
-  select(-date, -lat, -lon) %>% 
-  pivot_longer(-price) %>% 
-  ggplot(aes(value, price)) + geom_point() + facet_wrap(~name, scales = "free")
+  ggplot(aes(baths, price, color = county)) + geom_point()
+
+rent %>% 
+  filter(baths == 1) %>% 
+  arrange(-price) %>% 
+  select(price, year, county, sqft)
 ```
 
 
+
+```{r}
+permits %>% 
+  group_by(y = year(filed_date)) %>% 
+  count(permit_type_definition, sort = TRUE) %>% 
+  ggplot(aes(y, n, color = permit_type_definition)) + geom_line()
+```
+
+
+
+```{r}
+permits %>% 
+  count(proposed_use, sort = TRUE)
+```
 
