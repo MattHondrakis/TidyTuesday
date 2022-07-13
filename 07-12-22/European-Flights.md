@@ -37,3 +37,34 @@ flights %>%
 ```
 
 ![](European-Flights_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+
+``` r
+flights %>% 
+  count(state_name) %>% 
+  ggplot(aes(n, fct_reorder(state_name,n))) + geom_col() +
+  scale_x_continuous(breaks = seq(0, 200000, 25000), labels = comma)
+```
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+
+``` r
+flights %>% 
+  filter(state_name == "Greece") %>% 
+  count(apt_name, sort = TRUE) %>% 
+  ggplot(aes(n, fct_reorder(apt_name, n))) + geom_col()
+```
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+flights %>% 
+  filter(state_name == "Greece") %>% 
+  group_by(apt_name) %>% 
+  summarize("in" = sum(flt_arr_1),
+            out = sum(flt_dep_1)) %>% 
+  pivot_longer(-apt_name) %>% 
+  ggplot(aes(value, fct_reorder(apt_name, value, max), fill = name)) + geom_col(position = "dodge") +
+  labs(y = "") + scale_x_continuous(labels = comma)
+```
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
