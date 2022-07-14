@@ -88,3 +88,28 @@ flights %>%
 ```
 
 ![](European-Flights_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+flights %>% 
+  group_by(state_name) %>% 
+  summarize(n = sum(flt_tot_1)) %>% 
+  mutate(state_name = fct_reorder(state_name,n)) %>% 
+  ggplot(aes(n, state_name)) + geom_col() +
+  scale_x_continuous(label = comma)
+```
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+flights %>% 
+  group_by(year, month = month_num) %>% 
+  summarize(sum = sum(flt_tot_1)) %>% 
+  ggplot(aes(month, sum, fill = as.factor(year))) + geom_col() + 
+  facet_wrap(~year) + scale_x_continuous(breaks = seq(1,12,1)) +
+  theme(legend.position = "none") + labs(y = "", x = "")
+```
+
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
