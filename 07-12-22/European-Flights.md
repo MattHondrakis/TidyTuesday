@@ -75,7 +75,16 @@ flights %>%
   mutate(month_mon = fct_reorder(month_mon, month_num)) %>% 
   group_by(month_mon) %>% 
   summarize(diff = sum(flt_arr_1) - sum(flt_dep_1)) %>% 
-  ggplot(aes(diff, month_mon)) + geom_col()
+  ggplot(aes(month_mon, diff, group = 1)) + geom_line()
 ```
 
 ![](European-Flights_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+flights %>% 
+  group_by(flt_date) %>% 
+  summarize(total = sum(flt_tot_1)) %>% 
+  ggplot(aes(flt_date, total)) + geom_line()
+```
+
+![](European-Flights_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
