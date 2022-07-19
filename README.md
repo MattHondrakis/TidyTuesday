@@ -3,7 +3,7 @@ Diving into the weekly datasets of TidyTuesday!
 
 ## Datasets
 
-* [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-11-22/Bees.md)  **(Short)**
+* [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-11-22/Bees.md)  *(Short)*
 * [Chocolate Bar Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-18-22/Chocolate.md)
 * [Board Game Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-25-22/BoardGames.md)
 * [Dog Breeds](https://github.com/MattHondrakis/TidyTuesday/blob/main/02-01-22/DogBreeds.md)
