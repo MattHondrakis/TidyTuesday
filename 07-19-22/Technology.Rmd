@@ -38,3 +38,11 @@ technology %>%
 ```
 
 
+```{r}
+technology %>% 
+  count(label, sort = TRUE)
+
+technology %>% 
+  count(category, sort = TRUE)
+```
+

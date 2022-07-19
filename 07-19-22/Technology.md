@@ -57,3 +57,55 @@ technology %>%
 ```
 
 ![](Technology_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(value == 0) %>% 
+  group_by(group) %>% 
+  summarize(n = n())
+```
+
+    ## # A tibble: 3 x 2
+    ##   group           n
+    ##   <chr>       <int>
+    ## 1 Consumption 10370
+    ## 2 Non-Tech     1872
+    ## 3 Production  38491
+
+``` r
+technology %>% 
+  count(label, sort = TRUE)
+```
+
+    ## # A tibble: 194 x 2
+    ##    label                                                              n
+    ##    <chr>                                                          <int>
+    ##  1 Fixed telephone subscriptions                                  18440
+    ##  2 Geographical/route lengths of line open at the end of the year 12324
+    ##  3 Gross output of electric energy (TWH)                          12140
+    ##  4 Land agricultural land area 1000 ha                            11945
+    ##  5 Aluminum primary production, in metric tons                    11736
+    ##  6 % Arable land share in agricultural land                       11581
+    ##  7 Land arable land area 1000 ha                                  11581
+    ##  8 Radios                                                         10344
+    ##  9 Passenger car vehicles                                          8646
+    ## 10 Civil aviation ton-KM of cargo carried                          8477
+    ## # ... with 184 more rows
+
+``` r
+technology %>% 
+  count(category, sort = TRUE)
+```
+
+    ## # A tibble: 9 x 2
+    ##   category                         n
+    ##   <chr>                        <int>
+    ## 1 Agriculture                 120282
+    ## 2 Transport                   112845
+    ## 3 Communications               70858
+    ## 4 Energy                       66748
+    ## 5 Vaccines                     60863
+    ## 6 Industry                     26467
+    ## 7 Hospital (non-drug medical)  14677
+    ## 8 Other                        12292
+    ## 9 Financial                     6604
