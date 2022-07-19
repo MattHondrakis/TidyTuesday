@@ -27,4 +27,5 @@ Diving into the weekly datasets of TidyTuesday!
 * [UK Gender Paygap](https://github.com/MattHondrakis/TidyTuesday/blob/main/06-28-22/Paygap.md)
 * [San Francisco Rentals](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-05-22/San-Fransisco-Rentals.md)
 * [European Flights](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-12-22/European-Flights.md)
+* [Technology Adoption](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-19-22/Technology.md)
 
