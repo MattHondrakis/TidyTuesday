@@ -27,11 +27,14 @@ skimr::skim(technology)
 ```
 
 
-
-
 ```{r}
 technology %>% 
   ggplot(aes(year, value, color = group)) + geom_point() + scale_y_log10()
+
+technology %>% 
+  filter(value == 0) %>% 
+  group_by(group) %>% 
+  summarize(n = n())
 ```
 
 
