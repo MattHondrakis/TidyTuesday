@@ -39,10 +39,28 @@ technology %>%
 
 technology %>% 
   count(category, sort = TRUE)
+
+technology %>% 
+  group_by(group) %>% 
+  count(category)
 ```
 
 
 
+```{r}
+technology %>%  
+  drop_na() %>% 
+  group_by(year, continent) %>% 
+  summarize(value = mean(value) + 1) %>% 
+  ggplot(aes(year, value, color = fct_reorder(continent, value, max, .desc = TRUE))) + geom_line() +
+  scale_y_log10() + scale_x_continuous(breaks = seq(1820, 2020, 20)) + 
+  labs(title = "Overall Technology use over time", color = "")
+```
+
+
+
+
+# Vaccines
 ```{r}
 names <- technology %>% 
   filter(category == "Vaccines") %>% 
@@ -61,7 +79,6 @@ technology %>%
   geom_line() + theme(legend.position = "none")
 
 
-
 technology %>%
   filter(variable %in% names) %>% 
   group_by(year) %>% 
@@ -75,14 +92,13 @@ technology %>%
 ```{r}
 technology %>%  
   drop_na() %>% 
+  filter(category == "Vaccines") %>% 
   group_by(year, continent) %>% 
   summarize(value = mean(value) + 1) %>% 
   ggplot(aes(year, value, color = fct_reorder(continent, value, max, .desc = TRUE))) + geom_line() +
   scale_y_log10() + scale_x_continuous(breaks = seq(1820, 2020, 20)) + 
   labs(title = "Average Vaccination Rate per Continent over time", color = "")
 ```
-
-
 
 
 
@@ -95,3 +111,47 @@ technology %>%
   group_by(group) %>% 
   summarize(n = n())
 ```
+
+
+# Transport
+```{r}
+technology %>% 
+  filter(category == "Transport") %>% 
+  count(group, sort = TRUE)
+
+technology %>% 
+  filter(category == "Transport") %>% 
+  count(label, sort = TRUE)
+```
+
+
+## Vehicles
+```{r}
+gplot <- function(data, x){
+  data %>% 
+    group_by(continent, year) %>% 
+    summarize(value = {{x}}) %>% 
+    ggplot(aes(year, value, color = fct_reorder(continent, value, max))) + geom_line() +
+    labs(color = "")
+}
+
+
+(technology %>% 
+  filter(grepl("vehicle", label)) %>% 
+  group_by(continent, year) %>% 
+  gplot(mean(value)) + scale_y_log10()) /
+(technology %>% 
+  filter(grepl("vehicle", label)) %>% 
+  gplot(median(value)) + scale_y_log10())
+```
+
+
+
+```{r}
+technology %>% 
+  filter(grepl("Geographical", label)) %>% 
+  gplot(mean(value))
+```
+
+
+

@@ -98,6 +98,49 @@ technology %>%
     ## 9 Financial                     6604
 
 ``` r
+technology %>% 
+  group_by(group) %>% 
+  count(category)
+```
+
+    ## # A tibble: 15 x 3
+    ## # Groups:   group [4]
+    ##    group       category                        n
+    ##    <chr>       <chr>                       <int>
+    ##  1 Consumption Communications              68525
+    ##  2 Consumption Financial                    6604
+    ##  3 Consumption Hospital (non-drug medical) 10244
+    ##  4 Consumption Transport                   27254
+    ##  5 Consumption Vaccines                    60863
+    ##  6 Creation    Other                        3599
+    ##  7 Non-Tech    Agriculture                 54213
+    ##  8 Non-Tech    Hospital (non-drug medical)  4433
+    ##  9 Non-Tech    Other                        6657
+    ## 10 Production  Agriculture                 66069
+    ## 11 Production  Communications               2333
+    ## 12 Production  Energy                      66748
+    ## 13 Production  Industry                    26467
+    ## 14 Production  Other                        2036
+    ## 15 Production  Transport                   85591
+
+``` r
+technology %>%  
+  drop_na() %>% 
+  group_by(year, continent) %>% 
+  summarize(value = mean(value) + 1) %>% 
+  ggplot(aes(year, value, color = fct_reorder(continent, value, max, .desc = TRUE))) + geom_line() +
+  scale_y_log10() + scale_x_continuous(breaks = seq(1820, 2020, 20)) + 
+  labs(title = "Overall Technology use over time", color = "")
+```
+
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+# Vaccines
+
+``` r
 names <- technology %>% 
   filter(category == "Vaccines") %>% 
   count(variable, sort = TRUE) %>% 
@@ -131,7 +174,7 @@ technology %>%
   geom_line() + theme(legend.position = "none")
 ```
 
-![](Technology_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Technology_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 technology %>%
@@ -142,11 +185,12 @@ technology %>%
   geom_line() + theme(legend.position = "none")
 ```
 
-![](Technology_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](Technology_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ``` r
 technology %>%  
   drop_na() %>% 
+  filter(category == "Vaccines") %>% 
   group_by(year, continent) %>% 
   summarize(value = mean(value) + 1) %>% 
   ggplot(aes(year, value, color = fct_reorder(continent, value, max, .desc = TRUE))) + geom_line() +
@@ -157,14 +201,14 @@ technology %>%
     ## `summarise()` has grouped output by 'year'. You can override using the
     ## `.groups` argument.
 
-![](Technology_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Technology_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 technology %>% 
   ggplot(aes(year, value, color = group)) + geom_point() + scale_y_log10()
 ```
 
-![](Technology_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Technology_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 technology %>% 
@@ -179,3 +223,77 @@ technology %>%
     ## 1 Consumption 10370
     ## 2 Non-Tech     1872
     ## 3 Production  38491
+
+# Transport
+
+``` r
+technology %>% 
+  filter(category == "Transport") %>% 
+  count(group, sort = TRUE)
+```
+
+    ## # A tibble: 2 x 2
+    ##   group           n
+    ##   <chr>       <int>
+    ## 1 Production  85591
+    ## 2 Consumption 27254
+
+``` r
+technology %>% 
+  filter(category == "Transport") %>% 
+  count(label, sort = TRUE)
+```
+
+    ## # A tibble: 25 x 2
+    ##    label                                                                       n
+    ##    <chr>                                                                   <int>
+    ##  1 Geographical/route lengths of line open at the end of the year          12324
+    ##  2 Passenger car vehicles                                                   8646
+    ##  3 Civil aviation ton-KM of cargo carried                                   8477
+    ##  4 Freight carried on railways (excluding livestock and passenger baggage~  8290
+    ##  5 Passenger journeys by railway (passenger-km)                             7855
+    ##  6 Commercial vehicles (bus, taxi)                                          7851
+    ##  7 Thousands of passenger journeys by railway                               7842
+    ##  8 Metric tons of freight carried on railways (excluding livestock and pa~  7712
+    ##  9 Air transport, passengers carried                                        7470
+    ## 10 Tonnage of ships of all kinds                                            5007
+    ## # ... with 15 more rows
+
+## Vehicles
+
+``` r
+gplot <- function(data, x){
+  data %>% 
+    group_by(continent, year) %>% 
+    summarize(value = {{x}}) %>% 
+    ggplot(aes(year, value, color = fct_reorder(continent, value, max))) + geom_line() +
+    labs(color = "")
+}
+
+
+(technology %>% 
+  filter(grepl("vehicle", label)) %>% 
+  group_by(continent, year) %>% 
+  gplot(mean(value)) + scale_y_log10()) /
+(technology %>% 
+  filter(grepl("vehicle", label)) %>% 
+  gplot(median(value)) + scale_y_log10())
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(grepl("Geographical", label)) %>% 
+  gplot(mean(value))
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
