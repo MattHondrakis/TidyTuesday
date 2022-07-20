@@ -292,3 +292,153 @@ technology %>%
     ## `.groups` argument.
 
 ![](Technology_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+# Hospital
+
+``` r
+technology %>% 
+  filter(group == "Consumption" & grepl('Hospital', category)) %>% 
+  count(label, sort = TRUE) 
+```
+
+    ## # A tibble: 47 x 2
+    ##    label                                                 n
+    ##    <chr>                                             <int>
+    ##  1 Kidney transplants                                  834
+    ##  2 Total patients receiving dialysis                   702
+    ##  3 Total patients receiving home dialysis              598
+    ##  4 % Dialysis patients who receive treatment at home   565
+    ##  5 Liver transplants                                   417
+    ##  6 Heart transplants                                   364
+    ##  7 Computed Tomography exams, in hospitals             363
+    ##  8 Computed Tomography exams, total                    353
+    ##  9 Bone marrow transplants                             340
+    ## 10 Magnetic Resonance Imaging exams, in hospitals      339
+    ## # ... with 37 more rows
+
+``` r
+technology %>% 
+  filter(grepl('hospital', label)) %>% 
+  group_by(label) %>% 
+  summarize(n = mean(value)) %>% 
+  arrange(-n)
+```
+
+    ## # A tibble: 10 x 2
+    ##    label                                                               n
+    ##    <chr>                                                           <dbl>
+    ##  1 Computed Tomography exams, in hospitals                  4616845.    
+    ##  2 Magnetic Resonance Imaging exams, in hospitals           1503054.    
+    ##  3 Beds in hospitals                                         163754.    
+    ##  4 Positron Emission Tomography (PET) exams, in hospitals    101591.    
+    ##  5 % Cataract surgeries without a hospital stay                   0.470 
+    ##  6 % Varicose veins procedures without a hospital stay            0.299 
+    ##  7 % Hernia procedures without a hospital stay                    0.273 
+    ##  8 % Tonsillectomies without a hospital stay                      0.192 
+    ##  9 % Laparoscopic cholecystectomies without a hospital stay       0.0451
+    ## 10 % Cholecystectomies without a hospital stay                    0.0252
+
+## Transplants
+
+``` r
+technology %>% 
+  filter(grepl('Hospital', category)) %>% 
+  filter(grepl('transplants', label)) %>% 
+  mutate(label = str_replace(label, 'transplants', "")) %>% 
+  group_by(label, year, continent) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  facet_wrap(~continent) +
+  labs(color = "", title = "Type of Transplants over time")
+```
+
+    ## `summarise()` has grouped output by 'label', 'year'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  gplot(mean(value))
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  mutate(label = ifelse(grepl("home", label), "home", "hospital")) %>% 
+  group_by(label, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  labs(color = "", title = "Dialysis at Home or Hopsital", 
+       caption = "Data goes from 1968 to 2002") + 
+  theme(plot.caption = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = c(1968, seq(1974, 2002, 4)))
+```
+
+    ## `summarise()` has grouped output by 'label'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+## Tomography
+
+``` r
+technology %>% 
+  filter(grepl("Tomography", label) & grepl("total", label)) %>% 
+  group_by(label, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  scale_y_log10(label = comma)
+```
+
+    ## `summarise()` has grouped output by 'label'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(grepl("Tomography", label) & grepl("total", label)) %>% 
+  gplot(mean(value))
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+# Country
+
+## Dialysis
+
+``` r
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  mutate(temp_country = ifelse(grepl("United States", country), country, "All Other")) %>%
+  group_by(year, temp_country) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = temp_country)) + geom_line()
+```
+
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(grepl("Geographical", label)) %>%  
+  mutate(continent = ifelse(grepl("United States", country), country, "All Other")) %>%
+  gplot(mean(value))
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->

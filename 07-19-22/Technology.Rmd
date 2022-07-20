@@ -152,3 +152,85 @@ technology %>%
 
 
 
+# Hospital
+```{r}
+technology %>% 
+  filter(group == "Consumption" & grepl('Hospital', category)) %>% 
+  count(label, sort = TRUE) 
+
+
+technology %>% 
+  filter(grepl('hospital', label)) %>% 
+  group_by(label) %>% 
+  summarize(n = mean(value)) %>% 
+  arrange(-n)
+```
+
+
+## Transplants
+```{r}
+technology %>% 
+  filter(grepl('Hospital', category)) %>% 
+  filter(grepl('transplants', label)) %>% 
+  mutate(label = str_replace(label, 'transplants', "")) %>% 
+  group_by(label, year, continent) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  facet_wrap(~continent) +
+  labs(color = "", title = "Type of Transplants over time")
+```
+
+
+```{r}
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  gplot(mean(value))
+
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  mutate(label = ifelse(grepl("home", label), "home", "hospital")) %>% 
+  group_by(label, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  labs(color = "", title = "Dialysis at Home or Hopsital", 
+       caption = "Data goes from 1968 to 2002") + 
+  theme(plot.caption = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = c(1968, seq(1974, 2002, 4)))
+```
+
+
+## Tomography
+```{r}
+technology %>% 
+  filter(grepl("Tomography", label) & grepl("total", label)) %>% 
+  group_by(label, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = label)) + geom_line() +
+  scale_y_log10(label = comma)
+
+technology %>% 
+  filter(grepl("Tomography", label) & grepl("total", label)) %>% 
+  gplot(mean(value))
+```
+
+
+
+# Country
+## Dialysis
+```{r}
+technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  mutate(temp_country = ifelse(grepl("United States", country), country, "All Other")) %>%
+  group_by(year, temp_country) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value, color = temp_country)) + geom_line()
+```
+
+
+```{r}
+technology %>% 
+  filter(grepl("Geographical", label)) %>%  
+  mutate(continent = ifelse(grepl("United States", country), country, "All Other")) %>%
+  gplot(mean(value))
+```
+
