@@ -17,6 +17,12 @@ technology <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytu
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+technology <- technology %>% 
+  bind_cols(country = countrycode(technology$iso3c, origin = 'iso3c', destination = 'country.name'),
+            continent = countrycode(technology$iso3c, origin = 'iso3c', destination = 'continent'))
+```
+
+``` r
 skimr::skim(technology)
 ```
 
@@ -24,10 +30,10 @@ skimr::skim(technology)
 |:-------------------------------------------------|:-----------|
 | Name                                             | technology |
 | Number of rows                                   | 491636     |
-| Number of columns                                | 7          |
+| Number of columns                                | 9          |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |            |
 | Column type frequency:                           |            |
-| character                                        | 5          |
+| character                                        | 7          |
 | numeric                                          | 2          |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |            |
 | Group variables                                  | None       |
@@ -43,6 +49,8 @@ Data summary
 | iso3c         |         0 |             1 |   3 |   3 |     0 |      240 |          0 |
 | group         |         0 |             1 |   8 |  11 |     0 |        4 |          0 |
 | category      |         0 |             1 |   5 |  27 |     0 |        9 |          0 |
+| country       |      1327 |             1 |   4 |  32 |     0 |      235 |          0 |
+| continent     |      1507 |             1 |   4 |   8 |     0 |        5 |          0 |
 
 **Variable type: numeric**
 
@@ -50,27 +58,6 @@ Data summary
 |:--------------|----------:|--------------:|-------------:|-------------:|-----:|-------:|-----:|---------:|------------:|:------|
 | year          |         0 |             1 | 1.983080e+03 | 3.471000e+01 | 1820 | 1972.0 | 1993 |  2007.00 | 2.02000e+03 | ▁▁▁▃▇ |
 | value         |         0 |             1 | 1.310453e+09 | 4.432262e+10 |    0 |   23.1 |  550 | 39779.25 | 8.82194e+12 | ▇▁▁▁▁ |
-
-``` r
-technology %>% 
-  ggplot(aes(year, value, color = group)) + geom_point() + scale_y_log10()
-```
-
-![](Technology_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
-technology %>% 
-  filter(value == 0) %>% 
-  group_by(group) %>% 
-  summarize(n = n())
-```
-
-    ## # A tibble: 3 x 2
-    ##   group           n
-    ##   <chr>       <int>
-    ## 1 Consumption 10370
-    ## 2 Non-Tech     1872
-    ## 3 Production  38491
 
 ``` r
 technology %>% 
@@ -109,3 +96,86 @@ technology %>%
     ## 7 Hospital (non-drug medical)  14677
     ## 8 Other                        12292
     ## 9 Financial                     6604
+
+``` r
+names <- technology %>% 
+  filter(category == "Vaccines") %>% 
+  count(variable, sort = TRUE) %>% 
+  head(5) %>% 
+  pull(variable)
+
+technology %>% 
+  count(iso3c, sort = TRUE)
+```
+
+    ## # A tibble: 240 x 2
+    ##    iso3c     n
+    ##    <chr> <int>
+    ##  1 DNK    6132
+    ##  2 FRA    5931
+    ##  3 DEU    5836
+    ##  4 GBR    5771
+    ##  5 SWE    5769
+    ##  6 FIN    5730
+    ##  7 NOR    5706
+    ##  8 ESP    5668
+    ##  9 NLD    5656
+    ## 10 AUS    5555
+    ## # ... with 230 more rows
+
+``` r
+technology %>%
+  group_by(year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value)) +
+  geom_line() + theme(legend.position = "none")
+```
+
+![](Technology_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+technology %>%
+  filter(variable %in% names) %>% 
+  group_by(year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value)) +
+  geom_line() + theme(legend.position = "none")
+```
+
+![](Technology_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
+technology %>%  
+  drop_na() %>% 
+  group_by(year, continent) %>% 
+  summarize(value = mean(value) + 1) %>% 
+  ggplot(aes(year, value, color = fct_reorder(continent, value, max, .desc = TRUE))) + geom_line() +
+  scale_y_log10() + scale_x_continuous(breaks = seq(1820, 2020, 20)) + 
+  labs(title = "Average Vaccination Rate per Continent over time", color = "")
+```
+
+    ## `summarise()` has grouped output by 'year'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+technology %>% 
+  ggplot(aes(year, value, color = group)) + geom_point() + scale_y_log10()
+```
+
+![](Technology_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(value == 0) %>% 
+  group_by(group) %>% 
+  summarize(n = n())
+```
+
+    ## # A tibble: 3 x 2
+    ##   group           n
+    ##   <chr>       <int>
+    ## 1 Consumption 10370
+    ## 2 Non-Tech     1872
+    ## 3 Production  38491
