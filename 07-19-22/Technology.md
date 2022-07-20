@@ -205,13 +205,6 @@ technology %>%
 
 ``` r
 technology %>% 
-  ggplot(aes(year, value, color = group)) + geom_point() + scale_y_log10()
-```
-
-![](Technology_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
-``` r
-technology %>% 
   filter(value == 0) %>% 
   group_by(group) %>% 
   summarize(n = n())
@@ -286,6 +279,8 @@ gplot <- function(data, x){
     ## `.groups` argument.
 
 ![](Technology_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## Routes
 
 ``` r
 technology %>% 
