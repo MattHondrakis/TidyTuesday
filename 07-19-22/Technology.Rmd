@@ -231,6 +231,42 @@ technology %>%
 technology %>% 
   filter(grepl("Geographical", label)) %>%  
   mutate(continent = ifelse(grepl("United States", country), country, "All Other")) %>%
-  gplot(mean(value))
+  gplot(sum(value))
+```
+
+
+# Rstudio cloud
+```{r}
+tidy_tech <- technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  group_by(country, year) %>% 
+  summarize(value = mean(value)) %>% 
+  nest(-country) %>% 
+  mutate(model = map(data, ~lm(value ~ year, .)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy)
+
+tidy_tech %>% 
+  filter(term == "year" & p.value < 0.05) %>% 
+  arrange(-abs(estimate))
+
+tidy_tech %>% 
+  filter(term == "year" & p.value > 0.05) %>% 
+  arrange(-abs(estimate)) 
+```
+
+
+
+```{r}
+tidy_tech_joined <- tidy_tech %>% 
+  filter(term == "year") %>% 
+  inner_join(technology %>% distinct(country, continent)) 
+
+tidy_tech_joined %>% 
+  filter(country != "Iceland") %>% 
+  ggplot(aes(estimate, fct_reorder(country, estimate))) +
+  geom_col(aes(fill = continent)) + 
+  geom_errorbarh(aes(xmin = estimate - std.error, xmax = estimate + std.error)) +
+  labs(y = "") + scale_x_log10(limits = c(1, 10000), labels = comma)
 ```
 
