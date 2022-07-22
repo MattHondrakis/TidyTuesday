@@ -443,7 +443,9 @@ technology %>%
 
 ![](Technology_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-# Rstudio cloud
+# Nested Country Model
+
+## Dialysis
 
 ``` r
 tidy_tech <- technology %>% 
@@ -511,3 +513,23 @@ tidy_tech_joined %>%
 ```
 
 ![](Technology_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` r
+tidy_names <- tidy_tech_joined %>% 
+  arrange(desc(estimate)) %>% 
+  head(10) %>% 
+  pull(country)
+
+technology %>% 
+  filter(grepl("dialysis", label) & country %in% tidy_names) %>% 
+  group_by(country, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~country, scales = "free")
+```
+
+    ## `summarise()` has grouped output by 'country'. You can override using the
+    ## `.groups` argument.
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Technology_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->

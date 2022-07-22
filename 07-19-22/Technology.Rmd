@@ -235,7 +235,9 @@ technology %>%
 ```
 
 
-# Rstudio cloud
+# Nested Country Model
+
+## Dialysis
 ```{r}
 tidy_tech <- technology %>% 
   filter(grepl("dialysis", label)) %>% 
@@ -268,5 +270,20 @@ tidy_tech_joined %>%
   geom_col(aes(fill = continent)) + 
   geom_errorbarh(aes(xmin = estimate - std.error, xmax = estimate + std.error)) +
   labs(y = "") + scale_x_log10(limits = c(1, 10000), labels = comma)
+```
+
+
+```{r}
+tidy_names <- tidy_tech_joined %>% 
+  arrange(desc(estimate)) %>% 
+  head(10) %>% 
+  pull(country)
+
+technology %>% 
+  filter(grepl("dialysis", label) & country %in% tidy_names) %>% 
+  group_by(country, year) %>% 
+  summarize(value = mean(value)) %>% 
+  ggplot(aes(year, value)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~country, scales = "free")
 ```
 
