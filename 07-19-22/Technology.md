@@ -435,10 +435,79 @@ technology %>%
 technology %>% 
   filter(grepl("Geographical", label)) %>%  
   mutate(continent = ifelse(grepl("United States", country), country, "All Other")) %>%
-  gplot(mean(value))
+  gplot(sum(value))
 ```
 
     ## `summarise()` has grouped output by 'continent'. You can override using the
     ## `.groups` argument.
 
 ![](Technology_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+# Rstudio cloud
+
+``` r
+tidy_tech <- technology %>% 
+  filter(grepl("dialysis", label)) %>% 
+  group_by(country, year) %>% 
+  summarize(value = mean(value)) %>% 
+  nest(-country) %>% 
+  mutate(model = map(data, ~lm(value ~ year, .)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy)
+```
+
+    ## `summarise()` has grouped output by 'country'. You can override using the
+    ## `.groups` argument.
+
+``` r
+tidy_tech %>% 
+  filter(term == "year" & p.value < 0.05) %>% 
+  arrange(-abs(estimate))
+```
+
+    ## # A tibble: 28 x 8
+    ## # Groups:   country [28]
+    ##    country        data     model  term  estimate std.error statistic  p.value
+    ##    <chr>          <list>   <list> <chr>    <dbl>     <dbl>     <dbl>    <dbl>
+    ##  1 United States  <tibble> <lm>   year     4714.     266.      17.7  6.43e-15
+    ##  2 Japan          <tibble> <lm>   year     3906.     389.      10.0  2.02e-11
+    ##  3 Mexico         <tibble> <lm>   year     3755.     404.       9.29 2.43e- 4
+    ##  4 Germany        <tibble> <lm>   year      871.      58.8     14.8  2.40e-15
+    ##  5 Poland         <tibble> <lm>   year      794.     224.       3.55 2.02e- 3
+    ##  6 Spain          <tibble> <lm>   year      550.      47.9     11.5  4.23e-12
+    ##  7 Italy          <tibble> <lm>   year      447.      19.1     23.4  5.01e-18
+    ##  8 France         <tibble> <lm>   year      416.      22.7     18.3  1.35e-15
+    ##  9 Canada         <tibble> <lm>   year      366.      22.7     16.1  1.51e-12
+    ## 10 United Kingdom <tibble> <lm>   year      362.      32.5     11.1  5.80e-11
+    ## # ... with 18 more rows
+
+``` r
+tidy_tech %>% 
+  filter(term == "year" & p.value > 0.05) %>% 
+  arrange(-abs(estimate)) 
+```
+
+    ## # A tibble: 1 x 8
+    ## # Groups:   country [1]
+    ##   country data             model  term  estimate std.error statistic p.value
+    ##   <chr>   <list>           <list> <chr>    <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 Turkey  <tibble [7 x 2]> <lm>   year     1906.      770.      2.48  0.0561
+
+``` r
+tidy_tech_joined <- tidy_tech %>% 
+  filter(term == "year") %>% 
+  inner_join(technology %>% distinct(country, continent)) 
+```
+
+    ## Joining, by = "country"
+
+``` r
+tidy_tech_joined %>% 
+  filter(country != "Iceland") %>% 
+  ggplot(aes(estimate, fct_reorder(country, estimate))) +
+  geom_col(aes(fill = continent)) + 
+  geom_errorbarh(aes(xmin = estimate - std.error, xmax = estimate + std.error)) +
+  labs(y = "") + scale_x_log10(limits = c(1, 10000), labels = comma)
+```
+
+![](Technology_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
