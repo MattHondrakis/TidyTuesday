@@ -61,7 +61,7 @@ Data summary
 
 ``` r
 technology %>% 
-  count(label, sort = TRUE)
+  count(label, sort = TRUE) 
 ```
 
     ## # A tibble: 194 x 2
@@ -533,3 +533,52 @@ technology %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Technology_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+# Internet
+
+``` r
+technology %>% 
+  filter(grepl("internet", label)) %>% 
+  count(label, sort = TRUE)
+```
+
+    ## # A tibble: 2 x 2
+    ##   label                           n
+    ##   <chr>                       <int>
+    ## 1 People with internet access  4883
+    ## 2 Secure internet servers      2333
+
+``` r
+internet <- technology %>% 
+  filter(grepl("internet", label))
+```
+
+``` r
+internet %>% 
+  gplot(mean(value))
+```
+
+    ## `summarise()` has grouped output by 'continent'. You can override using the
+    ## `.groups` argument.
+
+![](Technology_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+(internet %>% 
+  filter(grepl("People", label)) %>% 
+  ggplot(aes(year, value, color = country)) +
+  geom_line() + theme(legend.position = "none") +
+  gghighlight(max(value), max_highlight = 5L) +
+  labs(title = "People with internet access", subtitle = "Not per capita")) +
+(internet %>% 
+  filter(!grepl("People", label)) %>% 
+  ggplot(aes(year, value, color = country)) +
+  geom_line() + theme(legend.position = "none") +
+  gghighlight(max(value), max_highlight = 5L) +
+  labs(title = "Secure Internet Servers") + scale_x_continuous(breaks = seq(2010, 2020, 2)))
+```
+
+    ## label_key: country
+    ## label_key: country
+
+![](Technology_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->

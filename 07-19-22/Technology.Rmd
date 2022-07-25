@@ -14,6 +14,7 @@ library(patchwork)
 library(scales)
 library(lubridate)
 library(countrycode)
+library(gghighlight)
 theme_set(theme_bw())
 ```
 
@@ -35,7 +36,7 @@ skimr::skim(technology)
 
 ```{r}
 technology %>% 
-  count(label, sort = TRUE)
+  count(label, sort = TRUE) 
 
 technology %>% 
   count(category, sort = TRUE)
@@ -286,4 +287,37 @@ technology %>%
   ggplot(aes(year, value)) + geom_line() + geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~country, scales = "free")
 ```
+
+
+# Internet
+```{r}
+technology %>% 
+  filter(grepl("internet", label)) %>% 
+  count(label, sort = TRUE)
+
+internet <- technology %>% 
+  filter(grepl("internet", label))
+```
+
+
+```{r}
+internet %>% 
+  gplot(mean(value))
+
+(internet %>% 
+  filter(grepl("People", label)) %>% 
+  ggplot(aes(year, value, color = country)) +
+  geom_line() + theme(legend.position = "none") +
+  gghighlight(max(value), max_highlight = 5L) +
+  labs(title = "People with internet access", subtitle = "Not per capita")) +
+(internet %>% 
+  filter(!grepl("People", label)) %>% 
+  ggplot(aes(year, value, color = country)) +
+  geom_line() + theme(legend.position = "none") +
+  gghighlight(max(value), max_highlight = 5L) +
+  labs(title = "Secure Internet Servers") + scale_x_continuous(breaks = seq(2010, 2020, 2)))
+```
+
+
+
 
