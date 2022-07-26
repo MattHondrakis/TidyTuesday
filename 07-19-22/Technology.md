@@ -582,3 +582,15 @@ internet %>%
     ## label_key: country
 
 ![](Technology_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+
+``` r
+technology %>% 
+  filter(country == "United States") %>% 
+  ggplot(aes(year, value, color = label)) +
+  geom_line() + gghighlight(max(value), max_highlight = 5L) +
+  scale_y_log10()
+```
+
+    ## label_key: label
+
+![](Technology_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->

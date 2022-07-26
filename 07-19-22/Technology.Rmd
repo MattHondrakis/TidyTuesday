@@ -320,4 +320,11 @@ internet %>%
 
 
 
+```{r}
+technology %>% 
+  filter(country == "United States") %>% 
+  ggplot(aes(year, value, color = label)) +
+  geom_line() + gghighlight(max(value), max_highlight = 5L) +
+  scale_y_log10()
+```
 
