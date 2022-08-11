@@ -3,6 +3,21 @@ Technology Adoption
 Matthew
 2022-07-19
 
+-   <a href="#eda" id="toc-eda">EDA</a>
+-   <a href="#vaccines" id="toc-vaccines">Vaccines</a>
+-   <a href="#transport" id="toc-transport">Transport</a>
+    -   <a href="#vehicles" id="toc-vehicles">Vehicles</a>
+    -   <a href="#routes" id="toc-routes">Routes</a>
+-   <a href="#hospital" id="toc-hospital">Hospital</a>
+    -   <a href="#transplants" id="toc-transplants">Transplants</a>
+    -   <a href="#tomography" id="toc-tomography">Tomography</a>
+-   <a href="#country" id="toc-country">Country</a>
+    -   <a href="#dialysis" id="toc-dialysis">Dialysis</a>
+-   <a href="#nested-country-model" id="toc-nested-country-model">Nested
+    Country Model</a>
+    -   <a href="#dialysis-1" id="toc-dialysis-1">Dialysis</a>
+-   <a href="#internet" id="toc-internet">Internet</a>
+
 ``` r
 technology <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-07-19/technology.csv')
 ```
@@ -58,6 +73,8 @@ Data summary
 |:--------------|----------:|--------------:|-------------:|-------------:|-----:|-------:|-----:|---------:|------------:|:------|
 | year          |         0 |             1 | 1.983080e+03 | 3.471000e+01 | 1820 | 1972.0 | 1993 |  2007.00 | 2.02000e+03 | ▁▁▁▃▇ |
 | value         |         0 |             1 | 1.310453e+09 | 4.432262e+10 |    0 |   23.1 |  550 | 39779.25 | 8.82194e+12 | ▇▁▁▁▁ |
+
+# EDA
 
 ``` r
 technology %>% 
