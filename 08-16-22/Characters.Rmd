@@ -1,0 +1,42 @@
+---
+title: "Open Psychometrics"
+author: "Matthew"
+date: "2022-08-16"
+output: 
+  github_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(patchwork)
+library(scales)
+theme_set(theme_bw())
+```
+
+
+```{r}
+characters <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-16/characters.csv')
+
+head(characters)
+
+skimr::skim(characters)
+```
+
+
+```{r}
+characters %>% 
+  group_by(uni_name) %>% 
+  summarize(m = mean(notability)) %>% 
+  arrange(-m) %>%
+  mutate(uni_name = fct_reorder(uni_name, m)) %>% 
+  slice(c(1:10, 91:100)) %>% 
+  ggplot(aes(m, uni_name, fill = 60 > m)) + geom_col(color = "black") +
+  labs(y = "", x = "Average Notability", title = "Average Notability of Characters in Shows") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") + 
+  scale_fill_manual(values = c("lightblue", "darkred"))
+```
+
