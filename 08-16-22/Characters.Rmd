@@ -76,7 +76,7 @@ for(i in 1:31){
   got_profiles<-rbind(got_profiles,temp_data)
 }
 
-write_csv(got_profiles, "got_profiles.csv")
+write_csv(got_profiles, "08-16-22/got_profiles.csv")
 ```
 
 
@@ -123,4 +123,88 @@ gplot("intense") + labs(y = "", x = "", title = "Game of Thrones Characters",
 
 gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters", 
                         subtitle = "Intense Average Rating")
+```
+
+
+
+# Simpsons
+```{r, eval=FALSE}
+#scrape personality details
+get_personality<-function(url){
+  html = url%>%read_html()
+  
+  character = html%>%
+    html_elements("h3")%>%
+    head(1)%>%
+    html_text()
+  
+  data= html%>%
+    html_elements("table.zui-table")%>%
+    html_table()%>%
+    .[[1]]
+  
+  names(data)=c("item","avg_rating","rank","rating_sd","number_ratings")
+  data$character = str_replace(character," Descriptive Personality Statistics","")
+  
+  data
+}
+
+base_url<-'https://openpsychometrics.org/tests/characters/stats/S/'
+
+simpsons_profiles<-data.frame()
+#create a loop to scrape all characters, there are a total of 15 characters profiled, use range 1:16
+for(i in 1:16){
+  url<-paste0(base_url, i)
+  temp_data<-get_personality(url)
+  simpsons_profiles<-rbind(simpsons_profiles,temp_data)
+}
+
+write_csv(simpsons_profiles, "08-16-22/simpsons_profiles.csv")
+```
+
+
+```{r}
+simpsons_profiles <- read_csv("simpsons_profiles.csv")
+```
+
+
+```{r}
+simpsons_profiles <- simpsons_profiles %>% 
+  left_join(characters %>% select(character = name, image_link))
+
+simpsons_profiles %>% 
+  distinct(item)
+
+mutated_items <- simpsons_profiles %>% 
+  mutate(item = str_replace(item, "\\(.*","")) %>% 
+  pull(item)
+```
+
+
+```{r}
+gplot2 <- function(data, x){
+  data %>% 
+    filter(str_detect(item, {{x}})) %>%  
+    mutate(character = fct_reorder(character, avg_rating)) %>% 
+    ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
+    geom_image(aes(image = image_link, x = 5)) + 
+    geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
+    scale_x_continuous(label = percent_format(scale = 1)) + labs(title = str_to_title(x))
+}
+```
+
+
+## Plot 2 random traits
+```{r}
+names <- sample(mutated_items, 2)
+
+for(i in 1:2){
+  x <- names[i]
+  if(i == 1){
+    plot1 <- gplot2(simpsons_profiles, x)
+  } else{
+    plot2 <- gplot2(simpsons_profiles, x)}
+}
+
+plot1 + plot2
 ```

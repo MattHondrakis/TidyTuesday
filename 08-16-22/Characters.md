@@ -11,6 +11,9 @@ Matthew
     -   <a href="#trait-plot-function" id="toc-trait-plot-function">Trait Plot
         Function</a>
     -   <a href="#plots" id="toc-plots">Plots</a>
+-   <a href="#simpsons" id="toc-simpsons">Simpsons</a>
+    -   <a href="#plot-2-random-traits" id="toc-plot-2-random-traits">Plot 2
+        random traits</a>
 
 ``` r
 characters <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-16/characters.csv')
@@ -156,3 +159,115 @@ gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters",
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+# Simpsons
+
+``` r
+#scrape personality details
+get_personality<-function(url){
+  html = url%>%read_html()
+  
+  character = html%>%
+    html_elements("h3")%>%
+    head(1)%>%
+    html_text()
+  
+  data= html%>%
+    html_elements("table.zui-table")%>%
+    html_table()%>%
+    .[[1]]
+  
+  names(data)=c("item","avg_rating","rank","rating_sd","number_ratings")
+  data$character = str_replace(character," Descriptive Personality Statistics","")
+  
+  data
+}
+
+base_url<-'https://openpsychometrics.org/tests/characters/stats/S/'
+
+simpsons_profiles<-data.frame()
+#create a loop to scrape all characters, there are a total of 15 characters profiled, use range 1:16
+for(i in 1:16){
+  url<-paste0(base_url, i)
+  temp_data<-get_personality(url)
+  simpsons_profiles<-rbind(simpsons_profiles,temp_data)
+}
+
+write_csv(simpsons_profiles, "08-16-22/simpsons_profiles.csv")
+```
+
+``` r
+simpsons_profiles <- read_csv("simpsons_profiles.csv")
+```
+
+    ## Rows: 6015 Columns: 6
+    ## -- Column specification --------------------------------------------------------
+    ## Delimiter: ","
+    ## chr (2): item, character
+    ## dbl (4): avg_rating, rank, rating_sd, number_ratings
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+simpsons_profiles <- simpsons_profiles %>% 
+  left_join(characters %>% select(character = name, image_link))
+```
+
+    ## Joining, by = "character"
+
+``` r
+simpsons_profiles %>% 
+  distinct(item)
+```
+
+    ## # A tibble: 799 x 1
+    ##    item                                 
+    ##    <chr>                                
+    ##  1 "disorganized (not self-disciplined)"
+    ##  2 "impulsive (not cautious)"           
+    ##  3 "messy (not neat)"                   
+    ##  4 "\U0001f6cc (not \U0001f9d7)"        
+    ##  5 "loud (not quiet)"                   
+    ##  6 "goof-off (not studious)"            
+    ##  7 "lazy (not diligent)"                
+    ##  8 "chaotic (not orderly)"              
+    ##  9 "clumsy (not coordinated)"           
+    ## 10 "cannibal (not vegan)"               
+    ## # ... with 789 more rows
+
+``` r
+mutated_items <- simpsons_profiles %>% 
+  mutate(item = str_replace(item, "\\(.*","")) %>% 
+  pull(item)
+```
+
+``` r
+gplot2 <- function(data, x){
+  data %>% 
+    filter(str_detect(item, {{x}})) %>%  
+    mutate(character = fct_reorder(character, avg_rating)) %>% 
+    ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
+    geom_image(aes(image = image_link, x = 5)) + 
+    geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
+    scale_x_continuous(label = percent_format(scale = 1)) + labs(title = str_to_title(x))
+}
+```
+
+## Plot 2 random traits
+
+``` r
+names <- sample(mutated_items, 2)
+
+for(i in 1:2){
+  x <- names[i]
+  if(i == 1){
+    plot1 <- gplot2(simpsons_profiles, x)
+  } else{
+    plot2 <- gplot2(simpsons_profiles, x)}
+}
+
+plot1 + plot2
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
