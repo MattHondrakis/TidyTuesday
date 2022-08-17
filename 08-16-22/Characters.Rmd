@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(patchwork)
 library(scales)
+library(rvest)
+library(ggimage)
 theme_set(theme_bw())
 ```
 
@@ -40,3 +42,83 @@ characters %>%
   scale_fill_manual(values = c("lightblue", "darkred"))
 ```
 
+
+
+# Web-scraping (code derived from Tanya Shapiro)
+```{r eval=FALSE, include=FALSE}
+#scrape personality details
+get_personality<-function(url){
+  html = url%>%read_html()
+  
+  character = html%>%
+    html_elements("h3")%>%
+    head(1)%>%
+    html_text()
+  
+  data= html%>%
+    html_elements("table.zui-table")%>%
+    html_table()%>%
+    .[[1]]
+  
+  names(data)=c("item","avg_rating","rank","rating_sd","number_ratings")
+  data$character = str_replace(character," Descriptive Personality Statistics","")
+  
+  data
+}
+
+base_url<-'https://openpsychometrics.org/tests/characters/stats/GOT/'
+
+got_profiles<-data.frame()
+#create a loop to scrape all characters, there are a total of 15 characters profiled, use range 1:16
+for(i in 1:31){
+  url<-paste0(base_url, i)
+  temp_data<-get_personality(url)
+  got_profiles<-rbind(got_profiles,temp_data)
+}
+
+write_csv(got_profiles, "got_profiles.csv")
+```
+
+
+```{r}
+got_profiles <- read_csv("got_profiles.csv")
+```
+
+
+```{r}
+got_profiles <- got_profiles %>%  
+    left_join(characters %>% select(character = name, image_link))
+```
+
+
+
+# Game of Thrones Characters
+
+## Trait Plot Function
+```{r}
+gplot <- function(x){
+  got_profiles %>% 
+    filter(str_detect(trait, {{x}})) %>% 
+    mutate(character = fct_reorder(character, avg_rating)) %>% 
+    ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
+    geom_image(aes(image = image_link, x = 5)) + 
+    geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
+    scale_x_continuous(label = percent_format(scale = 1))
+}
+```
+
+
+## Plots
+```{r}
+gplot("main character") + labs(y = "", x = "", title = "Game of Thrones Characters",
+                               subtitle = "Main Character Rating")
+
+
+gplot("high IQ") + labs(y = "", x = "", title = "Game of Thrones Characters", 
+                        subtitle = "'High IQ' Average Rating")
+
+gplot("intense")
+
+
+gplot("practical")
+```

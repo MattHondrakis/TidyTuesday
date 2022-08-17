@@ -3,6 +3,15 @@ Open Psychometrics
 Matthew
 2022-08-16
 
+-   <a href="#web-scraping-code-derived-from-tanya-shapiro"
+    id="toc-web-scraping-code-derived-from-tanya-shapiro">Web-scraping (code
+    derived from Tanya Shapiro)</a>
+-   <a href="#game-of-thrones-characters"
+    id="toc-game-of-thrones-characters">Game of Thrones Characters</a>
+    -   <a href="#trait-plot-function" id="toc-trait-plot-function">Trait Plot
+        Function</a>
+    -   <a href="#plots" id="toc-plots">Plots</a>
+
 ``` r
 characters <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-16/characters.csv')
 ```
@@ -79,3 +88,69 @@ characters %>%
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+# Web-scraping (code derived from Tanya Shapiro)
+
+``` r
+got_profiles <- read_csv("got_profiles.csv")
+```
+
+    ## Rows: 12030 Columns: 6
+    ## -- Column specification --------------------------------------------------------
+    ## Delimiter: ","
+    ## chr (2): trait, character
+    ## dbl (4): avg_rating, rank, rating_sd, number_ratings
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+got_profiles <- got_profiles %>%  
+    left_join(characters %>% select(character = name, image_link))
+```
+
+    ## Joining, by = "character"
+
+# Game of Thrones Characters
+
+## Trait Plot Function
+
+``` r
+gplot <- function(x){
+  got_profiles %>% 
+    filter(str_detect(trait, {{x}})) %>% 
+    mutate(character = fct_reorder(character, avg_rating)) %>% 
+    ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
+    geom_image(aes(image = image_link, x = 5)) + 
+    geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
+    scale_x_continuous(label = percent_format(scale = 1))
+}
+```
+
+## Plots
+
+``` r
+gplot("main character") + labs(y = "", x = "", title = "Game of Thrones Characters",
+                               subtitle = "Main Character Rating")
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+gplot("high IQ") + labs(y = "", x = "", title = "Game of Thrones Characters", 
+                        subtitle = "'High IQ' Average Rating")
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+gplot("intense")
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+gplot("practical")
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
