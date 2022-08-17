@@ -287,7 +287,7 @@ gplot2 <- function(data, x){
     ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
     geom_image(aes(image = image_link, x = 5)) + 
     geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
-    scale_x_continuous(label = percent_format(scale = 1)) + labs(title = str_to_title(x))
+    scale_x_continuous(label = percent_format(scale = 1)) + labs(title = str_to_title(str_extract(x, "[a-z]+")))
 }
 ```
 
