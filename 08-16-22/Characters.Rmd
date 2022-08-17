@@ -208,3 +208,11 @@ for(i in 1:2){
 
 plot1 + plot2
 ```
+
+
+
+```{r}
+gplot2(simpsons_profiles, "^loud")
+
+```
+

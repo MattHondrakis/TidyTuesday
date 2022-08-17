@@ -271,3 +271,9 @@ plot1 + plot2
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+gplot2(simpsons_profiles, "^loud")
+```
+
+![](Characters_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
