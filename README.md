@@ -28,5 +28,5 @@ Diving into the weekly datasets of TidyTuesday!
 * [San Francisco Rentals](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-05-22/San-Fransisco-Rentals.md)
 * [European Flights](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-12-22/European-Flights.md)
 * [Technology Adoption](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-19-22/Technology.md)
-* [Characters](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) *(TidyTuesday)*
+* [Characters](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) 
 
