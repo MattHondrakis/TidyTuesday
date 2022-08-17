@@ -43,9 +43,9 @@ characters %>%
 ```
 
 
-
-# Web-scraping (code derived from Tanya Shapiro)
-```{r eval=FALSE, include=FALSE}
+# Game of Thrones Characters
+## Web-scraping (code derived from Tanya Shapiro)
+```{r eval=FALSE}
 #scrape personality details
 get_personality<-function(url){
   html = url%>%read_html()
@@ -91,9 +91,6 @@ got_profiles <- got_profiles %>%
 ```
 
 
-
-# Game of Thrones Characters
-
 ## Trait Plot Function
 ```{r}
 gplot <- function(x){
@@ -128,6 +125,7 @@ gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters",
 
 
 # Simpsons
+## Web-scraping
 ```{r, eval=FALSE}
 #scrape personality details
 get_personality<-function(url){

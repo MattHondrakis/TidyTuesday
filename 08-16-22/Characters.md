@@ -3,15 +3,16 @@ Open Psychometrics
 Matthew
 2022-08-16
 
--   <a href="#web-scraping-code-derived-from-tanya-shapiro"
-    id="toc-web-scraping-code-derived-from-tanya-shapiro">Web-scraping (code
-    derived from Tanya Shapiro)</a>
 -   <a href="#game-of-thrones-characters"
     id="toc-game-of-thrones-characters">Game of Thrones Characters</a>
+    -   <a href="#web-scraping-code-derived-from-tanya-shapiro"
+        id="toc-web-scraping-code-derived-from-tanya-shapiro">Web-scraping (code
+        derived from Tanya Shapiro)</a>
     -   <a href="#trait-plot-function" id="toc-trait-plot-function">Trait Plot
         Function</a>
     -   <a href="#plots" id="toc-plots">Plots</a>
 -   <a href="#simpsons" id="toc-simpsons">Simpsons</a>
+    -   <a href="#web-scraping" id="toc-web-scraping">Web-scraping</a>
     -   <a href="#plot-2-random-traits" id="toc-plot-2-random-traits">Plot 2
         random traits</a>
 
@@ -92,7 +93,43 @@ characters %>%
 
 ![](Characters_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-# Web-scraping (code derived from Tanya Shapiro)
+# Game of Thrones Characters
+
+## Web-scraping (code derived from Tanya Shapiro)
+
+``` r
+#scrape personality details
+get_personality<-function(url){
+  html = url%>%read_html()
+  
+  character = html%>%
+    html_elements("h3")%>%
+    head(1)%>%
+    html_text()
+  
+  data= html%>%
+    html_elements("table.zui-table")%>%
+    html_table()%>%
+    .[[1]]
+  
+  names(data)=c("item","avg_rating","rank","rating_sd","number_ratings")
+  data$character = str_replace(character," Descriptive Personality Statistics","")
+  
+  data
+}
+
+base_url<-'https://openpsychometrics.org/tests/characters/stats/GOT/'
+
+got_profiles<-data.frame()
+#create a loop to scrape all characters, there are a total of 15 characters profiled, use range 1:16
+for(i in 1:31){
+  url<-paste0(base_url, i)
+  temp_data<-get_personality(url)
+  got_profiles<-rbind(got_profiles,temp_data)
+}
+
+write_csv(got_profiles, "08-16-22/got_profiles.csv")
+```
 
 ``` r
 got_profiles <- read_csv("got_profiles.csv")
@@ -113,8 +150,6 @@ got_profiles <- got_profiles %>%
 ```
 
     ## Joining, by = "character"
-
-# Game of Thrones Characters
 
 ## Trait Plot Function
 
@@ -161,6 +196,8 @@ gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters",
 ![](Characters_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
 
 # Simpsons
+
+## Web-scraping
 
 ``` r
 #scrape personality details
