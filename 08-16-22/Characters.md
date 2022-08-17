@@ -121,7 +121,7 @@ gplot <- function(x){
     filter(str_detect(trait, {{x}})) %>% 
     mutate(character = fct_reorder(character, avg_rating)) %>% 
     ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
-    geom_image(aes(image = image_link, x = 5)) + 
+    geom_image(aes(image = image_link, x = 5), size = 0.03) + 
     geom_errorbarh(aes(xmax = avg_rating+rating_sd, xmin = avg_rating-rating_sd, height = 0.3)) +
     scale_x_continuous(label = percent_format(scale = 1))
 }
@@ -144,13 +144,15 @@ gplot("high IQ") + labs(y = "", x = "", title = "Game of Thrones Characters",
 ![](Characters_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
-gplot("intense")
+gplot("intense") + labs(y = "", x = "", title = "Game of Thrones Characters", 
+                        subtitle = "Intense Average Rating")
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 ``` r
-gplot("practical")
+gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters", 
+                        subtitle = "Intense Average Rating")
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
