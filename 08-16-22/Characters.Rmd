@@ -212,3 +212,5 @@ plot1 + plot2
 ```{r}
 gplot2(simpsons_profiles, "^loud")
 ```
+
+
