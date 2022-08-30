@@ -20,9 +20,32 @@ theme_set(theme_bw())
 
 ```{r, include = FALSE}
 pell <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-30/pell.csv')
-
-names(pell) <- names(pell) %>% tolower()
 ```
+
+
+```{r}
+names(pell) <- names(pell) %>% tolower()
+
+tbjoin <- as.tibble(cbind(state_name = state.name, state = state.abb))
+
+pell <- pell %>% 
+  left_join(tbjoin)
+
+pell %>% filter(is.na(state_name)) %>% count(state, sort = TRUE)
+
+pell <- pell %>% 
+  mutate(state_name = case_when(state == "PR" ~ "Puerto Rico",
+                                state == "DC" ~ "District of Columbia",
+                                state == "GU" ~ "Guam",
+                                state == "VI" ~ "Virgin Islands",
+                                state == "AS" ~ "American Samoa",
+                                state == "FM" ~ "Federated States of Micronesia",
+                                state == "MH" ~ "Marshall Islands",
+                                state == "MP" ~ "Northern Mariana Islands",
+                                state == "PW" ~ "Palau",
+                                TRUE ~ as.character(state_name)))
+```
+
 
 
 # EDA
@@ -32,9 +55,14 @@ pell %>%
   scale_x_log10()
 
 pell %>% 
-  group_by(state) %>% 
-  mutate(median = median(award)) %>% 
-  filter(median >= 1918842) %>% 
-  ggplot(aes(award, fct_reorder(state, award))) + geom_boxplot() +
+  group_by(state_name) %>% 
+  mutate(median = median(award, na.rm = TRUE)) %>% 
+  filter(median >= 1920043) %>% 
+  ggplot(aes(award, fct_reorder(state_name, median))) + geom_boxplot() +
   scale_x_log10(label = dollar) + labs(y = "State", x = "Pell Grant Award")
+
+pell %>% 
+  group_by(year) %>% 
+  summarize(award = median(award, na.rm = TRUE)) %>% 
+  ggplot(aes(year, award)) + geom_line()
 ```
