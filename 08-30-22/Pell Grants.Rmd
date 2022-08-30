@@ -1,0 +1,40 @@
+---
+title: "Pell Grant"
+author: "Matthew"
+date: "2022-08-30"
+output: 
+  github_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(patchwork)
+library(scales)
+theme_set(theme_bw())
+```
+
+
+```{r, include = FALSE}
+pell <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-30/pell.csv')
+
+names(pell) <- names(pell) %>% tolower()
+```
+
+
+# EDA
+```{r}
+pell %>% 
+  ggplot(aes(award)) + geom_histogram() +
+  scale_x_log10()
+
+pell %>% 
+  group_by(state) %>% 
+  mutate(median = median(award)) %>% 
+  filter(median >= 1918842) %>% 
+  ggplot(aes(award, fct_reorder(state, award))) + geom_boxplot() +
+  scale_x_log10(label = dollar) + labs(y = "State", x = "Pell Grant Award")
+```
