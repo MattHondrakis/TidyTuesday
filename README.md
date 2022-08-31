@@ -1,7 +1,7 @@
 # TidyTuesday
 Diving into the weekly datasets of TidyTuesday!
 
-## Datasets
+## Dataset Analysis
 
 * [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-11-22/Bees.md) *(Short)*
 * [Chocolate Bar Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-18-22/Chocolate.md)
