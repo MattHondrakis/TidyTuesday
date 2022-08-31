@@ -132,7 +132,7 @@ model %>% summary()
 ```
 
 ```{r}
-autoplot(model, which = 1:6, ncol = 3, label.size = 3)
+autoplot(model, which = 1:6, ncol = 3, label.size = 2)
 ```
 
 
