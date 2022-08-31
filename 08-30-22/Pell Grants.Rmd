@@ -97,3 +97,44 @@ pell %>%
   ggthemes::theme_fivethirtyeight() +
   labs(fill = "")
 ```
+
+## Pell Grants per Recipients
+```{r}
+pell %>% 
+  mutate(per = award/recipient) %>% 
+  arrange(-per) %>% 
+  head(10) %>% 
+  ggplot(aes(per, fct_reorder(name, per))) + 
+  geom_col(color = "black", aes(fill = state)) + 
+  scale_x_log10() + theme_fivethirtyeight() +
+  labs(fill = "", x = "Average award per recipient", 
+       y = "School", title = "Top 10 Schools with Highest Pell Grants per Recipient")
+```
+
+
+## Award by recipient
+```{r}
+pell %>% 
+  group_by(recipient, state) %>% 
+  summarize(m = median(award)) %>% 
+  ggplot(aes(recipient, m)) + geom_line(aes(color = state)) +
+  theme(legend.position = "none") + geom_smooth(method = "lm", se = FALSE) +
+  scale_x_continuous(trans=scales::pseudo_log_trans(base = 10)) +
+  scale_y_continuous(trans=scales::pseudo_log_trans(base = 10))
+```
+
+# Model
+```{r}
+model <- lm(log(award + 1) ~ log(recipient + 1), pell) 
+
+model %>% broom::augment() %>% 
+  arrange(desc(abs(.std.resid))) %>%
+  group_by(`log(award + 1)`) %>% 
+  summarize(sum = sum(.std.resid)) %>% 
+  ggplot(aes(`log(award + 1)`, sum)) + geom_line()
+```
+
+
+```{r}
+plot(model, which = 1:3)
+```
