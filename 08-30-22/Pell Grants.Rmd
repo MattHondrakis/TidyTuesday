@@ -15,6 +15,7 @@ library(tidyverse)
 library(patchwork)
 library(scales)
 library(maps)
+library(ggthemes)
 theme_set(theme_bw())
 ```
 
@@ -23,7 +24,7 @@ theme_set(theme_bw())
 pell <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-30/pell.csv')
 ```
 
-
+#Clean Data
 ```{r}
 names(pell) <- names(pell) %>% tolower()
 
@@ -70,7 +71,7 @@ pell %>%
 
 
 
-# Map
+## Map
 ```{r}
 plot_usmap(data = pell %>% 
              filter(year == max(year)) %>% 
@@ -81,3 +82,18 @@ plot_usmap(data = pell %>%
   
 ```
 
+##Top Pell Grant Recipients
+```{r}
+pell %>% 
+  group_by(name, state_name) %>% 
+  summarize(award = max(award)) %>% 
+  head(10) %>% 
+  mutate(name = str_remove_all(name, "\""),
+         name = ifelse(grepl("Art Institute", name), 
+                       "Art Institute of Pittsburgh", name)) %>% 
+  ggplot(aes(award, fct_reorder(name, award))) + 
+  geom_col(color = "black", aes(fill = state_name)) +
+  scale_x_log10(labels = dollar, breaks = c(1e3, 1e5, 1e7)) + 
+  ggthemes::theme_fivethirtyeight() +
+  labs(fill = "")
+```
