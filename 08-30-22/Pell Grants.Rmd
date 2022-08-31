@@ -24,7 +24,7 @@ theme_set(theme_bw())
 pell <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-30/pell.csv')
 ```
 
-#Clean Data
+# Clean Data
 ```{r}
 names(pell) <- names(pell) %>% tolower()
 
@@ -82,7 +82,7 @@ plot_usmap(data = pell %>%
   
 ```
 
-##Top Pell Grant Recipients
+## Top Pell Grant Recipients
 ```{r}
 pell %>% 
   group_by(name, state_name) %>% 

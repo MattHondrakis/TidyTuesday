@@ -3,10 +3,13 @@ Pell Grant
 Matthew
 2022-08-30
 
+-   <a href="#clean-data" id="toc-clean-data">Clean Data</a>
 -   <a href="#eda" id="toc-eda">EDA</a>
     -   <a href="#map" id="toc-map">Map</a>
+    -   <a href="#top-pell-grant-recipients"
+        id="toc-top-pell-grant-recipients">Top Pell Grant Recipients</a>
 
-\#Clean Data
+# Clean Data
 
 ``` r
 names(pell) <- names(pell) %>% tolower()
@@ -95,7 +98,7 @@ plot_usmap(data = pell %>%
 
 ![](Pell-Grants_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-\##Top Pell Grant Recipients
+## Top Pell Grant Recipients
 
 ``` r
 pell %>% 
