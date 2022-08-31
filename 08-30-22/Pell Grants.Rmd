@@ -70,7 +70,14 @@ pell %>%
 
 
 
+# Map
 ```{r}
-
+plot_usmap(data = pell %>% 
+             filter(year == max(year)) %>% 
+             group_by(state) %>% 
+             summarize(award = median(award, na.rm = TRUE)), 
+           values = "award") +
+  theme(legend.position = "right")
+  
 ```
 
