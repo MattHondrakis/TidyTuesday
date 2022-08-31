@@ -128,14 +128,20 @@ pell %>%
 ```{r}
 model <- lm(log(award + 1) ~ log(recipient + 1), pell) 
 
-model %>% broom::augment() %>% 
-  arrange(desc(abs(.std.resid))) %>%
-  group_by(`log(award + 1)`) %>% 
-  summarize(sum = sum(.std.resid)) %>% 
-  ggplot(aes(`log(award + 1)`, sum)) + geom_line()
+model %>% summary()
 ```
-
 
 ```{r}
 autoplot(model, which = 1:6, ncol = 3, label.size = 3)
 ```
+
+
+```{r}
+model %>% broom::augment() %>% 
+  arrange(desc(abs(.std.resid))) %>%
+  group_by(`log(award + 1)`) %>% 
+  summarize(sum = sum(.std.resid)) %>% 
+  ggplot(aes(`log(award + 1)`, sum)) + geom_point(aes(size = abs(sum)))
+```
+
+The overwhelming majority of the error comes from instances where the award is 0.
