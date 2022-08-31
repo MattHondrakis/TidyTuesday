@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(patchwork)
 library(scales)
-library(maps)
+library(usmap)
 library(ggthemes)
 theme_set(theme_bw())
 ```
@@ -28,7 +28,7 @@ pell <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/
 ```{r}
 names(pell) <- names(pell) %>% tolower()
 
-tbjoin <- as.tibble(cbind(state_name = state.name, state = state.abb))
+tbjoin <- as_tibble(cbind(state_name = state.name, state = state.abb))
 
 pell <- pell %>% 
   left_join(tbjoin)
