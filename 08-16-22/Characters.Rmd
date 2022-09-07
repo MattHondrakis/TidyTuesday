@@ -16,6 +16,7 @@ library(patchwork)
 library(scales)
 library(rvest)
 library(ggimage)
+library(widyr)
 theme_set(theme_bw())
 ```
 
@@ -91,11 +92,12 @@ got_profiles <- got_profiles %>%
 ```
 
 
+
 ## Trait Plot Function
 ```{r}
 gplot <- function(x){
   got_profiles %>% 
-    filter(str_detect(trait, {{x}})) %>% 
+    filter(str_detect(item, {{x}})) %>% 
     mutate(character = fct_reorder(character, avg_rating)) %>% 
     ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
     geom_image(aes(image = image_link, x = 5), size = 0.03) + 
@@ -121,6 +123,17 @@ gplot("intense") + labs(y = "", x = "", title = "Game of Thrones Characters",
 gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters", 
                         subtitle = "Intense Average Rating")
 ```
+
+
+## Correlated Traits
+```{r}
+got_profiles %>% 
+  pairwise_cor(item, character, avg_rating, sort = TRUE) %>% 
+  filter(item1 > item2) %>% 
+  head(25) %>% 
+  knitr::kable()
+```
+
 
 
 
@@ -213,4 +226,13 @@ plot1 + plot2
 gplot2(simpsons_profiles, "^loud")
 ```
 
+
+## Correlated traits
+```{r}
+simpsons_profiles %>% 
+  pairwise_cor(item, character, avg_rating, sort = TRUE) %>% 
+  filter(item1 > item2) %>% 
+  head(25) %>% 
+  knitr::kable()
+```
 

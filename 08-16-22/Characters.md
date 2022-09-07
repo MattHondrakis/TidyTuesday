@@ -11,10 +11,14 @@ Matthew
     -   <a href="#trait-plot-function" id="toc-trait-plot-function">Trait Plot
         Function</a>
     -   <a href="#plots" id="toc-plots">Plots</a>
+    -   <a href="#correlated-traits" id="toc-correlated-traits">Correlated
+        Traits</a>
 -   <a href="#simpsons" id="toc-simpsons">Simpsons</a>
     -   <a href="#web-scraping" id="toc-web-scraping">Web-scraping</a>
     -   <a href="#plot-2-random-traits" id="toc-plot-2-random-traits">Plot 2
         random traits</a>
+    -   <a href="#correlated-traits-1" id="toc-correlated-traits-1">Correlated
+        traits</a>
 
 ``` r
 characters <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-16/characters.csv')
@@ -138,7 +142,7 @@ got_profiles <- read_csv("got_profiles.csv")
     ## Rows: 12030 Columns: 6
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr (2): trait, character
+    ## chr (2): item, character
     ## dbl (4): avg_rating, rank, rating_sd, number_ratings
     ## 
     ## i Use `spec()` to retrieve the full column specification for this data.
@@ -156,7 +160,7 @@ got_profiles <- got_profiles %>%
 ``` r
 gplot <- function(x){
   got_profiles %>% 
-    filter(str_detect(trait, {{x}})) %>% 
+    filter(str_detect(item, {{x}})) %>% 
     mutate(character = fct_reorder(character, avg_rating)) %>% 
     ggplot(aes(avg_rating, character)) + geom_col(color = "black", fill = "lightblue") +
     geom_image(aes(image = image_link, x = 5), size = 0.03) + 
@@ -194,6 +198,44 @@ gplot("practical") + labs(y = "", x = "", title = "Game of Thrones Characters",
 ```
 
 ![](Characters_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+## Correlated Traits
+
+``` r
+got_profiles %>% 
+  pairwise_cor(item, character, avg_rating, sort = TRUE) %>% 
+  filter(item1 > item2) %>% 
+  head(25) %>% 
+  knitr::kable()
+```
+
+| item1                          | item2                               | correlation |
+|:-------------------------------|:------------------------------------|------------:|
+| unobservant (not perceptive)   | incompetent (not competent)         |   0.9990394 |
+| low IQ (not high IQ)           | lazy (not diligent)                 |   0.9977512 |
+| insecure (not confident)       | clumsy (not coordinated)            |   0.9973314 |
+| low IQ (not high IQ)           | helpless (not resourceful)          |   0.9958677 |
+| well behaved (not mischievous) | pure (not debased)                  |   0.9943729 |
+| unchallenging (not demanding)  | passive (not assertive)             |   0.9906860 |
+| provincial (not cosmopolitan)  | country-bumpkin (not city-slicker)  |   0.9905288 |
+| cosmopolitan (not provincial)  | city-slicker (not country-bumpkin)  |   0.9900219 |
+| lazy (not diligent)            | helpless (not resourceful)          |   0.9875411 |
+| shy (not bold)                 | hesitant (not decisive)             |   0.9863387 |
+| wavering (not resolute)        | disorganized (not self-disciplined) |   0.9822933 |
+| demanding (not unchallenging)  | assertive (not passive)             |   0.9706407 |
+| white knight (not bad boy)     | pure (not debased)                  |   0.9675863 |
+| white knight (not bad boy)     | well behaved (not mischievous)      |   0.9666126 |
+| empath (not psychopath)        | angelic (not demonic)               |   0.9599826 |
+| intellectual (not physical)    | bookish (not sporty)                |   0.9584696 |
+| white knight (not bad boy)     | angelic (not demonic)               |   0.9582135 |
+| proletariat (not bourgeoisie)  | blue-collar (not ivory-tower)       |   0.9578985 |
+| decisive (not hesitant)        | bold (not shy)                      |   0.9564507 |
+| quarrelsome (not warm)         | bitter (not sweet)                  |   0.9559295 |
+| ivory-tower (not blue-collar)  | bourgeoisie (not proletariat)       |   0.9547798 |
+| white knight (not bad boy)     | nurturing (not poisonous)           |   0.9537360 |
+| genuine (not sarcastic)        | devout (not heathen)                |   0.9533783 |
+| vanilla (not kinky)            | proper (not scandalous)             |   0.9530143 |
+| psychopath (not empath)        | demonic (not angelic)               |   0.9528078 |
 
 # Simpsons
 
@@ -307,10 +349,48 @@ for(i in 1:2){
 plot1 + plot2
 ```
 
-![](Characters_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Characters_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 gplot2(simpsons_profiles, "^loud")
 ```
 
-![](Characters_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Characters_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+## Correlated traits
+
+``` r
+simpsons_profiles %>% 
+  pairwise_cor(item, character, avg_rating, sort = TRUE) %>% 
+  filter(item1 > item2) %>% 
+  head(25) %>% 
+  knitr::kable()
+```
+
+| item1                          | item2                         | correlation |
+|:-------------------------------|:------------------------------|------------:|
+| varied (not repetitive)        | trendy (not vintage)          |   1.0000000 |
+| unemotional (not emotional)    | mysterious (not unambiguous)  |   1.0000000 |
+| stoic (not hypochondriac)      | calm (not anxious)            |   1.0000000 |
+| German (not English)           | calm (not anxious)            |   1.0000000 |
+| stoic (not hypochondriac)      | German (not English)          |   1.0000000 |
+| socialist (not libertarian)    | inspiring (not cringeworthy)  |   0.9999126 |
+| proactive (not reactive)       | fresh (not stinky)            |   0.9998388 |
+| villainous (not heroic)        | cruel (not kind)              |   0.9995756 |
+| vengeful (not forgiving)       | quarrelsome (not warm)        |   0.9992270 |
+| tardy (not on-time)            | impulsive (not cautious)      |   0.9989407 |
+| trolling (not triggered)       | brave (not careful)           |   0.9989279 |
+| spontaneous (not deliberate)   | astonishing (not methodical)  |   0.9988412 |
+| tautology (not oxymoron)       | flourishing (not traumatized) |   0.9987752 |
+| muddy (not washed)             | barbaric (not civilized)      |   0.9987387 |
+| well behaved (not mischievous) | sober (not indulgent)         |   0.9987361 |
+| dominant (not submissive)      | assertive (not passive)       |   0.9983778 |
+| well behaved (not mischievous) | proper (not scandalous)       |   0.9982760 |
+| wholesome (not salacious)      | altruistic (not selfish)      |   0.9980894 |
+| deranged (not reasonable)      | crazy (not sane)              |   0.9980471 |
+| OCD (not ADHD)                 | manicured (not scruffy)       |   0.9980259 |
+| wholesome (not salacious)      | nurturing (not poisonous)     |   0.9979698 |
+| white knight (not bad boy)     | proper (not scandalous)       |   0.9978003 |
+| loose (not tight)              | circular (not linear)         |   0.9976669 |
+| outlaw (not sheriff)           | barbaric (not civilized)      |   0.9975957 |
+| human (not animalistic)        | civilized (not barbaric)      |   0.9975869 |

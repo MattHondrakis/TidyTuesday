@@ -1,4 +1,4 @@
-trait,avg_rating,rank,rating_sd,number_ratings,character
+item,avg_rating,rank,rating_sd,number_ratings,character
 main character (not side character),94.2,93,7.6,18,Jon Snow
 winter (not summer),93.4,5,16.1,39,Jon Snow
 persistent (not quitter),93.2,143,10.5,59,Jon Snow
