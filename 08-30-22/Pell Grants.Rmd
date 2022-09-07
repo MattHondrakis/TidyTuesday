@@ -189,3 +189,13 @@ pell %>%
   scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0.5)
 ```
 
+
+
+```{r}
+pell %>% 
+  filter(award == 0) %>% 
+  select(state_name, recipient, name) %>% 
+  mutate(predicted = exp(predict(model, .))) %>% 
+  arrange(-recipient)
+```
+

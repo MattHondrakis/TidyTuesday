@@ -289,3 +289,27 @@ pell %>%
 ```
 
 ![](Pell-Grants_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+pell %>% 
+  filter(award == 0) %>% 
+  select(state_name, recipient, name) %>% 
+  mutate(predicted = exp(predict(model, .))) %>% 
+  arrange(-recipient)
+```
+
+    ## # A tibble: 12 x 4
+    ##    state_name    recipient name                                        predicted
+    ##    <chr>             <dbl> <chr>                                           <dbl>
+    ##  1 Ohio                 32 Cuyahoga Community College - District Offi~    88233.
+    ##  2 California            3 Advanced Career Technologies Institute         10085.
+    ##  3 Texas                 2 Texas Chiropractic College                      7503.
+    ##  4 Massachusetts         2 Western Mass Precision Institute                7503.
+    ##  5 New York              2 Briarcliffe College - Patchogue                 7503.
+    ##  6 Pennsylvania          1 North Montco Technical Career Center            4946.
+    ##  7 Texas                 1 Bilingual Education Institute                   4946.
+    ##  8 New Mexico            1 Eastern New Mexico University - Rowsell         4946.
+    ##  9 Maine                 1 Mercy Hospital School of Radiologic Techno~     4946.
+    ## 10 California            0 Claremont Graduate University                   2426.
+    ## 11 New York              0 Bank Street College of Education                2426.
+    ## 12 New York              0 Teachers College, Columbia University           2426.
