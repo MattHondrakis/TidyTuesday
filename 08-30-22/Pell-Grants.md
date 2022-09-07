@@ -13,6 +13,9 @@ Matthew
     -   <a href="#award-by-recipient" id="toc-award-by-recipient">Award by
         recipient</a>
 -   <a href="#model" id="toc-model">Model</a>
+    -   <a href="#model-prediction" id="toc-model-prediction">Model
+        Prediction</a>
+    -   <a href="#map-1" id="toc-map-1">Map</a>
 
 # Clean Data
 
@@ -205,3 +208,84 @@ model %>% broom::augment() %>%
 
 The overwhelming majority of the error comes from instances where the
 award is 0.
+
+``` r
+pell %>% filter(award == 0)
+```
+
+    ## # A tibble: 12 x 7
+    ##    state award recipient name                           session  year state_name
+    ##    <chr> <dbl>     <dbl> <chr>                          <chr>   <dbl> <chr>     
+    ##  1 OH        0        32 Cuyahoga Community College - ~ 1999-00  1999 Ohio      
+    ##  2 PA        0         1 North Montco Technical Career~ 2000-01  2000 Pennsylva~
+    ##  3 TX        0         1 Bilingual Education Institute  2000-01  2000 Texas     
+    ##  4 TX        0         2 Texas Chiropractic College     2000-01  2000 Texas     
+    ##  5 CA        0         3 Advanced Career Technologies ~ 2002-03  2002 California
+    ##  6 MA        0         2 Western Mass Precision Instit~ 2002-03  2002 Massachus~
+    ##  7 NM        0         1 Eastern New Mexico University~ 2002-03  2002 New Mexico
+    ##  8 NY        0         2 Briarcliffe College - Patchog~ 2002-03  2002 New York  
+    ##  9 ME        0         1 Mercy Hospital School of Radi~ 2004-05  2004 Maine     
+    ## 10 CA        0         0 Claremont Graduate University  2009-10  2009 California
+    ## 11 NY        0         0 Bank Street College of Educat~ 2009-10  2009 New York  
+    ## 12 NY        0         0 Teachers College, Columbia Un~ 2009-10  2009 New York
+
+## Model Prediction
+
+``` r
+pell %>% 
+  filter(award > 0) %>% 
+  mutate(overbelow = 
+           ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  arrange(-avg)
+```
+
+    ## # A tibble: 59 x 2
+    ##    state   avg
+    ##    <chr> <dbl>
+    ##  1 FM    0.842
+    ##  2 GU    0.679
+    ##  3 ID    0.675
+    ##  4 VI    0.643
+    ##  5 PR    0.637
+    ##  6 NY    0.596
+    ##  7 WV    0.590
+    ##  8 KY    0.564
+    ##  9 MS    0.562
+    ## 10 SC    0.562
+    ## # ... with 49 more rows
+
+``` r
+pell %>% 
+  filter(award > 0) %>% 
+  mutate(overbelow = 
+           ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  ungroup() %>% 
+  summarize(m = mean(avg > 0.5))
+```
+
+    ## # A tibble: 1 x 1
+    ##       m
+    ##   <dbl>
+    ## 1 0.712
+
+71% of states received more than the model predicted using the number of
+recipients as a predictor.
+
+## Map
+
+``` r
+pell %>% 
+  filter(award > 0) %>% 
+  mutate(overbelow = 
+           ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  plot_usmap(data = ., values = "avg") +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0.5)
+```
+
+![](Pell-Grants_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

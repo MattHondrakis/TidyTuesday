@@ -131,6 +131,7 @@ model <- lm(log(award + 1) ~ log(recipient + 1), pell)
 model %>% summary()
 ```
 
+
 ```{r}
 autoplot(model, which = 1:6, ncol = 3, label.size = 2)
 ```
@@ -146,13 +147,45 @@ model %>% broom::augment() %>%
 
 The overwhelming majority of the error comes from instances where the award is 0.
 
+```{r}
+pell %>% filter(award == 0)
+```
 
-# New
+
+
+## Model Prediction
 ```{r}
 pell %>% 
   filter(award > 0) %>% 
   mutate(overbelow = 
            ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
-  plot_usmap(data = ., values = "overbelow")
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  arrange(-avg)
+
+pell %>% 
+  filter(award > 0) %>% 
+  mutate(overbelow = 
+           ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  ungroup() %>% 
+  summarize(m = mean(avg > 0.5))
+```
+
+71% of states received more than the model predicted using the number of recipients as a predictor. 
+
+
+
+## Map
+```{r}
+pell %>% 
+  filter(award > 0) %>% 
+  mutate(overbelow = 
+           ifelse(log(award) > predict(model, pell %>% filter(award > 0)), 1, 0)) %>% 
+  group_by(state) %>% 
+  summarize(avg = mean(overbelow == 1)) %>% 
+  plot_usmap(data = ., values = "avg") +
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0.5)
 ```
 
