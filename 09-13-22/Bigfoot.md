@@ -80,15 +80,34 @@ bigfoot %>%
 ``` r
 bigfoot %>% 
   unnest_tokens(word, summary) %>% 
-  anti_join(stop_words) %>% 
+  anti_join(stop_words) %>%
+  group_by(classification) %>% 
   count(word, sort = TRUE) %>% 
   filter(!is.na(word)) %>% 
   head(15) %>% 
   mutate(word = fct_reorder(word, n)) %>% 
-  ggplot(aes(n, word)) + geom_col(color = "black", fill = "lightblue") + 
+  ggplot(aes(n, word)) + geom_col(color = "black", position = position_dodge2(preserve = "single"), aes(fill = classification)) + 
   ggtitle(str_to_title("Most common words describing the day"))
 ```
 
     ## Joining, by = "word"
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+bigfoot %>% 
+  unnest_tokens(word, observed) %>% 
+  anti_join(stop_words) %>%
+  group_by(classification) %>% 
+  count(word, sort = TRUE) %>% 
+  filter(!is.na(word)) %>% 
+  head(20) %>% 
+  ungroup() %>% 
+  mutate(word = fct_reorder(word, n, sum)) %>% 
+  ggplot(aes(n, word)) + geom_col(color = "black", position = position_dodge2(preserve = "single"), aes(fill = classification)) + 
+  ggtitle(str_to_title("Most common words describing the story"))
+```
+
+    ## Joining, by = "word"
+
+![](Bigfoot_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
