@@ -30,4 +30,5 @@ Diving into the weekly datasets of TidyTuesday!
 * [Technology Adoption](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-19-22/Technology.md)
 * [Characters](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) 
 * [Pell Grants](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-30-22/Pell-Grants.md)
+* [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
 
