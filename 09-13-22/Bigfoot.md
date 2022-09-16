@@ -3,6 +3,15 @@ Bigfoot
 Matthew
 2022-09-13
 
+-   <a href="#eda" id="toc-eda">EDA</a>
+    -   <a href="#text-analysis" id="toc-text-analysis">Text Analysis</a>
+-   <a href="#model" id="toc-model">Model</a>
+    -   <a href="#preprocess" id="toc-preprocess">Preprocess</a>
+    -   <a href="#fitting" id="toc-fitting">Fitting</a>
+    -   <a href="#metrics" id="toc-metrics">Metrics</a>
+
+# EDA
+
 ``` r
 skimr::skim(bigfoot)
 ```
@@ -77,6 +86,8 @@ bigfoot %>%
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
+## Text Analysis
+
 ``` r
 bigfoot %>% 
   unnest_tokens(word, summary) %>% 
@@ -111,3 +122,104 @@ bigfoot %>%
     ## Joining, by = "word"
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+bigfoot %>% 
+  unnest_tokens(word, title) %>% 
+  anti_join(stop_words) %>%
+  group_by(classification) %>% 
+  count(word, sort = TRUE) %>% 
+  filter(!is.na(word)) %>% 
+  head(20) %>% 
+  ungroup() %>% 
+  mutate(word = fct_reorder(word, n, sum)) %>% 
+  ggplot(aes(n, word)) + geom_col(color = "black", position = position_dodge2(preserve = "single"), aes(fill = classification)) + 
+  ggtitle(str_to_title("Most common words describing the story"))
+```
+
+    ## Joining, by = "word"
+
+![](Bigfoot_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+# Model
+
+## Preprocess
+
+``` r
+library(tidymodels)
+```
+
+    ## Registered S3 method overwritten by 'tune':
+    ##   method                   from   
+    ##   required_pkgs.model_spec parsnip
+
+    ## -- Attaching packages -------------------------------------- tidymodels 0.1.4 --
+
+    ## v broom        0.7.12     v rsample      0.1.1 
+    ## v dials        0.1.0      v tune         0.1.6 
+    ## v infer        1.0.0      v workflows    0.2.4 
+    ## v modeldata    0.1.1      v workflowsets 0.2.1 
+    ## v parsnip      0.2.0      v yardstick    0.0.9 
+    ## v recipes      0.2.0
+
+    ## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
+    ## x scales::discard() masks purrr::discard()
+    ## x dplyr::filter()   masks stats::filter()
+    ## x recipes::fixed()  masks stringr::fixed()
+    ## x dplyr::lag()      masks stats::lag()
+    ## x yardstick::spec() masks readr::spec()
+    ## x recipes::step()   masks stats::step()
+    ## x tune::tune()      masks parsnip::tune()
+    ## * Learn how to get started at https://www.tidymodels.org/start/
+
+``` r
+bigfoot_to_split <- bigfoot %>% 
+  filter(classification != "Class C",!is.na(title)) %>%
+  mutate(title = str_remove_all(title, ".*\\:")) %>%
+  unnest_tokens(title, title) %>% 
+  anti_join(stop_words, by = c("title" = "word")) %>% 
+  select(class = classification, title) %>% 
+  mutate(class = as.factor(class)) %>% 
+  filter(fct_lump(title, prop = 0.01) != "Other")
+
+
+
+bigfoot_split <- initial_split(bigfoot_to_split, strata = class)
+```
+
+## Fitting
+
+``` r
+glm_workflow <- 
+  recipe(formula = class ~ title, data = training(bigfoot_split)) %>% 
+  step_novel(all_nominal_predictors()) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  workflow(logistic_reg(mode = "classification", engine = "glm"))
+
+
+glm_fit <- glm_workflow %>% last_fit(bigfoot_split)
+```
+
+    ## ! train/test split: preprocessor 1/1, model 1/1 (predictions): prediction from a rank-defici...
+
+## Metrics
+
+``` r
+glm_fit %>% 
+  collect_metrics()
+```
+
+    ## # A tibble: 2 x 4
+    ##   .metric  .estimator .estimate .config             
+    ##   <chr>    <chr>          <dbl> <chr>               
+    ## 1 accuracy binary         0.723 Preprocessor1_Model1
+    ## 2 roc_auc  binary         0.745 Preprocessor1_Model1
+
+``` r
+glm_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(as.factor(class), `.pred_Class A`) %>% 
+  autoplot()
+```
+
+![](Bigfoot_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
