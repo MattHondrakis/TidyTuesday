@@ -23,7 +23,7 @@ theme_set(theme_bw())
 bigfoot <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-09-13/bigfoot.csv')
 ```
 
-
+# EDA
 ```{r}
 skimr::skim(bigfoot)
 ```
@@ -38,7 +38,7 @@ bigfoot %>%
 ```
 
 
-
+## Text Analysis
 ```{r}
 bigfoot %>% 
   unnest_tokens(word, summary) %>% 
@@ -68,5 +68,86 @@ bigfoot %>%
 ```
 
 
+```{r}
+bigfoot %>% 
+  unnest_tokens(word, title) %>% 
+  anti_join(stop_words) %>%
+  group_by(classification) %>% 
+  count(word, sort = TRUE) %>% 
+  filter(!is.na(word)) %>% 
+  head(20) %>% 
+  ungroup() %>% 
+  mutate(word = fct_reorder(word, n, sum)) %>% 
+  ggplot(aes(n, word)) + geom_col(color = "black", position = position_dodge2(preserve = "single"), aes(fill = classification)) + 
+  ggtitle(str_to_title("Most common words describing the story"))
+```
 
+
+# Model
+```{r}
+library(tidymodels)
+
+bigfoot_to_split <- bigfoot %>% 
+  filter(classification != "Class C",!is.na(title)) %>%
+  mutate(title = str_remove_all(title, ".*\\:")) %>%
+  unnest_tokens(title, title) %>% 
+  anti_join(stop_words, by = c("title" = "word")) %>% 
+  select(class = classification, title) %>% 
+  mutate(class = as.factor(class))
+
+
+
+bigfoot_split <- initial_split(bigfoot_to_split, strata = class)
+bigfoot_test <- testing(bigfoot_split)
+bigfoot_train <- training(bigfoot_split)
+```
+
+
+```{r}
+glm_workflow <- 
+  recipe(formula = class ~ title, data = bigfoot_train) %>% 
+  step_novel(all_nominal_predictors()) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  workflow(logistic_reg(mode = "classification", engine = "glm"))
+
+glm_workflow %>% fit(bigfoot_train)
+
+glm_fit <- glm_workflow %>% last_fit(bigfoot_split)
+```
+
+
+```{r}
+glm_fit %>% 
+  collect_metrics()
+
+glm_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(as.factor(class), `.pred_Class A`) %>% 
+  autoplot()
+```
+
+
+```{r}
+bigfoot_results <- 
+  bigfoot_test %>% 
+  select(class) %>% 
+  bind_cols(predict(glm_fit, bigfoot_test, type = "class"), predict(glm_fit, bigfoot_test, type = "prob"))
+
+bigfoot_results %>% 
+  roc_curve(as.factor(class), `.pred_Class A`) %>% autoplot()
+```
+
+
+
+```{r}
+bigfoot_to_split <- bigfoot %>% 
+  filter(classification != "Class C") %>%
+  filter(!is.na(title)) %>% 
+  unnest_tokens(summary, summary) %>% 
+  anti_join(stop_words, by = c("summary" = "word")) %>% 
+  unnest_tokens(title, title) %>% 
+  anti_join(stop_words, by = c("title" = "word")) %>% 
+  select(class = classification, title, summary) %>% 
+  mutate(class = as.factor(class))
+```
 
