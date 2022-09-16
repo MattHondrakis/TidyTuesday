@@ -170,7 +170,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
+    ## * Dig deeper into tidy modeling with R at https://www.tmwr.org
 
 ``` r
 set.seed(123)
@@ -182,7 +182,7 @@ bigfoot_split <- initial_split(bigfoot %>%
                                   anti_join(stop_words, by = c("title" = "word")) %>% 
                                   select(class = classification, title) %>% 
                                   mutate(class = as.factor(class)) %>% 
-                                  filter(fct_lump(title, prop = 0.01) != "Other"),
+                                  filter(fct_lump(title, prop = 0.005) != "Other"),
                                 strata = class)
 ```
 
@@ -211,8 +211,8 @@ glm_fit %>%
     ## # A tibble: 2 x 4
     ##   .metric  .estimator .estimate .config             
     ##   <chr>    <chr>          <dbl> <chr>               
-    ## 1 accuracy binary         0.714 Preprocessor1_Model1
-    ## 2 roc_auc  binary         0.720 Preprocessor1_Model1
+    ## 1 accuracy binary         0.718 Preprocessor1_Model1
+    ## 2 roc_auc  binary         0.792 Preprocessor1_Model1
 
 ``` r
 glm_fit %>% 
@@ -222,3 +222,16 @@ glm_fit %>%
 ```
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  broom::tidy() %>% 
+  filter(p.value < 0.05 & term != "(Intercept)") %>% 
+  mutate(term = str_remove(term, "title_")) %>%
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate > 0, "A", "B"))) + geom_col(color = "black") +
+  scale_fill_discrete(direction = -1) +
+  labs(fill = "Class", y = "Words", title = str_to_title("Importance in predicting class"))
+```
+
+![](Bigfoot_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

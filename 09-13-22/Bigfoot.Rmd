@@ -97,7 +97,7 @@ bigfoot_split <- initial_split(bigfoot %>%
                                   anti_join(stop_words, by = c("title" = "word")) %>% 
                                   select(class = classification, title) %>% 
                                   mutate(class = as.factor(class)) %>% 
-                                  filter(fct_lump(title, prop = 0.01) != "Other"),
+                                  filter(fct_lump(title, prop = 0.005) != "Other"),
                                 strata = class)
 ```
 
@@ -124,5 +124,18 @@ glm_fit %>%
   collect_predictions() %>% 
   roc_curve(as.factor(class), `.pred_Class A`) %>% 
   autoplot()
+```
+
+
+
+```{r}
+glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  broom::tidy() %>% 
+  filter(p.value < 0.05 & term != "(Intercept)") %>% 
+  mutate(term = str_remove(term, "title_")) %>%
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate > 0, "A", "B"))) + geom_col(color = "black") +
+  scale_fill_discrete(direction = -1) +
+  labs(fill = "Class", y = "Words", title = str_to_title("Importance in predicting class"))
 ```
 
