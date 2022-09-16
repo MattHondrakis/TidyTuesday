@@ -173,16 +173,7 @@ library(tidymodels)
     ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
-bigfoot_to_split <- bigfoot %>% 
-  filter(classification != "Class C",!is.na(title)) %>%
-  mutate(title = str_remove_all(title, ".*\\:")) %>%
-  unnest_tokens(title, title) %>% 
-  anti_join(stop_words, by = c("title" = "word")) %>% 
-  select(class = classification, title) %>% 
-  mutate(class = as.factor(class)) %>% 
-  filter(fct_lump(title, prop = 0.01) != "Other")
-
-
+set.seed(123)
 
 bigfoot_split <- initial_split(bigfoot %>% 
                                   filter(classification != "Class C",!is.na(title)) %>%
@@ -220,8 +211,8 @@ glm_fit %>%
     ## # A tibble: 2 x 4
     ##   .metric  .estimator .estimate .config             
     ##   <chr>    <chr>          <dbl> <chr>               
-    ## 1 accuracy binary         0.737 Preprocessor1_Model1
-    ## 2 roc_auc  binary         0.740 Preprocessor1_Model1
+    ## 1 accuracy binary         0.714 Preprocessor1_Model1
+    ## 2 roc_auc  binary         0.720 Preprocessor1_Model1
 
 ``` r
 glm_fit %>% 

@@ -88,17 +88,7 @@ bigfoot %>%
 ## Preprocess
 ```{r}
 library(tidymodels)
-
-bigfoot_to_split <- bigfoot %>% 
-  filter(classification != "Class C",!is.na(title)) %>%
-  mutate(title = str_remove_all(title, ".*\\:")) %>%
-  unnest_tokens(title, title) %>% 
-  anti_join(stop_words, by = c("title" = "word")) %>% 
-  select(class = classification, title) %>% 
-  mutate(class = as.factor(class)) %>% 
-  filter(fct_lump(title, prop = 0.01) != "Other")
-
-
+set.seed(123)
 
 bigfoot_split <- initial_split(bigfoot %>% 
                                   filter(classification != "Class C",!is.na(title)) %>%
