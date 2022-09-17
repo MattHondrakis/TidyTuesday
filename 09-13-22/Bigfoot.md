@@ -170,7 +170,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Dig deeper into tidy modeling with R at https://www.tmwr.org
+    ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
 set.seed(123)
@@ -231,7 +231,7 @@ glm_fit %>%
   mutate(term = str_remove(term, "title_")) %>%
   ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate > 0, "A", "B"))) + geom_col(color = "black") +
   scale_fill_discrete(direction = -1) +
-  labs(fill = "Class", y = "Words", title = str_to_title("Importance in predicting class"))
+  labs(fill = "Class", y = "Words", title = str_to_title("Importance words in predicting class"))
 ```
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
