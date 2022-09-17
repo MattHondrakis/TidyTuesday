@@ -173,17 +173,15 @@ library(tidymodels)
     ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
+library(textrecipes)
 set.seed(123)
 
-bigfoot_split <- initial_split(bigfoot %>% 
-                                  filter(classification != "Class C",!is.na(title)) %>%
-                                  mutate(title = str_remove_all(title, ".*\\:")) %>%
-                                  unnest_tokens(title, title) %>% 
-                                  anti_join(stop_words, by = c("title" = "word")) %>% 
-                                  select(class = classification, title) %>% 
-                                  mutate(class = as.factor(class)) %>% 
-                                  filter(fct_lump(title, prop = 0.005) != "Other"),
-                                strata = class)
+bigfoot_split <- initial_split(bigfoot %>%
+                                 rename(class = classification) %>% 
+                                 filter(class != "Class C", !is.na(title)) %>%
+                                 mutate(title = str_remove_all(title, ".*\\:"),
+                                        class = as.factor(class)),
+                               strata = class)
 ```
 
 ## Fitting
@@ -191,15 +189,15 @@ bigfoot_split <- initial_split(bigfoot %>%
 ``` r
 glm_workflow <- 
   recipe(formula = class ~ title, data = training(bigfoot_split)) %>% 
-  step_novel(all_nominal_predictors()) %>% 
-  step_dummy(all_nominal_predictors()) %>% 
+  step_tokenize(title) %>%
+  step_stopwords(title, custom_stopword_source = stop_words) %>% 
+  step_tokenfilter(title, max_tokens = 1e2) %>% 
+  step_tfidf(title) %>% 
   workflow(logistic_reg(mode = "classification", engine = "glm"))
 
 
 glm_fit <- glm_workflow %>% last_fit(bigfoot_split)
 ```
-
-    ## ! train/test split: preprocessor 1/1, model 1/1 (predictions): prediction from a rank-defici...
 
 ## Metrics
 
@@ -211,8 +209,8 @@ glm_fit %>%
     ## # A tibble: 2 x 4
     ##   .metric  .estimator .estimate .config             
     ##   <chr>    <chr>          <dbl> <chr>               
-    ## 1 accuracy binary         0.718 Preprocessor1_Model1
-    ## 2 roc_auc  binary         0.792 Preprocessor1_Model1
+    ## 1 accuracy binary         0.879 Preprocessor1_Model1
+    ## 2 roc_auc  binary         0.937 Preprocessor1_Model1
 
 ``` r
 glm_fit %>% 
@@ -228,10 +226,11 @@ glm_fit %>%
   extract_fit_parsnip() %>% 
   broom::tidy() %>% 
   filter(p.value < 0.05 & term != "(Intercept)") %>% 
-  mutate(term = str_remove(term, "title_")) %>%
-  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate > 0, "A", "B"))) + geom_col(color = "black") +
+  mutate(term = str_remove(term, "tfidf_title_")) %>% 
+  slice_max(abs(estimate), n = 20) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate < 0, "A", "B"))) + geom_col(color = "black") +
   scale_fill_discrete(direction = -1) +
-  labs(fill = "Class", y = "Words", title = str_to_title("Importance words in predicting class"))
+  labs(fill = "Class", y = "", title = str_to_title("Importance of words in predicting class"))
 ```
 
 ![](Bigfoot_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
