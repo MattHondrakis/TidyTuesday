@@ -28,7 +28,7 @@ Diving into the weekly datasets of TidyTuesday!
 23. [San Francisco Rentals](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-05-22/San-Fransisco-Rentals.md)
 24. [European Flights](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-12-22/European-Flights.md)
 25. [Technology Adoption](https://github.com/MattHondrakis/TidyTuesday/blob/main/07-19-22/Technology.md)
-26. [Characters, Game of Thrones and Simpsons](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) 
+26. [Movie/Show Characters](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) 
 27. [Pell Grants](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-30-22/Pell-Grants.md)
 28. [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
 
