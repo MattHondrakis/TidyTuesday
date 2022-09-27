@@ -30,6 +30,34 @@ skimr::skim(artists)
 ```
 
 
+Is artists share = artists_n/all_workers_n?
+```{r}
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  select(artists_share, new)
+
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  select(artists_share, new) %>% 
+  summarize(mean(artists_share == new, na.rm = TRUE))
+```
+
+
+```{r}
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  filter(new != artists_share) %>% 
+  select(-location_quotient)
+
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  filter(new != artists_share) %>% 
+  summarize(difference = sum(artists_share - new),
+            avg = mean(artists_share - new, na.rm = TRUE))
+```
+It appears there may be a minor difference in artists_share and artists_n/all_workers_n, but its most likely a computational error.
+
+
 ## Summarize Function
 ```{r}
 summarize_fun <- function(x, y = NULL){
@@ -47,4 +75,8 @@ summarize_fun(race, type) %>%
   ggplot(aes(sum, fct_reorder(race, sum))) + geom_col(color = "black", fill = "lightblue") +
   labs(y = "", x = "Total", title = "Artists in the USA by Race")
 ```
+
+
+
+
 

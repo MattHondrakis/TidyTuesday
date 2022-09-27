@@ -81,6 +81,79 @@ Data summary
 | artists_share     |      1454 |          0.57 |      0.00 |       0.00 |    0 |     0.00 |      0.00 |      0.00 |       0.02 | ▇▁▁▁▁ |
 | location_quotient |      1471 |          0.56 |      1.07 |       0.94 |    0 |     0.61 |      0.86 |      1.19 |      15.63 | ▇▁▁▁▁ |
 
+Is artists share = artists_n/all_workers_n?
+
+``` r
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  select(artists_share, new)
+```
+
+    ## # A tibble: 3,380 x 2
+    ##    artists_share       new
+    ##            <dbl>     <dbl>
+    ##  1      0.000510  0.000510
+    ##  2      0.000558  0.000558
+    ##  3      0.000261  0.000261
+    ##  4     NA        NA       
+    ##  5      0.000518  0.000518
+    ##  6      0.000336  0.000336
+    ##  7      0.000519  0.000519
+    ##  8     NA         0       
+    ##  9      0.00412   0.00412 
+    ## 10      0.00105   0.00105 
+    ## # ... with 3,370 more rows
+
+``` r
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  select(artists_share, new) %>% 
+  summarize(mean(artists_share == new, na.rm = TRUE))
+```
+
+    ## # A tibble: 1 x 1
+    ##   `mean(artists_share == new, na.rm = TRUE)`
+    ##                                        <dbl>
+    ## 1                                      0.475
+
+``` r
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  filter(new != artists_share) %>% 
+  select(-location_quotient)
+```
+
+    ## # A tibble: 1,012 x 7
+    ##    state        race     type      all_workers_n artists_n artists_share     new
+    ##    <chr>        <chr>    <chr>             <dbl>     <dbl>         <dbl>   <dbl>
+    ##  1 Florida      Hispanic Architec~       2752995      2900      0.00105  1.05e-3
+    ##  2 Georgia      Hispanic Architec~        467240       370      0.000792 7.92e-4
+    ##  3 New York     Hispanic Architec~       1819490      1830      0.00101  1.01e-3
+    ##  4 Ohio         Hispanic Architec~        204545       225      0.00110  1.10e-3
+    ##  5 Pennsylvania Hispanic Architec~        423215       185      0.000437 4.37e-4
+    ##  6 Tennessee    Hispanic Architec~        167595        20      0.000119 1.19e-4
+    ##  7 Arizona      White    Architec~       1857110      2420      0.00130  1.30e-3
+    ##  8 California   White    Architec~       7686845     15935      0.00207  2.07e-3
+    ##  9 Colorado     White    Architec~       2172170      4625      0.00213  2.13e-3
+    ## 10 Connecticut  White    Architec~       1329540      2670      0.00201  2.01e-3
+    ## # ... with 1,002 more rows
+
+``` r
+artists %>% 
+  mutate(new = artists_n/all_workers_n) %>% 
+  filter(new != artists_share) %>% 
+  summarize(difference = sum(artists_share - new),
+            avg = mean(artists_share - new, na.rm = TRUE))
+```
+
+    ## # A tibble: 1 x 2
+    ##   difference        avg
+    ##        <dbl>      <dbl>
+    ## 1    0.00113 0.00000112
+
+It appears there may be a minor difference in artists_share and
+artists_n/all_workers_n, but its most likely a computational error.
+
 ## Summarize Function
 
 ``` r
@@ -102,4 +175,4 @@ summarize_fun(race, type) %>%
     ## `summarise()` has grouped output by 'race'. You can override using the
     ## `.groups` argument.
 
-![](Artists_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Artists_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
