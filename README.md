@@ -31,4 +31,5 @@ Diving into the weekly datasets of TidyTuesday!
 26. [Movie/Show Characters](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-16-22/Characters.md) 
 27. [Pell Grants](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-30-22/Pell-Grants.md)
 28. [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
+29. [Artists](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-27-22/Artists.md)
 
