@@ -1,0 +1,50 @@
+---
+title: "Artists"
+author: "Matthew"
+date: "2022-09-27"
+output: 
+  github_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(scales)
+theme_set(theme_bw())
+```
+
+
+```{r}
+artists <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-09-27/artists.csv')
+```
+
+# EDA
+```{r}
+artists %>% 
+  head(15)
+
+skimr::skim(artists)
+```
+
+
+## Summarize Function
+```{r}
+summarize_fun <- function(x, y = NULL){
+  artists %>% 
+    group_by({{x}}, {{y}}) %>% 
+    summarize(sum = sum(artists_n, na.rm = TRUE))
+}
+```
+
+
+```{r}
+summarize_fun(race, type) %>% 
+  filter(type == "Actors") %>% 
+  ungroup() %>% 
+  ggplot(aes(sum, fct_reorder(race, sum))) + geom_col(color = "black", fill = "lightblue") +
+  labs(y = "", x = "Total", title = "Artists in the USA by Race")
+```
+
