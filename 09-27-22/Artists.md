@@ -161,15 +161,15 @@ artists %>%
     ## 1    0.00113 0.00000112
 
 It appears there may be a minor difference in *artist_share* and
-*artist_n/all_workers_n*, but its most likely a computational error.
-Moving forward, *artist_share* will be used for simplicity. Further
-more, it appears as though *all_workers_n* represents all workers
-(**artists**) of a specific race in a state (total count of all artists
-in a state by race). Ideally, it would be shown by summing *artist_n* by
-race and state; and then showing they are equal. Unfortunately, there
-are many NA’s that prohibit that method from working. I come to this
-conclusion because the variable *all_workers_n* is constant for a
-specific race and state.
+*artist_n/all_workers_n*, but its most likely a computational error
+(floating point). Moving forward, *artist_share* will be used for
+simplicity. Further more, it appears as though *all_workers_n*
+represents all workers (**artists**) of a specific race in a state
+(total count of all artists in a state by race). Ideally, it would be
+shown by summing *artist_n* by race and state; and then showing they are
+equal. Unfortunately, there are many NA’s that prohibit that method from
+working. I come to this conclusion because the variable *all_workers_n*
+is constant for a specific race and state.
 
 ``` r
 artists %>% 
@@ -281,7 +281,7 @@ knitr::kable(artists %>%
 
 The variable *location_quotient* shows the proportional difference of
 artists compared to the national average. A quote from TidyTuesday
-explaining this variable: “or example, an LQ of 1.2 indicates that the
+explaining this variable: “For example, an LQ of 1.2 indicates that the
 state’s labor force in an occupation is 20 percent greater than the
 occupation’s national labor force share. An LQ of 0.8 indicates that the
 state’s labor force in an occupation is 20 percent below the
@@ -351,7 +351,7 @@ loc2_artists %>%
   geom_col(color = "black") +
   scale_x_continuous(labels = number_format(suffix = "x")) +
   labs(y = "", x = "Number of times more than national average", 
-       title = "The 4 States with Highest and Lowest Number of Artists with Respect to National Average")
+       title = "The 4 States with Highest and Lowest Number of Artists")
 ```
 
 ![](Artists_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
