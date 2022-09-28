@@ -16,57 +16,73 @@ library(scales)
 theme_set(theme_bw())
 ```
 
-
 ```{r}
 artists <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-09-27/artists.csv')
 ```
 
 # EDA
+
 ```{r}
 artists %>% 
   head(15)
 
 skimr::skim(artists)
+
+artists <- artists %>% 
+  rename_with(~gsub("artists", "artist", .x))
 ```
 
-
-Is artists share = artists_n/all_workers_n?
-```{r}
-artists %>% 
-  mutate(new = artists_n/all_workers_n) %>% 
-  select(artists_share, new)
-
-artists %>% 
-  mutate(new = artists_n/all_workers_n) %>% 
-  select(artists_share, new) %>% 
-  summarize(mean(artists_share == new, na.rm = TRUE))
-```
-
+Is artist_share = artist_n/all_workers_n?
 
 ```{r}
 artists %>% 
-  mutate(new = artists_n/all_workers_n) %>% 
-  filter(new != artists_share) %>% 
+  mutate(new = artist_n/all_workers_n) %>% 
+  select(artist_share, new)
+
+artists %>% 
+  mutate(new = artist_n/all_workers_n) %>% 
+  select(artist_share, new) %>% 
+  summarize(mean(artist_share == new, na.rm = TRUE))
+```
+
+```{r}
+artists %>% 
+  mutate(new = artist_n/all_workers_n) %>% 
+  filter(new != artist_share) %>% 
   select(-location_quotient)
 
 artists %>% 
-  mutate(new = artists_n/all_workers_n) %>% 
-  filter(new != artists_share) %>% 
-  summarize(difference = sum(artists_share - new),
-            avg = mean(artists_share - new, na.rm = TRUE))
+  mutate(new = artist_n/all_workers_n) %>% 
+  filter(new != artist_share) %>% 
+  summarize(difference = sum(artist_share - new),
+            avg = mean(artist_share - new, na.rm = TRUE))
 ```
-It appears there may be a minor difference in artists_share and artists_n/all_workers_n, but its most likely a computational error.
 
+It appears there may be a minor difference in *artist_share* and *artist_n/all_workers_n*, but its most likely a computational error. Moving forward, *artist_share* will be used for simplicity. Further more, it appears as though *all_workers_n* represents all workers (**artists**) of a specific race in a state (total count of all artists in a state by race). Ideally, it would be shown by summing *artist_n* by race and state; and then showing they are equal. Unfortunately, there are many NA's that prohibit that method from working. I come to this conclusion because the variable *all_workers_n* is constant for a specific race and state.
+
+```{r}
+artists %>% 
+  distinct(all_workers_n, state, race) %>% 
+  arrange(state)
+```
+
+As shown above, each state and race has only one distinct *all_workers_n* value. A further example for a specific state below.
+
+```{r}
+artists %>% 
+  filter(state == "Alabama") %>% 
+  distinct(all_workers_n, race)
+```
 
 ## Summarize Function
+
 ```{r}
 summarize_fun <- function(x, y = NULL){
   artists %>% 
     group_by({{x}}, {{y}}) %>% 
-    summarize(sum = sum(artists_n, na.rm = TRUE))
+    summarize(sum = sum(artist_n, na.rm = TRUE))
 }
 ```
-
 
 ```{r}
 summarize_fun(race, type) %>% 
@@ -76,7 +92,87 @@ summarize_fun(race, type) %>%
   labs(y = "", x = "Total", title = "Artists in the USA by Race")
 ```
 
+## Where are the most artists?
+
+```{r}
+artists %>% 
+  group_by(state, type) %>% 
+  summarize(artist_n = sum(artist_n, na.rm = TRUE)) %>% 
+  ungroup() %>% group_by(type) %>% 
+  slice_max(artist_n, n = 1) %>% 
+  arrange(-artist_n) %>% 
+  ungroup() %>% 
+  ggplot(aes(artist_n, fct_reorder(type, artist_n))) + 
+  geom_col(color = "black", fill = "lightblue") + 
+  labs(y = "", x = "Artists", title = "The most artists of a type in a state",
+       subtitle = "California has the most artists for every type")
 
 
+knitr::kable(artists %>% 
+  group_by(type) %>%   
+  slice_max(artist_n, n = 1) %>% 
+  select(state, race, type, artist_n, location_quotient)) 
+```
 
+## States vs National Average
 
+The variable *location_quotient* shows the proportional difference of artists compared to the national average. A quote from TidyTuesday explaining this variable: "or example, an LQ of 1.2 indicates that the state's labor force in an occupation is 20 percent greater than the occupation's national labor force share. An LQ of 0.8 indicates that the state's labor force in an occupation is 20 percent below the occupation's national labor force share."
+We will explore this variable below.
+
+```{r}
+loc_artists <- artists %>% 
+  group_by(state) %>% 
+  summarize(m = (mean(location_quotient, na.rm = TRUE)) - 1)
+```
+
+The function created above will simplify the code moving forward. It gets the average *location_quotient* by state, and then **-1** to get the increase. 
+
+```{r}
+loc_artists %>% 
+  slice_max(m, n = 10) %>% 
+  bind_rows(loc_artists %>% slice_min(m, n = 10)) %>% 
+  ggplot(aes(m, fct_reorder(state, m), fill = m)) + 
+  geom_col(color = "black") + 
+  scale_x_continuous(labels = percent) + 
+  scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+  labs(y = "", x = "Average Percent Increase", 
+       title = "10 States with Highest and Lowerst Representation of Artists",
+       subtitle = 
+         "Percent value represents the state average percent increase 
+of artists with respect to national average") +
+  theme(legend.position = "")
+```
+
+```{r}
+artists %>% 
+  summarize(m = mean(location_quotient > 1, na.rm = TRUE))
+```
+
+Another function is created below to allow for quick plots of lowest and highest values.
+
+```{r}
+loc2_artists <- artists %>% 
+  group_by(state) %>% 
+  slice_max(location_quotient, n = 1) %>% 
+  bind_rows(artists %>% 
+              group_by(state) %>% 
+              slice_min(location_quotient, n = 1))
+```
+
+```{r}
+loc2_artists %>% 
+  ungroup() %>% 
+  slice_max(location_quotient, n = 4) %>% 
+  bind_rows(loc2_artists %>% ungroup() %>% filter(state != "West Virginia") %>% 
+            slice_min(location_quotient, n = 4)) %>% 
+  mutate(location_quotient = ifelse(location_quotient >= 1, 
+                                    location_quotient, 
+                                    -1/location_quotient)) %>% 
+  ggplot(aes(location_quotient, fct_reorder(state, location_quotient), fill = race)) +
+  geom_col(color = "black") +
+  scale_x_continuous(labels = number_format(suffix = "x")) +
+  labs(y = "", x = "Number of times more than national average", 
+       title = "The 4 States with Highest and Lowest Number of Artists with Respect to National Average")
+```
+
+The variable *location_quotient* does not account for state population, thus many of the states that have the least number of artist subgroup have smaller populations as well.
