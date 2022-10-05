@@ -9,6 +9,8 @@ Matthew
         Product Description</a>
     -   <a href="#releases-of-time" id="toc-releases-of-time">Releases of
         Time</a>
+    -   <a href="#most-upvoted-products" id="toc-most-upvoted-products">Most
+        Upvoted Products</a>
 
 # EDA
 
@@ -125,6 +127,16 @@ product %>%
     ## 10 ['jason']            29
     ## # ... with 47,410 more rows
 
+``` r
+product %>% 
+  ggplot(aes(upvotes)) + geom_histogram() +
+  scale_x_log10()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Product_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
 ## Most Common Words in Product Description
 
 ``` r
@@ -137,12 +149,12 @@ product %>%
   summarize(m = mean(upvotes, na.rm = TRUE)) %>% 
   arrange(-m) %>% 
   ggplot(aes(m, fct_reorder(word, m))) + geom_col(color = "black", fill = "lightblue") +
-  labs(y = "Words", x = "Average Upvotes", title = "Average Upvotes of the 10 Most Common Words")
+  labs(y = "Words", x = "Average Upvotes", title = "Average Upvotes of Products Based on the 10 Most Common Words")
 ```
 
     ## Joining, by = "word"
 
-![](Product_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Product_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Releases of Time
 
@@ -155,4 +167,35 @@ product %>%
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](Product_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Product_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+## Most Upvoted Products
+
+``` r
+product %>% 
+  slice_max(upvotes, n = 10) %>% 
+  ggplot(aes(upvotes, fct_reorder(name, upvotes))) + 
+  geom_col(color = "black", fill = "lightgreen") +
+  labs(y = "Product Name")
+```
+
+![](Product_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+product_tags <- product %>% 
+  mutate(category_tags = str_split(category_tags, "', ")) %>% 
+  unnest(category_tags) %>% 
+  mutate(category_tags = str_remove_all(category_tags, "\\[|'|\\]"))
+
+product_tags %>% 
+  group_by(category_tags) %>% 
+  summarize(Median = median(upvotes, na.rm = TRUE)) %>% 
+  slice_max(Median, n = 10) %>% 
+  ggplot(aes(Median, fct_reorder(category_tags, Median))) + 
+  geom_col(color = "black", fill = "lightpink") +
+  labs(title = "Top 10 Median Upvotes of Products by Category Tags") + 
+  ggthemes::theme_fivethirtyeight() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Product_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
