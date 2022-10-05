@@ -32,4 +32,5 @@ Diving into the weekly datasets of TidyTuesday!
 27. [Pell Grants](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-30-22/Pell-Grants.md)
 28. [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
 29. [Artists](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-27-22/Artists.md)
+30. [Product Hunt](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-4-22/Product.md)
 
