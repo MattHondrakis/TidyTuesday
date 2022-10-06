@@ -281,7 +281,8 @@ product_makers %>%
 ![](Product_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 The top 4 *makers* suspiciously have the same exact median upvote. This
-may be due to the fact that many *makers* were paired together.
+may be due to the fact that many *makers* were grouped together on the
+same product.
 
 ``` r
 product_makers %>% 
