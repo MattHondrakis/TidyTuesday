@@ -37,6 +37,7 @@ product %>%
 
 ```{r}
 product %>% 
+  filter(upvotes != 0) %>% 
   ggplot(aes(upvotes)) + geom_histogram() +
   scale_x_log10()
 ```
@@ -75,6 +76,9 @@ product %>%
   labs(y = "Product Name")
 ```
 
+# Upvotes
+## Category Tags
+
 ```{r}
 head(product$category_tags)
 
@@ -95,5 +99,52 @@ product_tags %>%
   geom_col(color = "black", fill = "lightpink") +
   labs(title = "Top 10 Median Upvotes of Products by Category Tags", y = "", x = "") +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Product Makers
+
+```{r}
+head(product$makers)
+
+product_makers <- product %>% 
+  mutate(makers = str_split(makers, ", ")) %>%  unnest(makers) %>%   # split into a list and then un-list into rows
+  mutate(makers = str_remove_all(makers, "\\[|'|\\]|\\\""),          # remove extra characters
+         makers = noquote(makers),                                   # remove quotes
+         makers = ifelse(makers == "", NA, makers),                  # turn empty string into NA
+         makers = str_to_title(makers))                              # convert into title case
+```
+
+```{r}
+product_makers %>%  
+  count(makers, sort = TRUE)
+```
+
+Unfortunately, the majority of *makers* contains **NA's**. Regardless, it would be interesting to observe the number of upvotes by product *makers*. 
+
+```{r}
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE)) %>% 
+  slice_max(median, n = 10) %>% 
+  ggplot(aes(median, fct_reorder(makers, median))) + 
+  geom_col(color = "black", fill = "steelblue2") +
+  labs(y = "", x = "", title = "Top 10 Product Makers by Median Upvotes") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+The top 4 *makers* suspiciously have the same exact median upvote. This may be due to the fact that many *makers* were paired together.
+
+```{r}
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE),
+            n = n()) %>% 
+  slice_max(median, n = 10)
+
+product_makers %>% 
+  filter(upvotes == 8993) %>% 
+  select(makers, name, id)
 ```
 

@@ -11,6 +11,9 @@ Matthew
         Time</a>
     -   <a href="#most-upvoted-products" id="toc-most-upvoted-products">Most
         Upvoted Products</a>
+-   <a href="#upvotes" id="toc-upvotes">Upvotes</a>
+    -   <a href="#category-tags" id="toc-category-tags">Category Tags</a>
+    -   <a href="#product-makers" id="toc-product-makers">Product Makers</a>
 
 # EDA
 
@@ -129,6 +132,7 @@ product %>%
 
 ``` r
 product %>% 
+  filter(upvotes != 0) %>% 
   ggplot(aes(upvotes)) + geom_histogram() +
   scale_x_log10()
 ```
@@ -181,6 +185,10 @@ product %>%
 
 ![](Product_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
+# Upvotes
+
+## Category Tags
+
 ``` r
 head(product$category_tags)
 ```
@@ -214,3 +222,101 @@ product_tags %>%
 ```
 
 ![](Product_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## Product Makers
+
+``` r
+head(product$makers)
+```
+
+    ## [1] "['shanev', 'tettoffensive']" "['fabian_beringer']"        
+    ## [3] "['keegan_cooke']"            "['jmtame']"                 
+    ## [5] "[]"                          "['matthewlandauer']"
+
+``` r
+product_makers <- product %>% 
+  mutate(makers = str_split(makers, ", ")) %>%  unnest(makers) %>%   # split into a list and then un-list into rows
+  mutate(makers = str_remove_all(makers, "\\[|'|\\]|\\\""),          # remove extra characters
+         makers = noquote(makers),                                   # remove quotes
+         makers = ifelse(makers == "", NA, makers),                  # turn empty string into NA
+         makers = str_to_title(makers))                              # convert into title case
+```
+
+``` r
+product_makers %>%  
+  count(makers, sort = TRUE)
+```
+
+    ## # A tibble: 73,860 x 2
+    ##    makers              n
+    ##    <chr>           <int>
+    ##  1 <NA>            17152
+    ##  2 Harrystebbings    119
+    ##  3 Mubashariqbal      78
+    ##  4 Eriktorenberg      74
+    ##  5 Jason              73
+    ##  6 Ericosiu           72
+    ##  7 Shepovalovdenis    70
+    ##  8 Rrhoover           69
+    ##  9 Visualpharm        65
+    ## 10 Mijustin           64
+    ## # ... with 73,850 more rows
+
+Unfortunately, the majority of *makers* contains **NA’s**. Regardless,
+it would be interesting to observe the number of upvotes by product
+*makers*.
+
+``` r
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE)) %>% 
+  slice_max(median, n = 10) %>% 
+  ggplot(aes(median, fct_reorder(makers, median))) + 
+  geom_col(color = "black", fill = "steelblue2") +
+  labs(y = "", x = "", title = "Top 10 Product Makers by Median Upvotes") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Product_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+The top 4 *makers* suspiciously have the same exact median upvote. This
+may be due to the fact that many *makers* were paired together.
+
+``` r
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE),
+            n = n()) %>% 
+  slice_max(median, n = 10)
+```
+
+    ## # A tibble: 10 x 3
+    ##    makers        median     n
+    ##    <chr>          <dbl> <int>
+    ##  1 _Johnvaljohn_  8993      1
+    ##  2 Adventclad     8993      1
+    ##  3 Al3xstrat      8993      1
+    ##  4 Jberthom       8993      1
+    ##  5 Mathieudebit   8993      1
+    ##  6 Alicekdonovan  6991      1
+    ##  7 Timmycarbone   6991      1
+    ##  8 Lorna          6406      1
+    ##  9 Colebemis      5887      1
+    ## 10 Mtlbagelboy    5606.     2
+
+``` r
+product_makers %>% 
+  filter(upvotes == 8993) %>% 
+  select(makers, name, id)
+```
+
+    ## # A tibble: 5 x 3
+    ##   makers        name    id       
+    ##   <chr>         <chr>   <chr>    
+    ## 1 Jberthom      Station station-3
+    ## 2 Al3xstrat     Station station-3
+    ## 3 _Johnvaljohn_ Station station-3
+    ## 4 Mathieudebit  Station station-3
+    ## 5 Adventclad    Station station-3
