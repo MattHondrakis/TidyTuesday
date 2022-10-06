@@ -76,11 +76,17 @@ product %>%
 ```
 
 ```{r}
+head(product$category_tags)
+
 product_tags <- product %>% 
   mutate(category_tags = str_split(category_tags, "', ")) %>% 
   unnest(category_tags) %>% 
   mutate(category_tags = str_remove_all(category_tags, "\\[|'|\\]"))
+```
 
+New dataset is made; expanding the number of rows by cleaning and separating the *category_tags* variable into a row per category tag.
+
+```{r}
 product_tags %>% 
   group_by(category_tags) %>% 
   summarize(Median = median(upvotes, na.rm = TRUE)) %>% 

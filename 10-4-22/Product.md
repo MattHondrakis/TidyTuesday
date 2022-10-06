@@ -182,11 +182,27 @@ product %>%
 ![](Product_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
+head(product$category_tags)
+```
+
+    ## [1] "['IPAD', 'IPHONE', 'ARKIT', 'AUGMENTED REALITY']"                             
+    ## [2] "['BOTS', 'ARTIFICIAL INTELLIGENCE', 'TECH', 'SLACK', 'MESSAGING']"            
+    ## [3] "['TECH', 'EDUCATION', 'CROWDFUNDING', 'HOME', 'BIOHACKING']"                  
+    ## [4] "['PRODUCTIVITY', 'USER EXPERIENCE', 'TECH', 'EMAIL', 'HIRING AND RECRUITING']"
+    ## [5] "['TWITTER', 'PRODUCTIVITY', 'IPHONE', 'TECH']"                                
+    ## [6] "['TECH']"
+
+``` r
 product_tags <- product %>% 
   mutate(category_tags = str_split(category_tags, "', ")) %>% 
   unnest(category_tags) %>% 
   mutate(category_tags = str_remove_all(category_tags, "\\[|'|\\]"))
+```
 
+New dataset is made; expanding the number of rows by cleaning and
+separating the *category_tags* variable into a row per category tag.
+
+``` r
 product_tags %>% 
   group_by(category_tags) %>% 
   summarize(Median = median(upvotes, na.rm = TRUE)) %>% 
@@ -197,4 +213,4 @@ product_tags %>%
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-![](Product_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Product_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
