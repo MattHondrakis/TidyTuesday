@@ -87,8 +87,7 @@ product_tags %>%
   slice_max(Median, n = 10) %>% 
   ggplot(aes(Median, fct_reorder(category_tags, Median))) + 
   geom_col(color = "black", fill = "lightpink") +
-  labs(title = "Top 10 Median Upvotes of Products by Category Tags") + 
-  ggthemes::theme_fivethirtyeight() +
+  labs(title = "Top 10 Median Upvotes of Products by Category Tags", y = "", x = "") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
