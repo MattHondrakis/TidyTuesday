@@ -150,6 +150,8 @@ product_makers %>%
 
 A median of one product vote does not tell us much about the makers of the products, especially if we want to predict upvotes based on makers.
 
+### The Most Prolific
+
 ```{r}
 product_makers %>% 
   filter(!is.na(makers)) %>% 

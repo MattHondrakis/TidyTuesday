@@ -14,6 +14,8 @@ Matthew
 -   <a href="#upvotes" id="toc-upvotes">Upvotes</a>
     -   <a href="#category-tags" id="toc-category-tags">Category Tags</a>
     -   <a href="#product-makers" id="toc-product-makers">Product Makers</a>
+        -   <a href="#the-most-prolific" id="toc-the-most-prolific">The Most
+            Prolific</a>
 
 # EDA
 
@@ -324,6 +326,8 @@ product_makers %>%
 
 A median of one product vote does not tell us much about the makers of
 the products, especially if we want to predict upvotes based on makers.
+
+### The Most Prolific
 
 ``` r
 product_makers %>% 
