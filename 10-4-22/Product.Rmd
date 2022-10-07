@@ -148,3 +148,32 @@ product_makers %>%
   select(makers, name, id)
 ```
 
+A median of one product vote does not tell us much about the makers of the products, especially if we want to predict upvotes based on makers.
+
+```{r}
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  count(makers, sort = TRUE)
+
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  mutate(makers = fct_lump(makers, n = 10)) %>%       # keep top 10 makers
+  filter(makers != "Other") %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE)) %>% 
+  ggplot(aes(median, fct_reorder(makers, median))) + 
+  geom_col(color = "black", fill = "skyblue1") +
+  labs(y = "", x = "", title = "Median Upvotes of the Top 10 Most Prolific Product Makers") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  mutate(makers = fct_lump(makers, n = 10)) %>%
+  filter(makers != "Other") %>% 
+  ggplot(aes(upvotes, fill = fct_reorder(makers, upvotes, median, .desc = TRUE))) + geom_density(alpha = 0.7) +
+  scale_x_log10() + labs(fill = "Maker", title = "Upvotes Distribution of Top 10 Most Prolific Product Makers") +
+  scale_fill_brewer(palette = "RdYlBu")
+```
+

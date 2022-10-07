@@ -321,3 +321,54 @@ product_makers %>%
     ## 3 _Johnvaljohn_ Station station-3
     ## 4 Mathieudebit  Station station-3
     ## 5 Adventclad    Station station-3
+
+A median of one product vote does not tell us much about the makers of
+the products, especially if we want to predict upvotes based on makers.
+
+``` r
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  count(makers, sort = TRUE)
+```
+
+    ## # A tibble: 73,859 x 2
+    ##    makers              n
+    ##    <chr>           <int>
+    ##  1 Harrystebbings    119
+    ##  2 Mubashariqbal      78
+    ##  3 Eriktorenberg      74
+    ##  4 Jason              73
+    ##  5 Ericosiu           72
+    ##  6 Shepovalovdenis    70
+    ##  7 Rrhoover           69
+    ##  8 Visualpharm        65
+    ##  9 Mijustin           64
+    ## 10 15greenberg        58
+    ## # ... with 73,849 more rows
+
+``` r
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  mutate(makers = fct_lump(makers, n = 10)) %>%       # keep top 10 makers
+  filter(makers != "Other") %>% 
+  group_by(makers) %>% 
+  summarize(median = median(upvotes, na.rm = TRUE)) %>% 
+  ggplot(aes(median, fct_reorder(makers, median))) + 
+  geom_col(color = "black", fill = "skyblue1") +
+  labs(y = "", x = "", title = "Median Upvotes of the Top 10 Most Prolific Product Makers") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Product_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+product_makers %>% 
+  filter(!is.na(makers)) %>% 
+  mutate(makers = fct_lump(makers, n = 10)) %>%
+  filter(makers != "Other") %>% 
+  ggplot(aes(upvotes, fill = fct_reorder(makers, upvotes, median, .desc = TRUE))) + geom_density(alpha = 0.7) +
+  scale_x_log10() + labs(fill = "Maker", title = "Upvotes Distribution of Top 10 Most Prolific Product Makers") +
+  scale_fill_brewer(palette = "RdYlBu")
+```
+
+![](Product_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
