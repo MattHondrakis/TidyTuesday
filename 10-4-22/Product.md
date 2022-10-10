@@ -16,6 +16,7 @@ Matthew
     -   <a href="#product-makers" id="toc-product-makers">Product Makers</a>
         -   <a href="#the-most-prolific" id="toc-the-most-prolific">The Most
             Prolific</a>
+-   <a href="#date" id="toc-date">Date</a>
 
 # EDA
 
@@ -376,3 +377,29 @@ product_makers %>%
 ```
 
 ![](Product_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+# Date
+
+``` r
+product %>% 
+  mutate(diff = time_length(last_updated - release_date, "years")) %>% 
+  ggplot(aes(diff)) + geom_histogram() +
+  labs(title = "The Difference in Years between Release and Last Update")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Product_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+product %>% 
+  mutate(diff = as.Date("2022-10-4") - as.Date(last_updated)) %>% 
+  ggplot(aes(diff)) + geom_histogram() +
+  scale_y_log10(labels = comma_format()) +
+  scale_x_continuous(breaks = seq(275,750,25), minor_breaks = NULL) +
+  labs(title = "Difference in Days since 2022-10-4 and Last Update")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Product_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->

@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(tidytext)
 library(scales)
+library(lubridate)
 theme_set(theme_bw())
 ```
 
@@ -177,5 +178,21 @@ product_makers %>%
   ggplot(aes(upvotes, fill = fct_reorder(makers, upvotes, median, .desc = TRUE))) + geom_density(alpha = 0.7) +
   scale_x_log10() + labs(fill = "Maker", title = "Upvotes Distribution of Top 10 Most Prolific Product Makers") +
   scale_fill_brewer(palette = "RdYlBu")
+```
+
+# Date
+
+```{r}
+product %>% 
+  mutate(diff = time_length(last_updated - release_date, "years")) %>% 
+  ggplot(aes(diff)) + geom_histogram() +
+  labs(title = "The Difference in Years between Release and Last Update")
+
+product %>% 
+  mutate(diff = as.Date("2022-10-4") - as.Date(last_updated)) %>% 
+  ggplot(aes(diff)) + geom_histogram() +
+  scale_y_log10(labels = comma_format()) +
+  scale_x_continuous(breaks = seq(275,750,25), minor_breaks = NULL) +
+  labs(title = "Difference in Days since 2022-10-4 and Last Update")
 ```
 
