@@ -56,6 +56,11 @@ summary(quickmod)
 ```
 
 ```{r}
+broom::tidy(quickmod) %>% 
+  filter(p.value > 0.05)
+```
+
+```{r}
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
   yardstick::roc_curve(discontinued, predictions) %>% 

@@ -202,13 +202,29 @@ summary(quickmod)
     ## Number of Fisher Scoring iterations: 8
 
 ``` r
+broom::tidy(quickmod) %>% 
+  filter(p.value > 0.05)
+```
+
+    ## # A tibble: 7 x 5
+    ##   term             estimate std.error statistic p.value
+    ##   <chr>               <dbl>     <dbl>     <dbl>   <dbl>
+    ## 1 gauge_divisor   -0.260     0.160       -1.62   0.105 
+    ## 2 grams            0.000580  0.00224      0.259  0.795 
+    ## 3 max_gauge       -0.0364    0.0356      -1.02   0.306 
+    ## 4 wpi             -0.0494    0.0283      -1.74   0.0816
+    ## 5 yardage         -0.00112   0.000875    -1.28   0.199 
+    ## 6 yarn_weight_id  -0.0291    0.0218      -1.34   0.181 
+    ## 7 yarn_weight_ply  0.0593    0.0523       1.13   0.257
+
+``` r
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
   yardstick::roc_curve(discontinued, predictions) %>% 
   autoplot()
 ```
 
-![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 mod_data %>% 
