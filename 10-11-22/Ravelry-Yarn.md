@@ -81,10 +81,142 @@ Data summary
 
 ``` r
 yarn %>% 
-  ggplot(aes(rating_count + 1, rating_average)) + geom_point() +
-  scale_x_log10() + geom_smooth(method = "lm")
+  keep(is.numeric) %>% 
+  select(-thread_size, -rating_total) %>% 
+  cor(use = "complete.obs", method = "spearman") %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "item1") %>% 
+  gather(key = item2, value = corr, -item1) %>% 
+  filter(item1 > item2) %>% 
+  arrange(-abs(corr))
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
+    ##              item1          item2         corr
+    ## 1        min_gauge      max_gauge  0.958119050
+    ## 2  yarn_weight_ply            wpi -0.807784423
+    ## 3        min_gauge  gauge_divisor  0.750924737
+    ## 4        max_gauge  gauge_divisor  0.748413244
+    ## 5  yarn_weight_ply        yardage -0.653893101
+    ## 6          yardage          grams  0.583060616
+    ## 7          yardage            wpi  0.540114862
+    ## 8  yarn_weight_ply      max_gauge -0.502575917
+    ## 9  yarn_weight_ply      min_gauge -0.499841620
+    ## 10             wpi      min_gauge  0.427635750
+    ## 11             wpi      max_gauge  0.420301648
+    ## 12         yardage      min_gauge  0.301975010
+    ## 13         yardage      max_gauge  0.301464464
+    ## 14    rating_count rating_average -0.288587029
+    ## 15  rating_average          grams  0.259075765
+    ## 16         yardage rating_average  0.245225327
+    ## 17  rating_average             id  0.229051577
+    ## 18    rating_count             id -0.190763602
+    ## 19           grams  gauge_divisor -0.181351984
+    ## 20 yarn_weight_ply rating_average -0.146512626
+    ## 21  rating_average  gauge_divisor -0.146169232
+    ## 22 yarn_weight_ply yarn_weight_id -0.133522140
+    ## 23       max_gauge          grams -0.125006900
+    ## 24             wpi rating_average  0.119145932
+    ## 25  yarn_weight_id            wpi  0.117928233
+    ## 26       min_gauge          grams -0.116659192
+    ## 27       min_gauge             id  0.103032461
+    ## 28         yardage  gauge_divisor -0.100755971
+    ## 29       max_gauge             id  0.100275731
+    ## 30    rating_count          grams -0.080756792
+    ## 31         yardage             id  0.064688816
+    ## 32             wpi   rating_count  0.060208448
+    ## 33              id  gauge_divisor  0.059264778
+    ## 34  yarn_weight_id rating_average  0.053276729
+    ## 35  yarn_weight_id        yardage  0.052047514
+    ## 36             wpi  gauge_divisor -0.048382414
+    ## 37  yarn_weight_id   rating_count  0.047857184
+    ## 38    rating_count      min_gauge  0.045013106
+    ## 39 yarn_weight_ply  gauge_divisor  0.043976013
+    ## 40  yarn_weight_id          grams -0.038292714
+    ## 41  yarn_weight_id      max_gauge  0.035723081
+    ## 42 yarn_weight_ply             id -0.033265967
+    ## 43  yarn_weight_id      min_gauge  0.031898290
+    ## 44  yarn_weight_id             id  0.030701551
+    ## 45              id          grams  0.030041075
+    ## 46             wpi             id  0.027810170
+    ## 47 yarn_weight_ply   rating_count -0.024738929
+    ## 48         yardage   rating_count -0.024215706
+    ## 49             wpi          grams -0.022966504
+    ## 50  yarn_weight_id  gauge_divisor -0.020108499
+    ## 51    rating_count  gauge_divisor  0.017529065
+    ## 52    rating_count      max_gauge  0.014356060
+    ## 53  rating_average      max_gauge -0.009876351
+    ## 54  rating_average      min_gauge -0.007937654
+    ## 55 yarn_weight_ply          grams  0.005926895
 
-![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+``` r
+yarn %>% 
+  filter(!is.na(discontinued)) %>% 
+  ggplot(aes(rating_average, fill = discontinued)) + geom_density(alpha = 0.5)
+```
+
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+mod_data <- yarn %>% 
+  select(contains("discontinued"), where(is.numeric)) %>% 
+  select(-thread_size, -rating_total) %>% 
+  mutate(discontinued = factor(discontinued))
+
+quickmod <- glm(discontinued ~., mod_data, family = binomial())
+
+summary(quickmod)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = discontinued ~ ., family = binomial(), data = mod_data)
+    ## 
+    ## Deviance Residuals: 
+    ##     Min       1Q   Median       3Q      Max  
+    ## -1.7032  -0.7345  -0.5349  -0.1327   2.3299  
+    ## 
+    ## Coefficients:
+    ##                   Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)      2.921e+00  9.554e-01   3.058  0.00223 ** 
+    ## gauge_divisor   -2.596e-01  1.602e-01  -1.621  0.10504    
+    ## grams            5.802e-04  2.236e-03   0.259  0.79525    
+    ## id              -1.415e-05  1.953e-06  -7.247 4.27e-13 ***
+    ## max_gauge       -3.645e-02  3.560e-02  -1.024  0.30591    
+    ## min_gauge        9.943e-02  4.353e-02   2.284  0.02237 *  
+    ## rating_average  -3.946e-01  1.364e-01  -2.892  0.00383 ** 
+    ## rating_count    -4.824e-03  1.645e-03  -2.932  0.00337 ** 
+    ## wpi             -4.937e-02  2.835e-02  -1.742  0.08158 .  
+    ## yardage         -1.125e-03  8.755e-04  -1.284  0.19898    
+    ## yarn_weight_id  -2.911e-02  2.175e-02  -1.338  0.18076    
+    ## yarn_weight_ply  5.926e-02  5.232e-02   1.133  0.25741    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 988.93  on 902  degrees of freedom
+    ## Residual deviance: 873.68  on 891  degrees of freedom
+    ##   (99097 observations deleted due to missingness)
+    ## AIC: 897.68
+    ## 
+    ## Number of Fisher Scoring iterations: 8
+
+``` r
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_curve(discontinued, predictions) %>% 
+  autoplot()
+```
+
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_auc(discontinued, predictions)
+```
+
+    ## # A tibble: 1 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 roc_auc binary         0.734

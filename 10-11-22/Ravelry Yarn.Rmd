@@ -28,7 +28,42 @@ skimr::skim(yarn)
 
 ```{r}
 yarn %>% 
-  ggplot(aes(rating_count + 1, rating_average)) + geom_point() +
-  scale_x_log10() + geom_smooth(method = "lm")
+  keep(is.numeric) %>% 
+  select(-thread_size, -rating_total) %>% 
+  cor(use = "complete.obs", method = "spearman") %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "item1") %>% 
+  gather(key = item2, value = corr, -item1) %>% 
+  filter(item1 > item2) %>% 
+  arrange(-abs(corr))
 ```
+
+```{r}
+yarn %>% 
+  filter(!is.na(discontinued)) %>% 
+  ggplot(aes(rating_average, fill = discontinued)) + geom_density(alpha = 0.5)
+```
+
+```{r}
+mod_data <- yarn %>% 
+  select(contains("discontinued"), where(is.numeric)) %>% 
+  select(-thread_size, -rating_total) %>% 
+  mutate(discontinued = factor(discontinued))
+
+quickmod <- glm(discontinued ~., mod_data, family = binomial())
+
+summary(quickmod)
+```
+
+```{r}
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_curve(discontinued, predictions) %>% 
+  autoplot()
+
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_auc(discontinued, predictions)
+```
+
 
