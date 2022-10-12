@@ -4,6 +4,12 @@ Matthew
 2022-10-11
 
 -   <a href="#eda" id="toc-eda">EDA</a>
+    -   <a href="#correlations" id="toc-correlations">Correlations</a>
+    -   <a href="#logistic-regression-model"
+        id="toc-logistic-regression-model">Logistic regression model</a>
+    -   <a href="#texture" id="toc-texture">Texture</a>
+        -   <a href="#20-most-common-textures" id="toc-20-most-common-textures">20
+            Most Common Textures</a>
 
 ``` r
 yarn <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-10-11/yarn.csv')
@@ -78,6 +84,8 @@ Data summary
 | yarn_weight_ply |      9380 |          0.91 |      6.39 |     3.18 |   1 |     4.00 |      5.0 |     10.0 |     12.00 | ▃▇▁▃▆ |
 
 # EDA
+
+## Correlations
 
 ``` r
 yarn %>% 
@@ -156,6 +164,12 @@ yarn %>%
 
 ![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+## Logistic regression model
+
+By creating a logistic regression model, you can get a quick look into
+what helps predict whether an item was discontinued using all numeric
+predictors.
+
 ``` r
 mod_data <- yarn %>% 
   select(contains("discontinued"), where(is.numeric)) %>% 
@@ -202,6 +216,26 @@ summary(quickmod)
     ## Number of Fisher Scoring iterations: 8
 
 ``` r
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_curve(discontinued, predictions) %>% 
+  autoplot()
+```
+
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+mod_data %>% 
+  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
+  yardstick::roc_auc(discontinued, predictions)
+```
+
+    ## # A tibble: 1 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 roc_auc binary         0.734
+
+``` r
 broom::tidy(quickmod) %>% 
   filter(p.value > 0.05)
 ```
@@ -217,22 +251,45 @@ broom::tidy(quickmod) %>%
     ## 6 yarn_weight_id  -0.0291    0.0218      -1.34   0.181 
     ## 7 yarn_weight_ply  0.0593    0.0523       1.13   0.257
 
-``` r
-mod_data %>% 
-  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_curve(discontinued, predictions) %>% 
-  autoplot()
-```
+## Texture
 
-![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+### 20 Most Common Textures
 
 ``` r
-mod_data %>% 
-  mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_auc(discontinued, predictions)
+yarn %>% 
+  mutate(texture = tolower(texture)) %>% 
+  count(texture, sort = TRUE)
 ```
 
-    ## # A tibble: 1 x 3
-    ##   .metric .estimator .estimate
-    ##   <chr>   <chr>          <dbl>
-    ## 1 roc_auc binary         0.734
+    ## # A tibble: 4,784 x 2
+    ##    texture               n
+    ##    <chr>             <int>
+    ##  1 plied             48528
+    ##  2 <NA>              26691
+    ##  3 singles            1977
+    ##  4 plied, fluffy      1511
+    ##  5 smooth             1134
+    ##  6 plied, tweedy       786
+    ##  7 ribbon              786
+    ##  8 plied, high twist   665
+    ##  9 spinning fiber      614
+    ## 10 single              579
+    ## # ... with 4,774 more rows
+
+``` r
+yarn %>% 
+  mutate(texture = tolower(texture)) %>% 
+  filter(!is.na(texture)) %>% 
+  mutate(texture = ifelse(texture == "bouclé", "boucle", texture),
+         texture = fct_lump(texture, 20)) %>% 
+  filter(texture != "Other") %>% 
+  group_by(texture) %>% 
+  summarize(avg = mean(discontinued == TRUE, na.rm = TRUE)) %>% 
+  ggplot(aes(avg, fct_reorder(texture, avg))) +
+  geom_col(color = "black", fill = "skyblue2") +
+  labs(y = "", x = "", title = "Percent of Discontinued Items by Texture") +
+  scale_x_continuous(label = percent_format()) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

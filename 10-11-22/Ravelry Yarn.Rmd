@@ -25,7 +25,7 @@ skimr::skim(yarn)
 ```
 
 # EDA
-
+## Correlations
 ```{r}
 yarn %>% 
   keep(is.numeric) %>% 
@@ -44,6 +44,10 @@ yarn %>%
   ggplot(aes(rating_average, fill = discontinued)) + geom_density(alpha = 0.5)
 ```
 
+## Logistic regression model 
+
+By creating a logistic regression model, you can get a quick look into what helps predict whether an item was discontinued using all numeric predictors. 
+
 ```{r}
 mod_data <- yarn %>% 
   select(contains("discontinued"), where(is.numeric)) %>% 
@@ -53,11 +57,6 @@ mod_data <- yarn %>%
 quickmod <- glm(discontinued ~., mod_data, family = binomial())
 
 summary(quickmod)
-```
-
-```{r}
-broom::tidy(quickmod) %>% 
-  filter(p.value > 0.05)
 ```
 
 ```{r}
@@ -71,4 +70,30 @@ mod_data %>%
   yardstick::roc_auc(discontinued, predictions)
 ```
 
+```{r}
+broom::tidy(quickmod) %>% 
+  filter(p.value > 0.05)
+```
+
+## Texture
+### 20 Most Common Textures
+```{r}
+yarn %>% 
+  mutate(texture = tolower(texture)) %>% 
+  count(texture, sort = TRUE)
+
+yarn %>% 
+  mutate(texture = tolower(texture)) %>% 
+  filter(!is.na(texture)) %>% 
+  mutate(texture = ifelse(texture == "bouclé", "boucle", texture),
+         texture = fct_lump(texture, 20)) %>% 
+  filter(texture != "Other") %>% 
+  group_by(texture) %>% 
+  summarize(avg = mean(discontinued == TRUE, na.rm = TRUE)) %>% 
+  ggplot(aes(avg, fct_reorder(texture, avg))) +
+  geom_col(color = "black", fill = "skyblue2") +
+  labs(y = "", x = "", title = "Percent of Discontinued Items by Texture") +
+  scale_x_continuous(label = percent_format()) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
