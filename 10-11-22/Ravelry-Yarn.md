@@ -10,6 +10,11 @@ Matthew
     -   <a href="#texture" id="toc-texture">Texture</a>
         -   <a href="#20-most-common-textures" id="toc-20-most-common-textures">20
             Most Common Textures</a>
+-   <a href="#tidymodels" id="toc-tidymodels">Tidymodels</a>
+    -   <a href="#splits" id="toc-splits">Splits</a>
+    -   <a href="#model-and-recipe" id="toc-model-and-recipe">Model and
+        Recipe</a>
+    -   <a href="#metrics" id="toc-metrics">Metrics</a>
 
 ``` r
 yarn <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-10-11/yarn.csv')
@@ -218,7 +223,7 @@ summary(quickmod)
 ``` r
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_curve(discontinued, predictions) %>% 
+  roc_curve(discontinued, predictions) %>% 
   autoplot()
 ```
 
@@ -227,7 +232,7 @@ mod_data %>%
 ``` r
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_auc(discontinued, predictions)
+  roc_auc(discontinued, predictions)
 ```
 
     ## # A tibble: 1 x 3
@@ -293,3 +298,58 @@ yarn %>%
 ```
 
 ![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+# Tidymodels
+
+## Splits
+
+``` r
+set.seed(123)
+split <- initial_split(yarn %>% 
+                         mutate(discontinued = as.factor(discontinued),
+                                texture = tolower(texture),
+                                texture = ifelse(texture == "bouclé", "boucle", texture),
+                                texture = fct_lump(texture, 20)), strata = discontinued)
+
+train <- training(split)
+test <- testing(split)
+```
+
+## Model and Recipe
+
+``` r
+mod <- logistic_reg(mode = "classification", engine = "glm")
+
+rec <- recipe(discontinued ~ min_gauge + rating_average + rating_count + texture, train) %>% 
+  step_novel(all_nominal_predictors()) %>% 
+  step_zv(all_predictors()) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  step_impute_mean(all_numeric_predictors())
+
+wkfl_fit <- workflow() %>% 
+  add_recipe(rec) %>% 
+  add_model(mod) %>% 
+  fit(train)
+```
+
+## Metrics
+
+``` r
+test %>% 
+  mutate(predict(wkfl_fit, test, type = "prob")) %>% 
+  roc_curve(discontinued, `.pred_FALSE`) %>% 
+  autoplot()
+```
+
+![](Ravelry-Yarn_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+test %>% 
+  mutate(predict(wkfl_fit, test, type = "prob")) %>% 
+  roc_auc(discontinued, `.pred_FALSE`) 
+```
+
+    ## # A tibble: 1 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 roc_auc binary         0.678

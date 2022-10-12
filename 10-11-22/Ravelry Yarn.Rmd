@@ -13,6 +13,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(scales)
+library(tidymodels)
 theme_set(theme_bw())
 ```
 
@@ -62,12 +63,12 @@ summary(quickmod)
 ```{r}
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_curve(discontinued, predictions) %>% 
+  roc_curve(discontinued, predictions) %>% 
   autoplot()
 
 mod_data %>% 
   mutate(predictions = 1 - predict(quickmod, mod_data, type = "response")) %>% 
-  yardstick::roc_auc(discontinued, predictions)
+  roc_auc(discontinued, predictions)
 ```
 
 ```{r}
@@ -95,5 +96,49 @@ yarn %>%
   labs(y = "", x = "", title = "Percent of Discontinued Items by Texture") +
   scale_x_continuous(label = percent_format()) +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+# Tidymodels
+## Splits
+```{r}
+set.seed(123)
+split <- initial_split(yarn %>% 
+                         mutate(discontinued = as.factor(discontinued),
+                                texture = tolower(texture),
+                                texture = ifelse(texture == "bouclé", "boucle", texture),
+                                texture = fct_lump(texture, 20)), strata = discontinued)
+
+train <- training(split)
+test <- testing(split)
+```
+
+## Model and Recipe
+
+```{r}
+mod <- logistic_reg(mode = "classification", engine = "glm")
+
+rec <- recipe(discontinued ~ min_gauge + rating_average + rating_count + texture, train) %>% 
+  step_novel(all_nominal_predictors()) %>% 
+  step_zv(all_predictors()) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  step_impute_mean(all_numeric_predictors())
+
+wkfl_fit <- workflow() %>% 
+  add_recipe(rec) %>% 
+  add_model(mod) %>% 
+  fit(train)
+```
+
+## Metrics
+
+```{r}
+test %>% 
+  mutate(predict(wkfl_fit, test, type = "prob")) %>% 
+  roc_curve(discontinued, `.pred_FALSE`) %>% 
+  autoplot()
+
+test %>% 
+  mutate(predict(wkfl_fit, test, type = "prob")) %>% 
+  roc_auc(discontinued, `.pred_FALSE`) 
 ```
 
