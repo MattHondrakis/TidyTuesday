@@ -33,4 +33,5 @@ Diving into the weekly datasets of TidyTuesday!
 28. [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
 29. [Artists](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-27-22/Artists.md)
 30. [Product Hunt](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-4-22/Product.md)
+31. [Yarn](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-11-22/Ravelry-Yarn.md)
 
