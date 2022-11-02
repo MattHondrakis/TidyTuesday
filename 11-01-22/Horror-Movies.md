@@ -32,3 +32,17 @@ horror_movies %>%
 ```
 
 ![](Horror-Movies_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  separate_rows(genre_names) %>% 
+  mutate(genre_names = fct_lump(genre_names, 10),
+         genre_names = ifelse(genre_names == "Horror", "All", as.character(genre_names))) %>% 
+  filter(genre_names != "Other") %>% 
+  group_by(genre_names) %>% 
+  summarize(avg = mean(vote_average)) %>% 
+  ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "steelblue", color = "black") +
+  labs(y = "", x = "", title = "Vote Average of 10 Most Common Sub-Genres")
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
