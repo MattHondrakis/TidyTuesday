@@ -22,30 +22,14 @@ theme_set(theme_bw())
 horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv')
 ```
  
-
-```{r}
-skimr::skim(horror_movies)
-```
-
 # EDA
 
 ```{r}
 horror_movies %>% 
-  mutate(genre_names = fct_lump(genre_names, 10)) %>% 
+  separate_rows(genre_names) %>% 
   group_by(genre_names) %>% 
   summarize(avg = mean(vote_average)) %>% 
   ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "steelblue", color = "black") +
-  labs(y = "", x = "", title = "Average Vote Average by Genre")
-```
-
-
-```{r}
-horror_movies %>% 
-  mutate(genre_names = fct_lump(genre_names, 10)) %>% 
-  group_by(genre_names) %>% 
-  summarize(avg = mean(vote_average)) %>% 
-  select(avg, genre_names) %>% 
-  ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "steelblue", color = "black") +
-  labs(y = "", x = "", title = "Average Vote Average by Genre")
+  labs(y = "", x = "", title = "Vote Average by Sub-Genre")
 ```
 
