@@ -28,10 +28,11 @@ horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 ```{r}
 horror_movies %>% 
   separate_rows(genre_names, sep = ", ") %>% 
+  filter(genre_names != "Horror") %>% 
   group_by(genre_names) %>% 
   summarize(avg = mean(vote_average)) %>% 
   ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "skyblue", color = "black") +
-  labs(y = "", x = "", title = "Vote Average by Sub-Genre")
+  labs(y = "", x = "", title = "Vote Average by Sub-Genre") + geom_text(aes(label = round(avg, 3)), nudge_x = -0.3)
 ```
 
 
