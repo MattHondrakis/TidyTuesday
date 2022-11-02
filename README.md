@@ -1,5 +1,7 @@
 # TidyTuesday
-Diving into the weekly datasets of TidyTuesday!
+Diving into the weekly datasets of TidyTuesday! 
+
+I typically spend about a week on each dataset, and then I move onto to the newest one released. Some are tagged with *(Short)* to indicate that they are incomplete or do not contain much information/analysis.
 
 ## Dataset Analysis
 
