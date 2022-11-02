@@ -30,7 +30,7 @@ horror_movies %>%
   separate_rows(genre_names, sep = ", ") %>% 
   group_by(genre_names) %>% 
   summarize(avg = mean(vote_average)) %>% 
-  ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "steelblue", color = "black") +
+  ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "skyblue", color = "black") +
   labs(y = "", x = "", title = "Vote Average by Sub-Genre")
 ```
 
