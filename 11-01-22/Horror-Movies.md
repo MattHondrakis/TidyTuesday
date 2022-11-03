@@ -4,6 +4,10 @@ Matthew
 2022-11-01
 
 -   <a href="#eda" id="toc-eda">EDA</a>
+    -   <a href="#vote-average" id="toc-vote-average">Vote Average</a>
+        -   <a href="#films-with-0-vote-average"
+            id="toc-films-with-0-vote-average">Films with 0 Vote Average</a>
+    -   <a href="#budget" id="toc-budget">Budget</a>
 
 ``` r
 horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv')
@@ -22,6 +26,18 @@ horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 
 # EDA
 
+## Vote Average
+
+``` r
+horror_movies %>% 
+  ggplot(aes(vote_average)) + geom_histogram() +
+  labs(title = "Count of Vote Averages", y = "", x = "")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 ``` r
 horror_movies %>% 
   separate_rows(genre_names, sep = ", ") %>% 
@@ -32,7 +48,7 @@ horror_movies %>%
   labs(y = "", x = "", title = "Vote Average by Sub-Genre") + geom_text(aes(label = round(avg, 3)), nudge_x = -0.3)
 ```
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 horror_movies %>% 
@@ -47,4 +63,82 @@ horror_movies %>%
   theme(legend.position = "") + scale_fill_manual(values = c("darkorange", "purple"))
 ```
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+### Films with 0 Vote Average
+
+``` r
+horror_movies %>% 
+  filter(vote_average == 0) %>% 
+  count(vote_count, sort = TRUE)
+```
+
+    ## # A tibble: 3 x 2
+    ##   vote_count     n
+    ##        <dbl> <int>
+    ## 1          0 11590
+    ## 2          1    36
+    ## 3          2     3
+
+Majority of films with a *vote_average* of 0 have very few votes, with
+the overwhelming majority being 0 votes.
+
+## Budget
+
+``` r
+horror_movies %>% 
+  ggplot(aes(budget)) + geom_histogram() + scale_x_log10(labels = comma_format()) +
+  labs(title = "Budget", y = "", x = "")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  count(budget, sort = TRUE)
+```
+
+    ## # A tibble: 783 x 2
+    ##     budget     n
+    ##      <dbl> <int>
+    ##  1       0 27339
+    ##  2 1000000   172
+    ##  3   10000   161
+    ##  4    5000   156
+    ##  5    1000   116
+    ##  6  500000   116
+    ##  7    2000   113
+    ##  8  100000   109
+    ##  9     500    98
+    ## 10 2000000    98
+    ## # ... with 773 more rows
+
+As is the case with vote count, *budget* also has many 0’s.
+
+``` r
+horror_movies %>% 
+  filter(budget == 0 & vote_count == 0) %>% 
+  summarize(n())
+```
+
+    ## # A tibble: 1 x 1
+    ##   `n()`
+    ##   <int>
+    ## 1 10164
+
+Over **10,000** rows of data contain both a *budget* of 0 and
+*vote_count* of 0. This leads me to believe a lot of the data is
+actually missing.
+
+``` r
+horror_movies %>% 
+  filter(budget == 0 | vote_count == 0) %>% 
+  ggplot(aes(budget, vote_count)) + geom_point() +
+  geom_text(aes(label = title), check_overlap = TRUE, size = 3, hjust = "inward", nudge_x = 2.5e6,
+            data = horror_movies %>% filter((budget > 0 & vote_count == 0) | (budget == 0 & vote_count > 0))) + 
+  labs(title = "Where either Vote Count or Budget is 0") 
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->

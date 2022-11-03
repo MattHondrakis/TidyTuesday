@@ -18,12 +18,19 @@ theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
 
-
 ```{r}
 horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv')
 ```
- 
+
 # EDA
+
+## Vote Average
+
+```{r}
+horror_movies %>% 
+  ggplot(aes(vote_average)) + geom_histogram() +
+  labs(title = "Count of Vote Averages", y = "", x = "")
+```
 
 ```{r}
 horror_movies %>% 
@@ -34,7 +41,6 @@ horror_movies %>%
   ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(fill = "skyblue", color = "black") +
   labs(y = "", x = "", title = "Vote Average by Sub-Genre") + geom_text(aes(label = round(avg, 3)), nudge_x = -0.3)
 ```
-
 
 ```{r}
 horror_movies %>% 
@@ -47,5 +53,47 @@ horror_movies %>%
   ggplot(aes(avg, fct_reorder(genre_names, avg))) + geom_col(aes(fill = genre_names == "All Horrors"), color = "black") +
   labs(y = "", x = "", title = "Vote Average of 10 Most Common Sub-Genres") + geom_text(aes(label = round(avg, 3)), nudge_x = -0.3) +
   theme(legend.position = "") + scale_fill_manual(values = c("darkorange", "purple"))
+```
+
+### Films with 0 Vote Average
+
+```{r}
+horror_movies %>% 
+  filter(vote_average == 0) %>% 
+  count(vote_count, sort = TRUE)
+```
+
+Majority of films with a *vote_average* of 0 have very few votes, with the overwhelming majority being 0 votes.
+
+## Budget
+
+```{r}
+horror_movies %>% 
+  ggplot(aes(budget)) + geom_histogram() + scale_x_log10(labels = comma_format()) +
+  labs(title = "Budget", y = "", x = "")
+```
+
+```{r}
+horror_movies %>% 
+  count(budget, sort = TRUE)
+```
+
+As is the case with vote count, *budget* also has many 0's.
+
+```{r}
+horror_movies %>% 
+  filter(budget == 0 & vote_count == 0) %>% 
+  summarize(n())
+```
+
+Over **10,000** rows of data contain both a *budget* of 0 and *vote_count* of 0. This leads me to believe a lot of the data is actually missing.
+
+```{r}
+horror_movies %>% 
+  filter(budget == 0 | vote_count == 0) %>% 
+  ggplot(aes(budget, vote_count)) + geom_point() +
+  geom_text(aes(label = title), check_overlap = TRUE, size = 3, hjust = "inward", nudge_x = 2.5e6,
+            data = horror_movies %>% filter((budget > 0 & vote_count == 0) | (budget == 0 & vote_count > 0))) + 
+  labs(title = "Where either Vote Count or Budget is 0") 
 ```
 
