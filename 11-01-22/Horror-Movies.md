@@ -26,6 +26,25 @@ horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 
 # EDA
 
+``` r
+horror_movies %>% 
+  count(adult, sort = TRUE)
+```
+
+    ## # A tibble: 1 x 2
+    ##   adult     n
+    ##   <lgl> <int>
+    ## 1 FALSE 32540
+
+The adult variable only contains on distinct outcome (*FALSE*) and thus
+provides no information.
+
+``` r
+horror_movies <- 
+  horror_movies %>% 
+    select(-adult)
+```
+
 ## Vote Average
 
 ``` r
@@ -36,7 +55,7 @@ horror_movies %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 horror_movies %>% 
@@ -48,7 +67,7 @@ horror_movies %>%
   labs(y = "", x = "", title = "Vote Average by Sub-Genre") + geom_text(aes(label = round(avg, 3)), nudge_x = -0.3)
 ```
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 horror_movies %>% 
@@ -63,7 +82,7 @@ horror_movies %>%
   theme(legend.position = "") + scale_fill_manual(values = c("darkorange", "purple"))
 ```
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ### Films with 0 Vote Average
 
@@ -93,7 +112,7 @@ horror_movies %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 horror_movies %>% 
@@ -138,7 +157,29 @@ horror_movies %>%
   ggplot(aes(budget, vote_count)) + geom_point() +
   geom_text(aes(label = title), check_overlap = TRUE, size = 3, hjust = "inward", nudge_x = 2.5e6,
             data = horror_movies %>% filter((budget > 0 & vote_count == 0) | (budget == 0 & vote_count > 0))) + 
-  labs(title = "Where either Vote Count or Budget is 0") 
+  labs(title = "Movies with Vote Count or Budget Equals 0") 
 ```
 
-![](Horror-Movies_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  mutate(zero_counts = ifelse(vote_count == 0, "Yes", "No")) %>% 
+  group_by(y = year(release_date)) %>% 
+  count(zero_counts) %>% 
+  ggplot(aes(y, n, color = zero_counts)) + geom_line() + scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Number of Movies with no Votes over time")
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  mutate(budget = ifelse(budget == 0, "Yes", "No")) %>% 
+  group_by(y = year(release_date)) %>% 
+  count(budget) %>% 
+  ggplot(aes(y, n, color = budget)) + geom_line() + scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Number of Movies with no Budget over time")
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(scales)
 library(tidymodels)
+library(lubridate)
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
@@ -23,6 +24,20 @@ horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 ```
 
 # EDA
+
+```{r}
+horror_movies %>% 
+  count(adult, sort = TRUE)
+```
+
+The adult variable only contains on distinct outcome (*FALSE*) and thus provides no information.
+
+```{r}
+horror_movies <- 
+  horror_movies %>% 
+    select(-adult)
+```
+
 
 ## Vote Average
 
@@ -94,6 +109,24 @@ horror_movies %>%
   ggplot(aes(budget, vote_count)) + geom_point() +
   geom_text(aes(label = title), check_overlap = TRUE, size = 3, hjust = "inward", nudge_x = 2.5e6,
             data = horror_movies %>% filter((budget > 0 & vote_count == 0) | (budget == 0 & vote_count > 0))) + 
-  labs(title = "Where either Vote Count or Budget is 0") 
+  labs(title = "Movies with Vote Count or Budget Equals 0") 
+```
+
+```{r}
+horror_movies %>% 
+  mutate(zero_counts = ifelse(vote_count == 0, "Yes", "No")) %>% 
+  group_by(y = year(release_date)) %>% 
+  count(zero_counts) %>% 
+  ggplot(aes(y, n, color = zero_counts)) + geom_line() + scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Number of Movies with no Votes over time")
+```
+
+```{r}
+horror_movies %>% 
+  mutate(budget = ifelse(budget == 0, "Yes", "No")) %>% 
+  group_by(y = year(release_date)) %>% 
+  count(budget) %>% 
+  ggplot(aes(y, n, color = budget)) + geom_line() + scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Number of Movies with no Budget over time")
 ```
 
