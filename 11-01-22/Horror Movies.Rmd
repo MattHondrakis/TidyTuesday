@@ -130,3 +130,11 @@ horror_movies %>%
   labs(title = "Number of Movies with no Budget over time")
 ```
 
+```{r}
+horror_movies %>% 
+  filter(vote_count != 0, budget != 0) %>% 
+  ggplot(aes(budget, vote_count)) + geom_point(alpha = 0.5, color = "purple") + geom_smooth(se = FALSE) +
+  scale_x_log10(labels = comma_format()) + scale_y_log10(labels = comma_format(accuracy = 1)) + 
+  labs(y = "", x = "", title = "Vote Count by Budget")
+```
+

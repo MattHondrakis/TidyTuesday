@@ -183,3 +183,15 @@ horror_movies %>%
 ```
 
 ![](Horror-Movies_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  filter(vote_count != 0, budget != 0) %>% 
+  ggplot(aes(budget, vote_count)) + geom_point(alpha = 0.5, color = "purple") + geom_smooth(se = FALSE) +
+  scale_x_log10(labels = comma_format()) + scale_y_log10(labels = comma_format(accuracy = 1)) + 
+  labs(y = "", x = "", title = "Vote Count by Budget")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
