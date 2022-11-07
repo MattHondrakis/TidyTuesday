@@ -8,6 +8,8 @@ Matthew
         -   <a href="#films-with-0-vote-average"
             id="toc-films-with-0-vote-average">Films with 0 Vote Average</a>
     -   <a href="#budget" id="toc-budget">Budget</a>
+-   <a href="#halloween" id="toc-halloween">Halloween</a>
+    -   <a href="#october" id="toc-october">October</a>
 
 ``` r
 horror_movies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-11-01/horror_movies.csv')
@@ -195,3 +197,46 @@ horror_movies %>%
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
 ![](Horror-Movies_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+# Halloween
+
+``` r
+horror_movies %>% 
+  mutate(month = month(release_date),
+         day = day(release_date)) %>% 
+  ggplot(aes(month)) + geom_bar(aes(fill = (month == 10))) + 
+  scale_x_continuous(breaks = seq(1,12)) + scale_fill_manual(values = c("grey20","darkorange3")) +
+  theme(panel.grid.minor = element_blank(), legend.position = "") + 
+  labs(y = "", x = "Month", title = "Horror Movies Released in October vs Other Months")
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+horror_movies %>% 
+  mutate(month = month(release_date), day = day(release_date)) %>% 
+  summarize(Halloween = mean(month == 10 & day == 31)*100, October = mean(month == 10)*100)
+```
+
+    ## # A tibble: 1 x 2
+    ##   Halloween October
+    ##       <dbl>   <dbl>
+    ## 1      1.61    14.9
+
+## October
+
+``` r
+horror_movies %>% 
+  filter(month(release_date) == 10) %>% 
+  count(day(release_date)) %>% 
+  ggplot(aes(`day(release_date)`, n)) + geom_col(color = "black", fill = "darkorange") +
+  geom_label(aes(x = 26, y = 500, label = "Halloween"), fill = "darkorange", fontface = "bold") +
+  scale_x_continuous(breaks = seq(1, 31, 3)) +
+  geom_curve(aes(x = 26, y = 487, xend = 30, yend = 450), curvature = 0.3, color = "darkred", size = 1,
+             arrow = arrow(length = unit(0.03, "npc"))) + 
+  theme(panel.grid = element_blank(), plot.title = element_text(hjust = 0.5), 
+        panel.background = element_rect(fill = "black", color  =  NA)) +
+  labs(title = "Horror Movie Release Day in October", y = "", x = "") 
+```
+
+![](Horror-Movies_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
