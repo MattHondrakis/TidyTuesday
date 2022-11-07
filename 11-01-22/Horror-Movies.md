@@ -232,7 +232,7 @@ horror_movies %>%
   ggplot(aes(`day(release_date)`, n)) + geom_col(color = "black", fill = "darkorange") +
   geom_label(aes(x = 26, y = 500, label = "Halloween"), fill = "darkorange", fontface = "bold") +
   scale_x_continuous(breaks = seq(1, 31, 3)) +
-  geom_curve(aes(x = 26, y = 487, xend = 30, yend = 450), curvature = 0.3, color = "darkred", size = 1,
+  geom_curve(aes(x = 26, y = 480, xend = 30, yend = 450), curvature = 0.3, color = "darkred", size = 1,
              arrow = arrow(length = unit(0.03, "npc"))) + 
   theme(panel.grid = element_blank(), plot.title = element_text(hjust = 0.5), 
         panel.background = element_rect(fill = "black", color  =  NA)) +
