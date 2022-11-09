@@ -240,3 +240,51 @@ horror_movies %>%
 ```
 
 ![](Horror-Movies_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+# October 1st
+horror_movies %>% 
+  filter(month(release_date) == 10 & day(release_date) == 1) %>% 
+  select(original_title)
+```
+
+    ## # A tibble: 397 x 1
+    ##    original_title                             
+    ##    <chr>                                      
+    ##  1 The Addams Family 2                        
+    ##  2 Saw                                        
+    ##  3 Witch Hunt                                 
+    ##  4 The Texas Chain Saw Massacre               
+    ##  5 I Spit on Your Grave III: Vengeance is Mine
+    ##  6 Black as Night                             
+    ##  7 Return of the Living Dead III              
+    ##  8 Scooby-Doo! Return to Zombie Island        
+    ##  9 Dracula Untold                             
+    ## 10 Let Me In                                  
+    ## # ... with 387 more rows
+
+``` r
+# October 31st
+horror_movies %>% 
+  filter(month(release_date) == 10 & day(release_date) == 31) %>% 
+  select(original_title)
+```
+
+    ## # A tibble: 523 x 1
+    ##    original_title          
+    ##    <chr>                   
+    ##  1 [REC] 4: Apocalipsis    
+    ##  2 28 Days Later           
+    ##  3 Army of Darkness        
+    ##  4 La Leyenda de la Nahuala
+    ##  5 Zombie Wars             
+    ##  6 The Crow: Salvation     
+    ##  7 Slaughterhouse Rulez    
+    ##  8 Splinter                
+    ##  9 All Cheerleaders Die    
+    ## 10 Phantom of the Paradise 
+    ## # ... with 513 more rows
+
+After researching a random sample of the horror movie titles released on
+Oct 1st, I have come to the conclusion that a lot of the date
+information may be faulty.

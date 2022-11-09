@@ -170,3 +170,16 @@ horror_movies %>%
   labs(title = "Horror Movie Release Day in October", y = "", x = "") 
 ```
 
+```{r}
+# October 1st
+horror_movies %>% 
+  filter(month(release_date) == 10 & day(release_date) == 1) %>% 
+  select(original_title)
+
+# October 31st
+horror_movies %>% 
+  filter(month(release_date) == 10 & day(release_date) == 31) %>% 
+  select(original_title)
+```
+
+After researching a random sample of the horror movie titles released on Oct 1st, I have come to the conclusion that a lot of the date information may be faulty.
