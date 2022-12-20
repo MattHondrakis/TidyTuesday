@@ -43,6 +43,34 @@ weather_forecasts %>%
 
 ```{r}
 weather_forecasts %>% 
-  head() %>% 
+  head(n = 20) %>% 
   knitr::kable()
+```
+
+```{r}
+skimr::skim(weather_forecasts) %>% select(skim_type, skim_variable, n_missing)
+```
+
+## Missing Values
+
+```{r}
+weather_forecasts %>% 
+  group_by(meaning = is.na(meaning)) %>% 
+  summarize(sum(is.na(forecast_temp)))
+
+weather_forecasts %>% 
+  group_by(forecast_hours_before) %>% 
+  summarize(sum(is.na(forecast_temp)))
+```
+
+```{r}
+weather_forecasts %>% 
+  group_by(forecast_hours_before) %>% 
+  summarize(sum(is.na(forecast_temp)))
+```
+
+Missing values for *forecast_temp* tend to appear where forecast *meaning* is also NA. They also slightly increase as the number of hours before. It is assumed that these missing values are due to there being no forecast at that time.
+
+```{r}
+
 ```
