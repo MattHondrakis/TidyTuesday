@@ -6,6 +6,12 @@ Matthew
 -   <a href="#data-cleaning" id="toc-data-cleaning">Data Cleaning</a>
     -   <a href="#data-view" id="toc-data-view">Data View</a>
     -   <a href="#missing-values" id="toc-missing-values">Missing Values</a>
+    -   <a href="#outliers" id="toc-outliers">Outliers</a>
+-   <a href="#exploratory-data-analysis"
+    id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
+    -   <a href="#temperature-difference"
+        id="toc-temperature-difference">Temperature Difference</a>
+        -   <a href="#states" id="toc-states">States</a>
 
 # Data Cleaning
 
@@ -164,4 +170,109 @@ weather_forecasts %>%
 Missing values for *forecast_temp* tend to appear where forecast
 *meaning* is also NA. They also slightly increase as the number of hours
 before. It is assumed that these missing values are due to there being
-no forecast at that time.
+no forecast at that time. Thus, these rows will not be dropped.
+
+## Outliers
+
+``` r
+weather_forecasts %>% 
+  count(possible_error, sort = TRUE)
+```
+
+    ## # A tibble: 4 x 2
+    ##   possible_error        n
+    ##   <chr>             <int>
+    ## 1 none             651875
+    ## 2 forecast_outlook     77
+    ## 3 forecast_temp         8
+    ## 4 observed_temp         8
+
+``` r
+weather_forecasts %>% 
+  filter(possible_error == "observed_temp") %>% 
+  select(contains("temp"))
+```
+
+    ## # A tibble: 8 x 2
+    ##   observed_temp forecast_temp
+    ##           <dbl>         <dbl>
+    ## 1             0            64
+    ## 2             0            64
+    ## 3             0            63
+    ## 4             0            63
+    ## 5           108            46
+    ## 6           108            45
+    ## 7           108            45
+    ## 8           108            45
+
+``` r
+weather_forecasts %>% 
+  filter(possible_error == "forecast_temp") %>% 
+  select(contains("temp"))
+```
+
+    ## # A tibble: 8 x 2
+    ##   observed_temp forecast_temp
+    ##           <dbl>         <dbl>
+    ## 1            41           -10
+    ## 2            43           -10
+    ## 3            73           -10
+    ## 4            91           -10
+    ## 5            75           -10
+    ## 6            97           -10
+    ## 7            59           -10
+    ## 8            58           -10
+
+Column *possible_error* appears to show what **potentially** is flawed
+in that row, instead of inconsistancies between the forecast and
+observed. For instance, when *possible_error* equals “forecast_temp”,
+all values for *forecast_temp* are **-10** and when it equals
+“observed_temp”, values are either **0** or **108**.
+
+# Exploratory Data Analysis
+
+## Temperature Difference
+
+``` r
+weather_forecasts <- weather_forecasts %>% 
+  mutate(diff_temp = observed_temp - forecast_temp) 
+```
+
+Column of temperature differences created above.
+
+### States
+
+``` r
+weather_forecasts %>% 
+  filter(possible_error == "none") %>% 
+  group_by(state) %>% 
+  summarize(avg_diff = mean(abs(diff_temp), na.rm = TRUE)) %>% 
+  slice_max(avg_diff, n = 10) %>% 
+  ggplot(aes(avg_diff, fct_reorder(state, avg_diff), fill = avg_diff)) +
+  geom_col(color = "black") + 
+  scale_fill_viridis_c() +
+  labs(x = "Average Forecast Temperature Error", y = "", 
+       title = "Top 10 States with Highest Average Prediction Error") +
+  theme(legend.position = "none")
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+top10states <- weather_forecasts %>% 
+  filter(possible_error == "none") %>% 
+  group_by(state) %>% 
+  summarize(avg_diff = mean(abs(diff_temp), na.rm = TRUE)) %>% 
+  slice_max(avg_diff, n = 6) %>% 
+  pull(state)
+```
+
+``` r
+weather_forecasts %>% 
+  filter(state %in% top10states & possible_error == "none") %>% 
+  ggplot(aes(date, diff_temp, color = state)) +
+  geom_line() +
+  facet_wrap(~state, scales = "free")
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
