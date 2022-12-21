@@ -43,19 +43,19 @@ weather_forecasts %>%
 
 ```{r}
 weather_forecasts %>% 
-  head(n = 20) %>% 
+  head(n = 10) %>% 
   knitr::kable()
-```
-
-```{r}
-skimr::skim(weather_forecasts) %>% select(skim_type, skim_variable, n_missing)
 ```
 
 ## Missing Values
 
 ```{r}
+skimr::skim(weather_forecasts) %>% select(skim_type, skim_variable, n_missing)
+```
+
+```{r}
 weather_forecasts %>% 
-  group_by(meaning = is.na(meaning)) %>% 
+  group_by(NA_meaning = is.na(meaning)) %>% 
   summarize(sum(is.na(forecast_temp)))
 
 weather_forecasts %>% 
