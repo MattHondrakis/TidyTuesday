@@ -13,8 +13,10 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(scales)
+library(patchwork)
 library(tidymodels)
 library(lubridate)
+library(astsa)
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
@@ -95,10 +97,11 @@ Column *possible_error* appears to show what **potentially** is flawed in that r
 
 ```{r}
 weather_forecasts <- weather_forecasts %>% 
-  mutate(diff_temp = observed_temp - forecast_temp) 
+  mutate(diff_temp = observed_temp - forecast_temp,
+         prop_difftemp = diff_temp/observed_temp) 
 ```
 
-Column of temperature differences created above.
+Column of *temperature differences* and *proportional temperature differences* created above.
 
 ### States
 
@@ -118,18 +121,46 @@ weather_forecasts %>%
 ```
 
 ```{r}
-top10states <- weather_forecasts %>% 
+# Select top 6 states without highest average error
+top6states <- weather_forecasts %>% 
   filter(possible_error == "none") %>% 
   group_by(state) %>% 
   summarize(avg_diff = mean(abs(diff_temp), na.rm = TRUE)) %>% 
-  slice_max(avg_diff, n = 6) %>% 
+  slice_max(abs(avg_diff), n = 6) %>% 
   pull(state)
 ```
 
 ```{r}
-weather_forecasts %>% 
-  filter(state %in% top10states & possible_error == "none") %>% 
+(weather_forecasts %>% 
+  filter(state %in% top6states & possible_error == "none") %>% 
   ggplot(aes(date, diff_temp, color = state)) +
-  geom_line() +
-  facet_wrap(~state, scales = "free")
+  geom_line() + theme(legend.position = "none") +
+  labs(title = "Temperature Difference", x = "", y = "") +
+  facet_wrap(~state, scales = "free")) /
+(weather_forecasts %>% 
+  filter(state %in% top6states & possible_error == "none") %>% 
+  ggplot(aes(date, prop_difftemp, color = state)) + 
+  geom_line() + theme(legend.position = "none") +
+  labs(title = "Proportional Temperature Difference", x = "", y = "") +
+  facet_wrap(~state, scales = "free"))
+```
+
+#### New York
+
+```{r}
+ny_weather <- weather_forecasts %>% 
+  filter(state == "NY")
+```
+
+```{r}
+ny_weather %>% 
+  ggplot(aes(date, prop_difftemp)) +
+  geom_line()
+```
+
+```{r}
+ny_weather %>% 
+  filter(prop_difftemp != -Inf) %>% 
+  filter(abs(prop_difftemp) > 2.5) %>% 
+  arrange(-abs(prop_difftemp)) %>% select(prop_difftemp)
 ```

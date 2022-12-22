@@ -225,10 +225,12 @@ all values for *forecast_temp* are **-10** and when it equals
 
 ``` r
 weather_forecasts <- weather_forecasts %>% 
-  mutate(diff_temp = observed_temp - forecast_temp) 
+  mutate(diff_temp = observed_temp - forecast_temp,
+         prop_difftemp = diff_temp/observed_temp) 
 ```
 
-Column of temperature differences created above.
+Column of *temperature differences* and *proportional temperature
+differences* created above.
 
 ### States
 
@@ -249,20 +251,65 @@ weather_forecasts %>%
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
-top10states <- weather_forecasts %>% 
+# Select top 6 states without highest average error
+top6states <- weather_forecasts %>% 
   filter(possible_error == "none") %>% 
   group_by(state) %>% 
   summarize(avg_diff = mean(abs(diff_temp), na.rm = TRUE)) %>% 
-  slice_max(avg_diff, n = 6) %>% 
+  slice_max(abs(avg_diff), n = 6) %>% 
   pull(state)
 ```
 
 ``` r
-weather_forecasts %>% 
-  filter(state %in% top10states & possible_error == "none") %>% 
+(weather_forecasts %>% 
+  filter(state %in% top6states & possible_error == "none") %>% 
   ggplot(aes(date, diff_temp, color = state)) +
-  geom_line() +
-  facet_wrap(~state, scales = "free")
+  geom_line() + theme(legend.position = "none") +
+  labs(title = "Temperature Difference", x = "", y = "") +
+  facet_wrap(~state, scales = "free")) /
+(weather_forecasts %>% 
+  filter(state %in% top6states & possible_error == "none") %>% 
+  ggplot(aes(date, prop_difftemp, color = state)) + 
+  geom_line() + theme(legend.position = "none") +
+  labs(title = "Proportional Temperature Difference", x = "", y = "") +
+  facet_wrap(~state, scales = "free"))
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+#### New York
+
+``` r
+ny_weather <- weather_forecasts %>% 
+  filter(state == "NY")
+```
+
+``` r
+ny_weather %>% 
+  ggplot(aes(date, prop_difftemp)) +
+  geom_line()
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+ny_weather %>% 
+  filter(prop_difftemp != -Inf) %>% 
+  filter(abs(prop_difftemp) > 2.5) %>% 
+  arrange(-abs(prop_difftemp)) %>% select(prop_difftemp)
+```
+
+    ## # A tibble: 29 x 1
+    ##    prop_difftemp
+    ##            <dbl>
+    ##  1           -13
+    ##  2           -13
+    ##  3           -12
+    ##  4           -10
+    ##  5            10
+    ##  6             8
+    ##  7             7
+    ##  8             7
+    ##  9             6
+    ## 10             6
+    ## # ... with 19 more rows
