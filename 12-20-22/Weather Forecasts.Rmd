@@ -214,11 +214,14 @@ sarima.for(nyctz, 10, 1,1,3)
 
 ```{r}
 nycseries <- nycseries %>% 
-  mutate(month = month(date), week = week(date))
+  mutate(week = week(date))
 ```
 
 ```{r}
-gam_mod <- mgcv::gam(observed_temp ~ s(month,k = 12) + s(week, k = 52), data = nycseries, method = "REML")
+gam_mod <- mgcv::gam(observed_temp ~ s(week), 
+                     data = nycseries, 
+                     method = "REML")
+summary(gam_mod)
 ```
 
 ```{r}

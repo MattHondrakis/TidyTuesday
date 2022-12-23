@@ -464,12 +464,37 @@ sarima.for(nyctz, 10, 1,1,3)
 
 ``` r
 nycseries <- nycseries %>% 
-  mutate(month = month(date), week = week(date))
+  mutate(week = week(date))
 ```
 
 ``` r
-gam_mod <- mgcv::gam(observed_temp ~ s(month,k = 12) + s(week, k = 52), data = nycseries, method = "REML")
+gam_mod <- mgcv::gam(observed_temp ~ s(week), 
+                     data = nycseries, 
+                     method = "REML")
+summary(gam_mod)
 ```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## observed_temp ~ s(week)
+    ## 
+    ## Parametric coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  55.5565     0.3339   166.4   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##           edf Ref.df     F p-value    
+    ## s(week) 7.891  8.673 227.8  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## R-sq.(adj) =  0.814   Deviance explained = 81.8%
+    ## -REML = 1535.3  Scale est. = 50.272    n = 451
 
 ``` r
 nycseries %>% 
