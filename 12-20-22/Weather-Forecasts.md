@@ -15,6 +15,7 @@ Matthew
 -   <a href="#time-series" id="toc-time-series">Time Series</a>
     -   <a href="#nyc-temperature" id="toc-nyc-temperature">NYC Temperature</a>
     -   <a href="#arima-model" id="toc-arima-model">ARIMA Model</a>
+    -   <a href="#gam-model" id="toc-gam-model">GAM Model</a>
 
 # Data Cleaning
 
@@ -458,3 +459,24 @@ sarima.for(nyctz, 10, 1,1,3)
     ## Frequency = 365 
     ##  [1] 5.979292 7.928876 8.234990 8.329046 8.508888 8.638743 8.788807 8.925171
     ##  [9] 9.064980 9.199923
+
+## GAM Model
+
+``` r
+nycseries <- nycseries %>% 
+  mutate(month = month(date), week = week(date))
+```
+
+``` r
+gam_mod <- mgcv::gam(observed_temp ~ s(month,k = 12) + s(week, k = 52), data = nycseries, method = "REML")
+```
+
+``` r
+nycseries %>% 
+  mutate(pred = gam_mod$fitted.values) %>% 
+  ggplot(aes(date)) +
+  geom_line(aes(y = observed_temp), color = "red") +
+  geom_line(aes(y = pred), color = "blue")
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->

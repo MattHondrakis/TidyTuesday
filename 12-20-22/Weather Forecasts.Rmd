@@ -209,3 +209,22 @@ sarima(nyctz, 1,1,3)
 ```{r}
 sarima.for(nyctz, 10, 1,1,3)
 ```
+
+## GAM Model
+
+```{r}
+nycseries <- nycseries %>% 
+  mutate(month = month(date), week = week(date))
+```
+
+```{r}
+gam_mod <- mgcv::gam(observed_temp ~ s(month,k = 12) + s(week, k = 52), data = nycseries, method = "REML")
+```
+
+```{r}
+nycseries %>% 
+  mutate(pred = gam_mod$fitted.values) %>% 
+  ggplot(aes(date)) +
+  geom_line(aes(y = observed_temp), color = "red") +
+  geom_line(aes(y = pred), color = "blue")
+```
