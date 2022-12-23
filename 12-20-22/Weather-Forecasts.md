@@ -358,6 +358,21 @@ nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
 ```
 
 ``` r
+auto.arima(nyctz)
+```
+
+    ## Series: nyctz 
+    ## ARIMA(2,1,3) 
+    ## 
+    ## Coefficients:
+    ##           ar1      ar2     ma1      ma2      ma3
+    ##       -0.4234  -0.1219  0.2874  -0.4585  -0.4003
+    ## s.e.   0.1598   0.1032  0.1538   0.0936   0.0753
+    ## 
+    ## sigma^2 = 36.17:  log likelihood = -1443.8
+    ## AIC=2899.6   AICc=2899.79   BIC=2924.26
+
+``` r
 sarima(nyctz, 1,1,3)
 ```
 

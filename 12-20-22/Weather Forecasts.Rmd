@@ -203,6 +203,7 @@ nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
 ```
 
 ```{r}
+auto.arima(nyctz)
 sarima(nyctz, 1,1,3)
 ```
 
