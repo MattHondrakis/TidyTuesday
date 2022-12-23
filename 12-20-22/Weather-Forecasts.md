@@ -12,6 +12,9 @@ Matthew
     -   <a href="#temperature-difference"
         id="toc-temperature-difference">Temperature Difference</a>
         -   <a href="#states" id="toc-states">States</a>
+-   <a href="#time-series" id="toc-time-series">Time Series</a>
+    -   <a href="#nyc-temperature" id="toc-nyc-temperature">NYC Temperature</a>
+    -   <a href="#arima-model" id="toc-arima-model">ARIMA Model</a>
 
 # Data Cleaning
 
@@ -313,3 +316,145 @@ ny_weather %>%
     ##  9             6
     ## 10             6
     ## # ... with 19 more rows
+
+# Time Series
+
+Only keeping data within New York City, and since there are multiple
+values for each day, only the average will be kept.
+
+``` r
+nycseries <- ny_weather %>% 
+  filter(city == "NEW_YORK_CITY") %>% 
+  distinct(date,observed_temp) %>% 
+  group_by(date) %>% 
+  summarize(observed_temp = mean(observed_temp, na.rm = TRUE)) %>% 
+  arrange(date) %>% 
+  drop_na()
+```
+
+## NYC Temperature
+
+``` r
+(nycseries %>% 
+  ggplot(aes(date, observed_temp)) +
+  geom_line() +
+  labs(y = "", x = "", title = "Observed Temperature")) /
+(nycseries %>% 
+  mutate(diff_temp = c(mean(nycseries$observed_temp, na.rm = TRUE), 
+                       diff(observed_temp))) %>% 
+  slice(-1) %>% 
+  ggplot(aes(date, diff_temp)) +
+  geom_line() +
+  labs(y = "", x = "", title = "Differenced Temperature"))
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+## ARIMA Model
+
+``` r
+nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
+```
+
+``` r
+sarima(nyctz, 1,1,3)
+```
+
+    ## initial  value 1.931717 
+    ## iter   2 value 1.814002
+    ## iter   3 value 1.799242
+    ## iter   4 value 1.797923
+    ## iter   5 value 1.797098
+    ## iter   6 value 1.796883
+    ## iter   7 value 1.796517
+    ## iter   8 value 1.796041
+    ## iter   9 value 1.793997
+    ## iter  10 value 1.793924
+    ## iter  11 value 1.791933
+    ## iter  12 value 1.791189
+    ## iter  13 value 1.790617
+    ## iter  14 value 1.790541
+    ## iter  15 value 1.790359
+    ## iter  16 value 1.790349
+    ## iter  17 value 1.790302
+    ## iter  18 value 1.790194
+    ## iter  19 value 1.790128
+    ## iter  20 value 1.790104
+    ## iter  21 value 1.790102
+    ## iter  22 value 1.790102
+    ## iter  22 value 1.790102
+    ## iter  22 value 1.790102
+    ## final  value 1.790102 
+    ## converged
+    ## initial  value 1.789302 
+    ## iter   2 value 1.789291
+    ## iter   3 value 1.789288
+    ## iter   4 value 1.789286
+    ## iter   5 value 1.789286
+    ## iter   6 value 1.789286
+    ## iter   7 value 1.789285
+    ## iter   8 value 1.789284
+    ## iter   9 value 1.789283
+    ## iter  10 value 1.789283
+    ## iter  10 value 1.789282
+    ## iter  10 value 1.789282
+    ## final  value 1.789282 
+    ## converged
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+    ## $fit
+    ## 
+    ## Call:
+    ## arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, Q), period = S), 
+    ##     xreg = constant, transform.pars = trans, fixed = fixed, optim.control = list(trace = trc, 
+    ##         REPORT = 1, reltol = tol))
+    ## 
+    ## Coefficients:
+    ##           ar1     ma1      ma2      ma3  constant
+    ##       -0.5040  0.3748  -0.5639  -0.4147    0.0883
+    ## s.e.   0.1551  0.1413   0.0506   0.0673    0.0752
+    ## 
+    ## sigma^2 estimated as 35.75:  log likelihood = -1443.7,  aic = 2899.4
+    ## 
+    ## $degrees_of_freedom
+    ## [1] 445
+    ## 
+    ## $ttable
+    ##          Estimate     SE  t.value p.value
+    ## ar1       -0.5040 0.1551  -3.2495  0.0012
+    ## ma1        0.3748 0.1413   2.6525  0.0083
+    ## ma2       -0.5639 0.0506 -11.1494  0.0000
+    ## ma3       -0.4147 0.0673  -6.1660  0.0000
+    ## constant   0.0883 0.0752   1.1747  0.2407
+    ## 
+    ## $AIC
+    ## [1] 6.443109
+    ## 
+    ## $AICc
+    ## [1] 6.443409
+    ## 
+    ## $BIC
+    ## [1] 6.497899
+
+``` r
+sarima.for(nyctz, 10, 1,1,3)
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+    ## $pred
+    ## Time Series:
+    ## Start = c(2022, 87) 
+    ## End = c(2022, 96) 
+    ## Frequency = 365 
+    ##  [1] 76.36636 71.07059 70.38699 70.86434 70.75662 70.94375 70.98229 71.09571
+    ##  [9] 71.17139 71.26610
+    ## 
+    ## $se
+    ## Time Series:
+    ## Start = c(2022, 87) 
+    ## End = c(2022, 96) 
+    ## Frequency = 365 
+    ##  [1] 5.979292 7.928876 8.234990 8.329046 8.508888 8.638743 8.788807 8.925171
+    ##  [9] 9.064980 9.199923

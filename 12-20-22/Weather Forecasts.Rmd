@@ -17,6 +17,7 @@ library(patchwork)
 library(tidymodels)
 library(lubridate)
 library(astsa)
+library(forecast)
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
@@ -163,4 +164,48 @@ ny_weather %>%
   filter(prop_difftemp != -Inf) %>% 
   filter(abs(prop_difftemp) > 2.5) %>% 
   arrange(-abs(prop_difftemp)) %>% select(prop_difftemp)
+```
+
+# Time Series
+
+Only keeping data within New York City, and since there are multiple values for each day, only the average will be kept.
+
+```{r}
+nycseries <- ny_weather %>% 
+  filter(city == "NEW_YORK_CITY") %>% 
+  distinct(date,observed_temp) %>% 
+  group_by(date) %>% 
+  summarize(observed_temp = mean(observed_temp, na.rm = TRUE)) %>% 
+  arrange(date) %>% 
+  drop_na()
+```
+
+## NYC Temperature
+
+```{r}
+(nycseries %>% 
+  ggplot(aes(date, observed_temp)) +
+  geom_line() +
+  labs(y = "", x = "", title = "Observed Temperature")) /
+(nycseries %>% 
+  mutate(diff_temp = c(mean(nycseries$observed_temp, na.rm = TRUE), 
+                       diff(observed_temp))) %>% 
+  slice(-1) %>% 
+  ggplot(aes(date, diff_temp)) +
+  geom_line() +
+  labs(y = "", x = "", title = "Differenced Temperature"))
+```
+
+## ARIMA Model
+
+```{r}
+nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
+```
+
+```{r}
+sarima(nyctz, 1,1,3)
+```
+
+```{r}
+sarima.for(nyctz, 10, 1,1,3)
 ```
