@@ -196,7 +196,7 @@ nycseries <- ny_weather %>%
   labs(y = "", x = "", title = "Differenced Temperature"))
 ```
 
-## ARIMA Model
+### ARIMA
 
 ```{r}
 nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
@@ -211,7 +211,7 @@ sarima(nyctz, 1,1,3)
 sarima.for(nyctz, 10, 1,1,3)
 ```
 
-## GAM Model
+### GAM
 
 ```{r}
 nycseries <- nycseries %>% 
@@ -229,6 +229,22 @@ summary(gam_mod)
 nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
   ggplot(aes(date)) +
-  geom_line(aes(y = observed_temp), color = "red") +
-  geom_line(aes(y = pred), color = "blue")
+  geom_point(aes(y = observed_temp), color = "blue") +
+  geom_line(aes(y = pred), color = "red")
+```
+
+### Polynomial Model
+
+```{r}
+lm_mod <- lm(observed_temp ~ I(week^4) + I(week^3) + I(week^2) + week, data = nycseries)
+
+summary(lm_mod)
+```
+
+```{r}
+nycseries %>% 
+  mutate(pred = predict(lm_mod, .)) %>% 
+  ggplot(aes(date)) +
+  geom_point(aes(y = observed_temp), color = "blue") +
+  geom_line(aes(y = pred), color = "red")
 ```

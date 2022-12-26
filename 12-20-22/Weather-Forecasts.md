@@ -14,8 +14,10 @@ Matthew
         -   <a href="#states" id="toc-states">States</a>
 -   <a href="#time-series" id="toc-time-series">Time Series</a>
     -   <a href="#nyc-temperature" id="toc-nyc-temperature">NYC Temperature</a>
-    -   <a href="#arima-model" id="toc-arima-model">ARIMA Model</a>
-    -   <a href="#gam-model" id="toc-gam-model">GAM Model</a>
+        -   <a href="#arima" id="toc-arima">ARIMA</a>
+        -   <a href="#gam" id="toc-gam">GAM</a>
+        -   <a href="#polynomial-model" id="toc-polynomial-model">Polynomial
+            Model</a>
 
 # Data Cleaning
 
@@ -351,7 +353,7 @@ nycseries <- ny_weather %>%
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
-## ARIMA Model
+### ARIMA
 
 ``` r
 nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
@@ -475,7 +477,7 @@ sarima.for(nyctz, 10, 1,1,3)
     ##  [1] 5.979292 7.928876 8.234990 8.329046 8.508888 8.638743 8.788807 8.925171
     ##  [9] 9.064980 9.199923
 
-## GAM Model
+### GAM
 
 ``` r
 nycseries <- nycseries %>% 
@@ -515,8 +517,49 @@ summary(gam_mod)
 nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
   ggplot(aes(date)) +
-  geom_line(aes(y = observed_temp), color = "red") +
-  geom_line(aes(y = pred), color = "blue")
+  geom_point(aes(y = observed_temp), color = "blue") +
+  geom_line(aes(y = pred), color = "red")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+### Polynomial Model
+
+``` r
+lm_mod <- lm(observed_temp ~ I(week^4) + I(week^3) + I(week^2) + week, data = nycseries)
+
+summary(lm_mod)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = observed_temp ~ I(week^4) + I(week^3) + I(week^2) + 
+    ##     week, data = nycseries)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -21.2847  -5.2725  -0.4112   4.6680  26.8416 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  3.615e+01  2.125e+00  17.007  < 2e-16 ***
+    ## I(week^4)    1.017e-04  1.016e-05  10.012  < 2e-16 ***
+    ## I(week^3)   -1.184e-02  1.084e-03 -10.921  < 2e-16 ***
+    ## I(week^2)    3.863e-01  3.843e-02  10.052  < 2e-16 ***
+    ## week        -2.300e+00  5.130e-01  -4.484 9.32e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 7.191 on 446 degrees of freedom
+    ## Multiple R-squared:  0.8107, Adjusted R-squared:  0.809 
+    ## F-statistic: 477.5 on 4 and 446 DF,  p-value: < 2.2e-16
+
+``` r
+nycseries %>% 
+  mutate(pred = predict(lm_mod, .)) %>% 
+  ggplot(aes(date)) +
+  geom_point(aes(y = observed_temp), color = "blue") +
+  geom_line(aes(y = pred), color = "red")
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
