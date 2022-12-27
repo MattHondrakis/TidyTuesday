@@ -215,11 +215,13 @@ sarima.for(nyctz, 10, 1,1,3)
 
 ```{r}
 nycseries <- nycseries %>% 
-  mutate(week = week(date))
+  mutate(day = yday(date))
+
+fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dates
 ```
 
 ```{r}
-gam_mod <- mgcv::gam(observed_temp ~ s(week), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day), 
                      data = nycseries, 
                      method = "REML")
 summary(gam_mod)
@@ -228,15 +230,19 @@ summary(gam_mod)
 ```{r}
 nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(gam_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red")
+  geom_line(aes(y = pred), color = "red") +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
 ```
 
 ### Polynomial Model
 
 ```{r}
-lm_mod <- lm(observed_temp ~ I(week^4) + I(week^3) + I(week^2) + week, data = nycseries)
+lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day, data = nycseries)
 
 summary(lm_mod)
 ```
@@ -244,7 +250,11 @@ summary(lm_mod)
 ```{r}
 nycseries %>% 
   mutate(pred = predict(lm_mod, .)) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(lm_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red")
+  geom_line(aes(y = pred), color = "red") +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
 ```

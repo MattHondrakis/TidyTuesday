@@ -481,11 +481,13 @@ sarima.for(nyctz, 10, 1,1,3)
 
 ``` r
 nycseries <- nycseries %>% 
-  mutate(week = week(date))
+  mutate(day = yday(date))
+
+fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dates
 ```
 
 ``` r
-gam_mod <- mgcv::gam(observed_temp ~ s(week), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day), 
                      data = nycseries, 
                      method = "REML")
 summary(gam_mod)
@@ -496,29 +498,33 @@ summary(gam_mod)
     ## Link function: identity 
     ## 
     ## Formula:
-    ## observed_temp ~ s(week)
+    ## observed_temp ~ s(day)
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  55.5565     0.3339   166.4   <2e-16 ***
+    ## (Intercept)  55.5565     0.3311   167.8   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
-    ##           edf Ref.df     F p-value    
-    ## s(week) 7.891  8.673 227.8  <2e-16 ***
+    ##          edf Ref.df     F p-value    
+    ## s(day) 7.939  8.702 231.3  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.814   Deviance explained = 81.8%
-    ## -REML = 1535.3  Scale est. = 50.272    n = 451
+    ## R-sq.(adj) =  0.817   Deviance explained = 82.1%
+    ## -REML = 1531.8  Scale est. = 49.456    n = 451
 
 ``` r
 nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(gam_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red")
+  geom_line(aes(y = pred), color = "red") +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
@@ -526,40 +532,44 @@ nycseries %>%
 ### Polynomial Model
 
 ``` r
-lm_mod <- lm(observed_temp ~ I(week^4) + I(week^3) + I(week^2) + week, data = nycseries)
+lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day, data = nycseries)
 
 summary(lm_mod)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = observed_temp ~ I(week^4) + I(week^3) + I(week^2) + 
-    ##     week, data = nycseries)
+    ## lm(formula = observed_temp ~ I(day^4) + I(day^3) + I(day^2) + 
+    ##     day, data = nycseries)
     ## 
     ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -21.2847  -5.2725  -0.4112   4.6680  26.8416 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -20.797  -5.371  -0.206   4.679  26.444 
     ## 
     ## Coefficients:
     ##               Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  3.615e+01  2.125e+00  17.007  < 2e-16 ***
-    ## I(week^4)    1.017e-04  1.016e-05  10.012  < 2e-16 ***
-    ## I(week^3)   -1.184e-02  1.084e-03 -10.921  < 2e-16 ***
-    ## I(week^2)    3.863e-01  3.843e-02  10.052  < 2e-16 ***
-    ## week        -2.300e+00  5.130e-01  -4.484 9.32e-06 ***
+    ## (Intercept)  3.500e+01  1.920e+00  18.231  < 2e-16 ***
+    ## I(day^4)     4.231e-08  4.203e-09  10.068  < 2e-16 ***
+    ## I(day^3)    -3.393e-05  3.088e-06 -10.988  < 2e-16 ***
+    ## I(day^2)     7.542e-03  7.508e-04  10.045  < 2e-16 ***
+    ## day         -2.770e-01  6.829e-02  -4.056 5.89e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 7.191 on 446 degrees of freedom
-    ## Multiple R-squared:  0.8107, Adjusted R-squared:  0.809 
-    ## F-statistic: 477.5 on 4 and 446 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 7.133 on 446 degrees of freedom
+    ## Multiple R-squared:  0.8137, Adjusted R-squared:  0.8121 
+    ## F-statistic: 487.1 on 4 and 446 DF,  p-value: < 2.2e-16
 
 ``` r
 nycseries %>% 
   mutate(pred = predict(lm_mod, .)) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(lm_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red")
+  geom_line(aes(y = pred), color = "red") +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
