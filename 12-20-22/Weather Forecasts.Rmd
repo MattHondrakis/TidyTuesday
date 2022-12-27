@@ -32,7 +32,8 @@ outlook_meanings <- read_csv('https://raw.githubusercontent.com/rfordatascience/
 
 ```{r}
 weather_forecasts <- weather_forecasts %>% 
-  left_join(outlook_meanings)  
+  left_join(outlook_meanings) %>% 
+  left_join(cities)
 ```
 
 The *weather forecasts* dataset contains abbreviated weather outlooks, while the *outlook meanings* dataset contains non-abbreviated weather outlooks. The *weather forecasts* dataset and the *outlook meanings* dataset were joined together using the "forecast_outlook" column as a common key. This resulted in a combined dataset that includes both the abbreviated and non-abbreviated weather outlooks from the two datasets.

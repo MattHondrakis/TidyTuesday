@@ -23,10 +23,12 @@ Matthew
 
 ``` r
 weather_forecasts <- weather_forecasts %>% 
-  left_join(outlook_meanings)  
+  left_join(outlook_meanings) %>% 
+  left_join(cities)
 ```
 
     ## Joining, by = "forecast_outlook"
+    ## Joining, by = c("city", "state")
 
 The *weather forecasts* dataset contains abbreviated weather outlooks,
 while the *outlook meanings* dataset contains non-abbreviated weather
@@ -63,18 +65,18 @@ weather_forecasts %>%
   knitr::kable()
 ```
 
-| date       | city         | state | high_or_low | forecast_hours_before | observed_temp | forecast_temp | observed_precip | forecast_outlook | possible_error | meaning |
-|:-----------|:-------------|:------|:------------|----------------------:|--------------:|--------------:|----------------:|:-----------------|:---------------|:--------|
-| 2021-01-30 | ABILENE      | TX    | high        |                    48 |            70 |            NA |            0.00 | NA               | none           | NA      |
-| 2021-01-30 | ABILENE      | TX    | high        |                    36 |            70 |            NA |            0.00 | NA               | none           | NA      |
-| 2021-01-30 | ABILENE      | TX    | high        |                    24 |            70 |            NA |            0.00 | NA               | none           | NA      |
-| 2021-01-30 | ABILENE      | TX    | high        |                    12 |            70 |            70 |            0.00 | DUST             | none           | Dust    |
-| 2021-01-30 | ABILENE      | TX    | low         |                    48 |            42 |            NA |            0.00 | NA               | none           | NA      |
-| 2021-01-30 | ABILENE      | TX    | low         |                    36 |            42 |            NA |            0.00 | NA               | none           | NA      |
-| 2021-01-30 | ABILENE      | TX    | low         |                    24 |            42 |            39 |            0.00 | DUST             | none           | Dust    |
-| 2021-01-30 | ABILENE      | TX    | low         |                    12 |            42 |            38 |            0.00 | SUNNY            | none           | Sunny   |
-| 2021-01-30 | AKRON_CANTON | OH    | high        |                    48 |            29 |            NA |            0.09 | NA               | none           | NA      |
-| 2021-01-30 | AKRON_CANTON | OH    | high        |                    36 |            29 |            NA |            0.09 | NA               | none           | NA      |
+| date       | city         | state | high_or_low | forecast_hours_before | observed_temp | forecast_temp | observed_precip | forecast_outlook | possible_error | meaning |    lon |   lat | koppen | elevation | distance_to_coast | wind | elevation_change_four | elevation_change_eight | avg_annual_precip |
+|:-----------|:-------------|:------|:------------|----------------------:|--------------:|--------------:|----------------:|:-----------------|:---------------|:--------|-------:|------:|:-------|----------:|------------------:|-----:|----------------------:|-----------------------:|------------------:|
+| 2021-01-30 | ABILENE      | TX    | high        |                    48 |            70 |            NA |            0.00 | NA               | none           | NA      | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | high        |                    36 |            70 |            NA |            0.00 | NA               | none           | NA      | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | high        |                    24 |            70 |            NA |            0.00 | NA               | none           | NA      | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | high        |                    12 |            70 |            70 |            0.00 | DUST             | none           | Dust    | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | low         |                    48 |            42 |            NA |            0.00 | NA               | none           | NA      | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | low         |                    36 |            42 |            NA |            0.00 | NA               | none           | NA      | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | low         |                    24 |            42 |            39 |            0.00 | DUST             | none           | Dust    | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | ABILENE      | TX    | low         |                    12 |            42 |            38 |            0.00 | SUNNY            | none           | Sunny   | -99.68 | 32.41 | Cfa    |    545.46 |            328.89 | 4.43 |                 66.72 |                  66.72 |            26.760 |
+| 2021-01-30 | AKRON_CANTON | OH    | high        |                    48 |            29 |            NA |            0.09 | NA               | none           | NA      | -81.44 | 40.92 | Dfa    |    370.43 |            329.70 | 4.28 |                 64.66 |                  64.66 |            44.686 |
+| 2021-01-30 | AKRON_CANTON | OH    | high        |                    36 |            29 |            NA |            0.09 | NA               | none           | NA      | -81.44 | 40.92 | Dfa    |    370.43 |            329.70 | 4.28 |                 64.66 |                  64.66 |            44.686 |
 
 ## Missing Values
 
@@ -86,12 +88,12 @@ skimr::skim(weather_forecasts) %>% select(skim_type, skim_variable, n_missing)
 |:-------------------------------------------------|:------------------|
 | Name                                             | weather_forecasts |
 | Number of rows                                   | 651968            |
-| Number of columns                                | 11                |
+| Number of columns                                | 20                |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                   |
 | Column type frequency:                           |                   |
-| character                                        | 6                 |
+| character                                        | 7                 |
 | Date                                             | 1                 |
-| numeric                                          | 4                 |
+| numeric                                          | 12                |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                   |
 | Group variables                                  | None              |
 
@@ -107,6 +109,7 @@ Data summary
 | forecast_outlook |     37875 |
 | possible_error   |         0 |
 | meaning          |     37875 |
+| koppen           |         0 |
 
 **Variable type: Date**
 
@@ -116,12 +119,20 @@ Data summary
 
 **Variable type: numeric**
 
-| skim_variable         | n_missing |
-|:----------------------|----------:|
-| forecast_hours_before |         0 |
-| observed_temp         |     47744 |
-| forecast_temp         |     37313 |
-| observed_precip       |     50416 |
+| skim_variable          | n_missing |
+|:-----------------------|----------:|
+| forecast_hours_before  |         0 |
+| observed_temp          |     47744 |
+| forecast_temp          |     37313 |
+| observed_precip        |     50416 |
+| lon                    |         0 |
+| lat                    |         0 |
+| elevation              |         0 |
+| distance_to_coast      |         0 |
+| wind                   |      7808 |
+| elevation_change_four  |         0 |
+| elevation_change_eight |         0 |
+| avg_annual_precip      |      7808 |
 
 ``` r
 weather_forecasts %>% 
