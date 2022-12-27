@@ -524,7 +524,9 @@ nycseries %>%
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
   geom_line(aes(y = pred), color = "red") +
-  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
+  labs(y = "", x = "", 
+       title = "Temperature Modeled by a Generalized Additive Model")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
@@ -532,7 +534,8 @@ nycseries %>%
 ### Polynomial Model
 
 ``` r
-lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day, data = nycseries)
+lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day, 
+             data = nycseries)
 
 summary(lm_mod)
 ```
@@ -568,8 +571,9 @@ nycseries %>%
          pred = ifelse(is.na(pred), predict(lm_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
   geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red") +
-  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed")
+  geom_line(aes(y = pred), color = "red") + 
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
+  labs(y = "", x = "", title = "Temperature Modeled by Linear Regression")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
