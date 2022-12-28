@@ -366,7 +366,10 @@ nycseries <- ny_weather %>%
 
 ### ARIMA
 
+Using the *astsa* and *forcast* packages to fit an ARIMA model.
+
 ``` r
+# convert data to a timeseries object
 nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
 ```
 
@@ -384,6 +387,101 @@ auto.arima(nyctz)
     ## 
     ## sigma^2 = 36.17:  log likelihood = -1443.8
     ## AIC=2899.6   AICc=2899.79   BIC=2924.26
+
+``` r
+sarima(nyctz, 2,1,3)
+```
+
+    ## initial  value 1.931556 
+    ## iter   2 value 1.863887
+    ## iter   3 value 1.829475
+    ## iter   4 value 1.804175
+    ## iter   5 value 1.794467
+    ## iter   6 value 1.793552
+    ## iter   7 value 1.791739
+    ## iter   8 value 1.790720
+    ## iter   9 value 1.790587
+    ## iter  10 value 1.790387
+    ## iter  11 value 1.790215
+    ## iter  12 value 1.790012
+    ## iter  13 value 1.789753
+    ## iter  14 value 1.789114
+    ## iter  15 value 1.788517
+    ## iter  16 value 1.788440
+    ## iter  17 value 1.787989
+    ## iter  18 value 1.787808
+    ## iter  19 value 1.787680
+    ## iter  20 value 1.787570
+    ## iter  21 value 1.787475
+    ## iter  22 value 1.787300
+    ## iter  23 value 1.787131
+    ## iter  24 value 1.787040
+    ## iter  25 value 1.787011
+    ## iter  26 value 1.787011
+    ## iter  26 value 1.787011
+    ## iter  26 value 1.787011
+    ## final  value 1.787011 
+    ## converged
+    ## initial  value 1.788080 
+    ## iter   2 value 1.788067
+    ## iter   3 value 1.788062
+    ## iter   4 value 1.788060
+    ## iter   5 value 1.788058
+    ## iter   6 value 1.788058
+    ## iter   7 value 1.788058
+    ## iter   8 value 1.788057
+    ## iter   9 value 1.788057
+    ## iter  10 value 1.788057
+    ## iter  11 value 1.788057
+    ## iter  12 value 1.788057
+    ## iter  12 value 1.788057
+    ## iter  12 value 1.788057
+    ## final  value 1.788057 
+    ## converged
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+    ## $fit
+    ## 
+    ## Call:
+    ## arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, Q), period = S), 
+    ##     xreg = constant, transform.pars = trans, fixed = fixed, optim.control = list(trace = trc, 
+    ##         REPORT = 1, reltol = tol))
+    ## 
+    ## Coefficients:
+    ##           ar1     ar2     ma1      ma2      ma3  constant
+    ##       -0.4226  -0.119  0.2837  -0.4649  -0.4022    0.0889
+    ## s.e.   0.1600   0.103  0.1541   0.0936   0.0756    0.0770
+    ## 
+    ## sigma^2 estimated as 35.66:  log likelihood = -1443.15,  aic = 2900.3
+    ## 
+    ## $degrees_of_freedom
+    ## [1] 444
+    ## 
+    ## $ttable
+    ##          Estimate     SE t.value p.value
+    ## ar1       -0.4226 0.1600 -2.6415  0.0085
+    ## ar2       -0.1190 0.1030 -1.1551  0.2487
+    ## ma1        0.2837 0.1541  1.8416  0.0662
+    ## ma2       -0.4649 0.0936 -4.9677  0.0000
+    ## ma3       -0.4022 0.0756 -5.3231  0.0000
+    ## constant   0.0889 0.0770  1.1548  0.2488
+    ## 
+    ## $AIC
+    ## [1] 6.445101
+    ## 
+    ## $AICc
+    ## [1] 6.445523
+    ## 
+    ## $BIC
+    ## [1] 6.509023
+
+The *auto.arima* function suggests that the best ARIMA model is an
+ARIMA(2,1,3). Yet, it appears as though an ARIMA(1,1,3) is a better fit
+according to the diagnostics. Furthermore, the second AR term is not
+statistically significant. This model does not take into account any
+seasonality, although it is fairly clear that there is some seasonality
+in the temperature over time.
 
 ``` r
 sarima(nyctz, 1,1,3)
@@ -430,7 +528,7 @@ sarima(nyctz, 1,1,3)
     ## final  value 1.789282 
     ## converged
 
-![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
     ## $fit
     ## 
@@ -470,7 +568,7 @@ sarima(nyctz, 1,1,3)
 sarima.for(nyctz, 10, 1,1,3)
 ```
 
-![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
 
     ## $pred
     ## Time Series:
@@ -494,11 +592,12 @@ sarima.for(nyctz, 10, 1,1,3)
 nycseries <- nycseries %>% 
   mutate(day = yday(date))
 
+# future dates for extrapolation
 fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dates
 ```
 
 ``` r
-gam_mod <- mgcv::gam(observed_temp ~ s(day), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
                      data = nycseries, 
                      method = "REML")
 summary(gam_mod)
@@ -509,22 +608,27 @@ summary(gam_mod)
     ## Link function: identity 
     ## 
     ## Formula:
-    ## observed_temp ~ s(day)
+    ## observed_temp ~ s(day, bs = "cp")
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  55.5565     0.3311   167.8   <2e-16 ***
+    ## (Intercept)  55.5565     0.3342   166.2   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
-    ##          edf Ref.df     F p-value    
-    ## s(day) 7.939  8.702 231.3  <2e-16 ***
+    ##         edf Ref.df     F p-value    
+    ## s(day) 7.11      9 218.7  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.817   Deviance explained = 82.1%
-    ## -REML = 1531.8  Scale est. = 49.456    n = 451
+    ## R-sq.(adj) =  0.814   Deviance explained = 81.7%
+    ## -REML = 1537.1  Scale est. = 50.379    n = 451
+
+For the GAM, the smooth term is set to a cyclic p-spline. This is done
+in order to connect the last day of the year to the first day of the
+year. When a non-cyclic spline is fit to the data, Jan 1st has a sharp
+vertical slope.
 
 ``` r
 nycseries %>% 
@@ -574,6 +678,10 @@ summary(lm_mod)
     ## Multiple R-squared:  0.8137, Adjusted R-squared:  0.8121 
     ## F-statistic: 487.1 on 4 and 446 DF,  p-value: < 2.2e-16
 
+Given the nature of this oscillating curve, it is quite easy to fit a
+polynomial model to fit the data. From the looks of it, this function
+appears to have 3 - 4 roots, and thus a 4 degree polynomial is fit.
+
 ``` r
 nycseries %>% 
   mutate(pred = predict(lm_mod, .)) %>% 
@@ -588,3 +696,6 @@ nycseries %>%
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+It can be observed that the 4 degree polynomial is almost
+indistinguishable from the GAM fit.

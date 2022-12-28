@@ -199,16 +199,22 @@ nycseries <- ny_weather %>%
 
 ### ARIMA
 
+Using the *astsa* and *forcast* packages to fit an ARIMA model.
+
 ```{r}
+# convert data to a timeseries object
 nyctz <- ts(nycseries$observed_temp, start = c(2021,01,30), frequency = 365)
 ```
 
 ```{r}
 auto.arima(nyctz)
-sarima(nyctz, 1,1,3)
+sarima(nyctz, 2,1,3)
 ```
 
+The *auto.arima* function suggests that the best ARIMA model is an ARIMA(2,1,3). Yet, it appears as though an ARIMA(1,1,3) is a better fit according to the diagnostics. Furthermore, the second AR term is not statistically significant. This model does not take into account any seasonality, although it is fairly clear that there is some seasonality in the temperature over time.
+
 ```{r}
+sarima(nyctz, 1,1,3)
 sarima.for(nyctz, 10, 1,1,3)
 ```
 
@@ -218,15 +224,18 @@ sarima.for(nyctz, 10, 1,1,3)
 nycseries <- nycseries %>% 
   mutate(day = yday(date))
 
+# future dates for extrapolation
 fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dates
 ```
 
 ```{r}
-gam_mod <- mgcv::gam(observed_temp ~ s(day), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
                      data = nycseries, 
                      method = "REML")
 summary(gam_mod)
 ```
+
+For the GAM, the smooth term is set to a cyclic p-spline. This is done in order to connect the last day of the year to the first day of the year. When a non-cyclic spline is fit to the data, Jan 1st has a sharp vertical slope.
 
 ```{r}
 nycseries %>% 
@@ -251,6 +260,8 @@ lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day,
 summary(lm_mod)
 ```
 
+Given the nature of this oscillating curve, it is quite easy to fit a polynomial model to fit the data. From the looks of it, this function appears to have 3 - 4 roots, and thus a 4 degree polynomial is fit.
+
 ```{r}
 nycseries %>% 
   mutate(pred = predict(lm_mod, .)) %>% 
@@ -263,3 +274,5 @@ nycseries %>%
   geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
   labs(y = "", x = "", title = "Temperature Modeled by Linear Regression")
 ```
+
+It can be observed that the 4 degree polynomial is almost indistinguishable from the GAM fit.
