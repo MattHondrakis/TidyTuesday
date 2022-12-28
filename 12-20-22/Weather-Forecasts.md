@@ -698,4 +698,6 @@ nycseries %>%
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 It can be observed that the 4 degree polynomial is almost
-indistinguishable from the GAM fit.
+indistinguishable from the GAM fit. The only difference is that the GAM
+does not have the sharp decrease on Jan 1st because of its cyclic
+spline.

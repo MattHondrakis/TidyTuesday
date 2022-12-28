@@ -275,4 +275,4 @@ nycseries %>%
   labs(y = "", x = "", title = "Temperature Modeled by Linear Regression")
 ```
 
-It can be observed that the 4 degree polynomial is almost indistinguishable from the GAM fit.
+It can be observed that the 4 degree polynomial is almost indistinguishable from the GAM fit. The only difference is that the GAM does not have the sharp decrease on Jan 1st because of its cyclic spline.
