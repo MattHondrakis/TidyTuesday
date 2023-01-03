@@ -597,10 +597,10 @@ fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dat
 ```
 
 ``` r
-gam_mod <- mgcv::gam(observed_temp ~ s(day), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day, k = 50), 
                      data = nycseries, 
                      method = "REML")
-cyclic_gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
+cyclic_gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp', k = 50), 
                      data = nycseries, 
                      method = "REML")
 
@@ -612,22 +612,22 @@ summary(gam_mod)
     ## Link function: identity 
     ## 
     ## Formula:
-    ## observed_temp ~ s(day)
+    ## observed_temp ~ s(day, k = 50)
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  55.5565     0.3311   167.8   <2e-16 ***
+    ## (Intercept)   55.556      0.329   168.9   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
     ##          edf Ref.df     F p-value    
-    ## s(day) 7.939  8.702 231.3  <2e-16 ***
+    ## s(day) 10.82   13.5 151.5  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.817   Deviance explained = 82.1%
-    ## -REML = 1531.8  Scale est. = 49.456    n = 451
+    ## R-sq.(adj) =   0.82   Deviance explained = 82.4%
+    ## -REML =   1531  Scale est. = 48.806    n = 451
 
 ``` r
 summary(cyclic_gam_mod)
@@ -638,22 +638,22 @@ summary(cyclic_gam_mod)
     ## Link function: identity 
     ## 
     ## Formula:
-    ## observed_temp ~ s(day, bs = "cp")
+    ## observed_temp ~ s(day, bs = "cp", k = 50)
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  55.5565     0.3342   166.2   <2e-16 ***
+    ## (Intercept)  55.5565     0.3298   168.4   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
-    ##         edf Ref.df     F p-value    
-    ## s(day) 7.11      9 218.7  <2e-16 ***
+    ##          edf Ref.df     F p-value    
+    ## s(day) 10.64     49 41.49  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## R-sq.(adj) =  0.814   Deviance explained = 81.7%
-    ## -REML = 1537.1  Scale est. = 50.379    n = 451
+    ## R-sq.(adj) =  0.819   Deviance explained = 82.3%
+    ## -REML = 1534.4  Scale est. = 49.065    n = 451
 
 For the GAM, the smooth term is set to a cyclic p-spline. This is done
 in order to connect the last day of the year to the first day of the
