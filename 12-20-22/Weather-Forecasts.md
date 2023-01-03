@@ -597,10 +597,40 @@ fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dat
 ```
 
 ``` r
-gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day), 
                      data = nycseries, 
                      method = "REML")
+cyclic_gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
+                     data = nycseries, 
+                     method = "REML")
+
 summary(gam_mod)
+```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## observed_temp ~ s(day)
+    ## 
+    ## Parametric coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  55.5565     0.3311   167.8   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##          edf Ref.df     F p-value    
+    ## s(day) 7.939  8.702 231.3  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## R-sq.(adj) =  0.817   Deviance explained = 82.1%
+    ## -REML = 1531.8  Scale est. = 49.456    n = 451
+
+``` r
+summary(cyclic_gam_mod)
 ```
 
     ## 
@@ -631,17 +661,29 @@ year. When a non-cyclic spline is fit to the data, Jan 1st has a sharp
 vertical slope.
 
 ``` r
-nycseries %>% 
+(nycseries %>% 
+  mutate(pred = cyclic_gam_mod$fitted.values) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(cyclic_gam_mod, cur_data()), pred)) %>% 
+  ggplot(aes(date)) +
+  geom_point(aes(y = observed_temp), color = "blue", alpha = 0.7) +
+  geom_line(aes(y = pred), color = "red", size = 1) +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
+  labs(y = "", x = "", 
+       title = "Cyclic P-Spline GAM")) /
+(nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
   bind_rows(data.frame(date = fdates)) %>% 
   mutate(day = ifelse(is.na(day), yday(date), day),
          pred = ifelse(is.na(pred), predict(gam_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
-  geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red") +
+  geom_point(aes(y = observed_temp), color = "blue", alpha = 0.7) +
+  geom_line(aes(y = pred), color = "red", size = 1) +
   geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
   labs(y = "", x = "", 
-       title = "Temperature Modeled by a Generalized Additive Model")
+       title = "Basic Thin Plate GAM")) +
+plot_annotation(title = "Temperature Modeled by Different Basis Functions")
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->

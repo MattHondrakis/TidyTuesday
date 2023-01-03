@@ -229,26 +229,43 @@ fdates <- seq(as.Date("2022-05-30"), as.Date("2022-08-30"), by = 1) # future dat
 ```
 
 ```{r}
-gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
+gam_mod <- mgcv::gam(observed_temp ~ s(day), 
                      data = nycseries, 
                      method = "REML")
+cyclic_gam_mod <- mgcv::gam(observed_temp ~ s(day, bs = 'cp'), 
+                     data = nycseries, 
+                     method = "REML")
+
 summary(gam_mod)
+summary(cyclic_gam_mod)
 ```
 
 For the GAM, the smooth term is set to a cyclic p-spline. This is done in order to connect the last day of the year to the first day of the year. When a non-cyclic spline is fit to the data, Jan 1st has a sharp vertical slope.
 
 ```{r}
-nycseries %>% 
+(nycseries %>% 
+  mutate(pred = cyclic_gam_mod$fitted.values) %>% 
+  bind_rows(data.frame(date = fdates)) %>% 
+  mutate(day = ifelse(is.na(day), yday(date), day),
+         pred = ifelse(is.na(pred), predict(cyclic_gam_mod, cur_data()), pred)) %>% 
+  ggplot(aes(date)) +
+  geom_point(aes(y = observed_temp), color = "blue", alpha = 0.7) +
+  geom_line(aes(y = pred), color = "red", size = 1) +
+  geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
+  labs(y = "", x = "", 
+       title = "Cyclic P-Spline GAM")) /
+(nycseries %>% 
   mutate(pred = gam_mod$fitted.values) %>% 
   bind_rows(data.frame(date = fdates)) %>% 
   mutate(day = ifelse(is.na(day), yday(date), day),
          pred = ifelse(is.na(pred), predict(gam_mod, cur_data()), pred)) %>% 
   ggplot(aes(date)) +
-  geom_point(aes(y = observed_temp), color = "blue") +
-  geom_line(aes(y = pred), color = "red") +
+  geom_point(aes(y = observed_temp), color = "blue", alpha = 0.7) +
+  geom_line(aes(y = pred), color = "red", size = 1) +
   geom_vline(xintercept = as.Date("2022-05-30"), linetype = "dashed") +
   labs(y = "", x = "", 
-       title = "Temperature Modeled by a Generalized Additive Model")
+       title = "Basic Thin Plate GAM")) +
+plot_annotation(title = "Temperature Modeled by Different Basis Functions")
 ```
 
 ### Polynomial Model
