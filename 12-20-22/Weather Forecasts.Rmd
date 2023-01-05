@@ -293,3 +293,24 @@ nycseries %>%
 ```
 
 It can be observed that the 4 degree polynomial is almost indistinguishable from the GAM fit. The only difference is that the GAM does not have the sharp decrease on Jan 1st because of its cyclic spline.
+
+### Prophet
+
+An attempt at using the *Prophet* package to model time series.
+
+```{r}
+library(prophet)
+m <- prophet(nycseries %>% select(ds = date, y = observed_temp))
+m <- prophet(weekly.seasonality = FALSE)
+m <- add_seasonality(m, name='monthly', period=90, fourier.order=5)
+m <- fit.prophet(m, nycseries %>% select(ds = date, y = observed_temp))
+future <- make_future_dataframe(m, periods = 365/4)
+
+forecast <- predict(m, future)
+```
+
+```{r}
+plot(m, forecast)
+
+prophet_plot_components(m, forecast)
+```

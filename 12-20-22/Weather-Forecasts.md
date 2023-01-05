@@ -18,6 +18,7 @@ Matthew
         -   <a href="#gam" id="toc-gam">GAM</a>
         -   <a href="#polynomial-model" id="toc-polynomial-model">Polynomial
             Model</a>
+        -   <a href="#prophet" id="toc-prophet">Prophet</a>
 
 # Data Cleaning
 
@@ -743,3 +744,65 @@ It can be observed that the 4 degree polynomial is almost
 indistinguishable from the GAM fit. The only difference is that the GAM
 does not have the sharp decrease on Jan 1st because of its cyclic
 spline.
+
+### Prophet
+
+An attempt at using the *Prophet* package to model time series.
+
+``` r
+library(prophet)
+```
+
+    ## Loading required package: Rcpp
+
+    ## 
+    ## Attaching package: 'Rcpp'
+
+    ## The following object is masked from 'package:rsample':
+    ## 
+    ##     populate
+
+    ## Loading required package: rlang
+
+    ## 
+    ## Attaching package: 'rlang'
+
+    ## The following objects are masked from 'package:purrr':
+    ## 
+    ##     %@%, as_function, flatten, flatten_chr, flatten_dbl, flatten_int,
+    ##     flatten_lgl, flatten_raw, invoke, splice
+
+``` r
+m <- prophet(nycseries %>% select(ds = date, y = observed_temp))
+```
+
+    ## Disabling yearly seasonality. Run prophet with yearly.seasonality=TRUE to override this.
+
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+``` r
+m <- prophet(weekly.seasonality = FALSE)
+m <- add_seasonality(m, name='monthly', period=90, fourier.order=5)
+m <- fit.prophet(m, nycseries %>% select(ds = date, y = observed_temp))
+```
+
+    ## Disabling yearly seasonality. Run prophet with yearly.seasonality=TRUE to override this.
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+``` r
+future <- make_future_dataframe(m, periods = 365/4)
+
+forecast <- predict(m, future)
+```
+
+``` r
+plot(m, forecast)
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+``` r
+prophet_plot_components(m, forecast)
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
