@@ -34,7 +34,7 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 27. [Pell Grants](https://github.com/MattHondrakis/TidyTuesday/blob/main/08-30-22/Pell-Grants.md)
 28. [Bigfoot](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-13-22/Bigfoot.md)
 29. [Artists](https://github.com/MattHondrakis/TidyTuesday/blob/main/09-27-22/Artists.md)
-30. [Product Hunt](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-4-22/Product.md)
+30. [Product Hunt](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-04-22/Product.md)
 31. [Yarn](https://github.com/MattHondrakis/TidyTuesday/blob/main/10-11-22/Ravelry-Yarn.md) (Short)
 32. [Horror Movies](https://github.com/MattHondrakis/TidyTuesday/blob/main/11-01-22/Horror-Movies.md)
 33. [Weather Forecasts](https://github.com/MattHondrakis/TidyTuesday/blob/main/12-20-22/Weather-Forecasts.md)
