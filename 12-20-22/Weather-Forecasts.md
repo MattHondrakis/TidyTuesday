@@ -782,7 +782,7 @@ m <- prophet(nycseries %>% select(ds = date, y = observed_temp))
 
 ``` r
 m <- prophet(weekly.seasonality = FALSE)
-m <- add_seasonality(m, name='monthly', period=90, fourier.order=5)
+m <- add_seasonality(m, name='monthly', period=365, fourier.order=5)
 m <- fit.prophet(m, nycseries %>% select(ds = date, y = observed_temp))
 ```
 
@@ -790,7 +790,7 @@ m <- fit.prophet(m, nycseries %>% select(ds = date, y = observed_temp))
     ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
 
 ``` r
-future <- make_future_dataframe(m, periods = 365/4)
+future <- make_future_dataframe(m, periods = 365/2)
 
 forecast <- predict(m, future)
 ```
