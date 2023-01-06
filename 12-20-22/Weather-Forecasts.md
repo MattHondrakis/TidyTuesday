@@ -20,6 +20,8 @@ Matthew
             Model</a>
         -   <a href="#prophet" id="toc-prophet">Prophet</a>
 -   <a href="#map" id="toc-map">Map</a>
+    -   <a href="#map-of-average-precipitation"
+        id="toc-map-of-average-precipitation">Map of Average Precipitation</a>
 
 # Data Cleaning
 
@@ -846,20 +848,23 @@ weather_jstates <- weather_forecasts %>%
 
 ``` r
 total_joined <- States %>% 
-  inner_join(weather_jstates, by = c("state_name" = "state"))
+  inner_join(weather_jstates, by = c("state_name"))
 ```
+
+## Map of Average Precipitation
 
 ``` r
 library(rayshader)
 (total_joined %>% 
   ggplot(aes(long, lat, group = group, fill = mean_precip)) +
-  geom_polygon() + theme_classic() + 
+  geom_polygon() + 
+  theme_classic() + 
   theme(legend.position = "none", 
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank())) %>% plot_gg()
 
-render_camera(zoom=0.6,theta=-30,phi=25)
+render_camera(zoom=0.6,theta=10,phi=30)
 render_snapshot(clear = TRUE)
 ```
 
