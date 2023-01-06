@@ -314,3 +314,40 @@ plot(m, forecast)
 
 prophet_plot_components(m, forecast)
 ```
+
+# Map
+
+```{r}
+library(maps)
+States <- map_data("state")
+
+States <- States %>% 
+  mutate(state_name = str_to_title(region))
+
+state_names <- tibble(state_name = state.name, state = state.abb)
+```
+
+```{r}
+weather_jstates <- weather_forecasts %>% 
+  select(observed_precip, state) %>% 
+  group_by(state) %>% 
+  summarize(mean_precip = mean(observed_precip, na.rm = TRUE)) %>% 
+  inner_join(state_names) 
+
+total_joined <- States %>% 
+  inner_join(weather_jstates, by = c("state_name" = "state"))
+```
+
+```{r}
+library(rayshader)
+(total_joined %>% 
+  ggplot(aes(long, lat, group = group, fill = mean_precip)) +
+  geom_polygon() + theme_classic() + 
+  theme(legend.position = "none", 
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())) %>% plot_gg()
+
+render_camera(zoom=0.6,theta=-30,phi=25)
+render_snapshot(clear = TRUE)
+```

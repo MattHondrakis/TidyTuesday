@@ -19,6 +19,7 @@ Matthew
         -   <a href="#polynomial-model" id="toc-polynomial-model">Polynomial
             Model</a>
         -   <a href="#prophet" id="toc-prophet">Prophet</a>
+-   <a href="#map" id="toc-map">Map</a>
 
 # Data Cleaning
 
@@ -806,3 +807,60 @@ prophet_plot_components(m, forecast)
 ```
 
 ![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
+
+# Map
+
+``` r
+library(maps)
+```
+
+    ## 
+    ## Attaching package: 'maps'
+
+    ## The following object is masked from 'package:astsa':
+    ## 
+    ##     unemp
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     map
+
+``` r
+States <- map_data("state")
+
+States <- States %>% 
+  mutate(state_name = str_to_title(region))
+
+state_names <- tibble(state_name = state.name, state = state.abb)
+```
+
+``` r
+weather_jstates <- weather_forecasts %>% 
+  select(observed_precip, state) %>% 
+  group_by(state) %>% 
+  summarize(mean_precip = mean(observed_precip, na.rm = TRUE)) %>% 
+  inner_join(state_names) 
+```
+
+    ## Joining, by = "state"
+
+``` r
+total_joined <- States %>% 
+  inner_join(weather_jstates, by = c("state_name" = "state"))
+```
+
+``` r
+library(rayshader)
+(total_joined %>% 
+  ggplot(aes(long, lat, group = group, fill = mean_precip)) +
+  geom_polygon() + theme_classic() + 
+  theme(legend.position = "none", 
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())) %>% plot_gg()
+
+render_camera(zoom=0.6,theta=-30,phi=25)
+render_snapshot(clear = TRUE)
+```
+
+![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
