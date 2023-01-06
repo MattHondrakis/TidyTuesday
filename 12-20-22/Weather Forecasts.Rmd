@@ -340,7 +340,7 @@ total_joined <- States %>%
 
 ## Map of Average Precipitation
 
-```{r}
+```{r include=TRUE, eval=FALSE}
 library(rayshader)
 (total_joined %>% 
   ggplot(aes(long, lat, group = group, fill = mean_precip)) +
@@ -352,5 +352,5 @@ library(rayshader)
         axis.ticks = element_blank())) %>% plot_gg()
 
 render_camera(zoom=0.6,theta=10,phi=30)
-render_snapshot(clear = TRUE)
+render_snapshot(title_text = "Average Precipitation by State", clear = TRUE)
 ```
