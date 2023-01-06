@@ -868,4 +868,4 @@ render_camera(zoom=0.6,theta=10,phi=30)
 render_snapshot(clear = TRUE)
 ```
 
-![](Weather-Forecasts_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](https://github.com/MattHondrakis/TidyTuesday/blob/main/12-20-22/Weather-Forecasts_files/figure-gfm/3dmap.png)<!-- -->
