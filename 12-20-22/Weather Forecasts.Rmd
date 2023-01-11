@@ -277,7 +277,7 @@ lm_mod <- lm(observed_temp ~ I(day^4) + I(day^3) + I(day^2) + day,
 summary(lm_mod)
 ```
 
-Given the nature of this oscillating curve, it is quite easy to fit a polynomial model to fit the data. From the looks of it, this function appears to have 3 - 4 roots, and thus a 4 degree polynomial is fit.
+Given the nature of this oscillating curve, it is quite easy to fit a polynomial model to fit the data. From the looks of it, this function appears to have 4 roots, and thus a 4 degree polynomial is fit.
 
 ```{r}
 nycseries %>% 
@@ -319,12 +319,12 @@ prophet_plot_components(m, forecast)
 
 ```{r}
 library(maps)
-States <- map_data("state")
+States <- map_data("state")  # Read US map data
 
-States <- States %>% 
-  mutate(state_name = str_to_title(region))
+States <- States %>% # Restructure string to be joined with original data
+  mutate(state_name = str_to_title(region))  
 
-state_names <- tibble(state_name = state.name, state = state.abb)
+state_names <- tibble(state_name = state.name, state = state.abb) # Intermediate join
 ```
 
 ```{r}
