@@ -5,10 +5,10 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 
 ## Dataset Analysis
 
-1. [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-11-22/Bees.md) *(Short)*
-2. [Chocolate Bar Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-18-22/Chocolate.md)
-3. [Board Game Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/01-25-22/BoardGames.md)
-4. [Dog Breeds](https://github.com/MattHondrakis/TidyTuesday/blob/main/02-01-22/DogBreeds.md) *(Short)*
+1. [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-11-22/Bees.md) *(Short)*
+2. [Chocolate Bar Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-18-22/Chocolate.md)
+3. [Board Game Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-25-22/BoardGames.md)
+4. [Dog Breeds](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/02-01-22/DogBreeds.md) *(Short)*
 5. [Tuskegee Airmen](https://github.com/MattHondrakis/TidyTuesday/blob/main/02-08-22/Airmen.md)
 6. [World Freedom Index](https://github.com/MattHondrakis/TidyTuesday/blob/main/02-22-22/Freedom.md)
 7. [Alternative Fuel Stations](https://github.com/MattHondrakis/TidyTuesday/blob/main/03-01-22/Stations.md)
