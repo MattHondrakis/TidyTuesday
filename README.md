@@ -38,4 +38,5 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 31. [Yarn](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/10-11-22/Ravelry-Yarn.md) (Short)
 32. [Horror Movies](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/11-01-22/Horror-Movies.md)
 33. [Weather Forecasts](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/12-20-22/Weather-Forecasts.md)
+34. [Artist History](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-17-23/Artist-History.md)
 
