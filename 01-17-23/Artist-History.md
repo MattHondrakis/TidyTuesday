@@ -9,6 +9,8 @@ Matthew
 -   <a href="#exploratory-data-analysis"
     id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
     -   <a href="#race" id="toc-race">Race</a>
+        -   <a href="#years" id="toc-years">Years</a>
+        -   <a href="#book" id="toc-book">Book</a>
 
 ``` r
 artist <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-17/artists.csv')
@@ -95,30 +97,13 @@ artist %>%
 as missing data.
 
 ``` r
-artist %>% 
+artist <- artist %>% 
   mutate(race = ifelse(race == "N/A", NA, race))
 ```
 
-    ## # A tibble: 3,162 x 14
-    ##    name           edition_number  year nationality nationality_oth~ gender race 
-    ##    <chr>                   <dbl> <dbl> <chr>       <chr>            <chr>  <chr>
-    ##  1 Aaron Douglas               9  1991 American    American         Male   Blac~
-    ##  2 Aaron Douglas              10  1996 American    American         Male   Blac~
-    ##  3 Aaron Douglas              11  2001 American    American         Male   Blac~
-    ##  4 Aaron Douglas              12  2005 American    American         Male   Blac~
-    ##  5 Aaron Douglas              13  2009 American    American         Male   Blac~
-    ##  6 Aaron Douglas              14  2013 American    American         Male   Blac~
-    ##  7 Aaron Douglas              15  2016 American    American         Male   Blac~
-    ##  8 Aaron Douglas              16  2020 American    American         Male   Blac~
-    ##  9 Adélaïde Labi~             14  2013 French      French           Female White
-    ## 10 Adélaïde Labi~             15  2016 French      French           Female White
-    ## # ... with 3,152 more rows, and 7 more variables: ethnicity <chr>, book <chr>,
-    ## #   space_ratio_per_page_total <dbl>, unique_id <dbl>,
-    ## #   moma_count_to_year <dbl>, whitney_count_to_year <dbl>, race_nwi <chr>
-
 # Exploratory Data Analysis
 
-### Race
+## Race
 
 ``` r
 artist %>% 
@@ -133,12 +118,16 @@ artist %>%
 
 ![](Artist-History_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
+### Years
+
 ``` r
 artist %>% 
+  drop_na() %>% 
   group_by(year) %>% 
   count(race) %>% 
   ggplot(aes(year, n, color = race)) +
-  geom_line()
+  geom_line() +
+  labs(title = "Art Publications", x = "Year", y = "", color = "")
 ```
 
 ![](Artist-History_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -147,7 +136,46 @@ artist %>%
 artist %>% 
   drop_na() %>% 
   ggplot(aes(year, fill = race, color = race)) +
-  geom_density(alpha = 0.5)
+  geom_density(alpha = 0.5) +
+  labs(title = "Proportion of Publications of each Race",
+       x = "Year", y = "")
 ```
 
 ![](Artist-History_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+``` r
+artist %>% 
+  filter(race_nwi == "Non-White") %>% 
+  group_by(year) %>% 
+  count(book) %>% 
+  ggplot(aes(year, n, color = book)) +
+  geom_line()
+```
+
+![](Artist-History_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+artist %>% 
+  ggplot(aes(fill = book, x = race_nwi)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(label = percent_format())
+```
+
+![](Artist-History_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+### Book
+
+``` r
+artist %>% 
+  count(race_nwi, book) %>% 
+  group_by(race_nwi) %>% 
+  mutate(pct = n/sum(n)) %>% 
+  ggplot(aes(x = race_nwi, y = pct, fill = fct_rev(book), label = percent(pct))) + 
+  geom_col(position = 'fill') + 
+  geom_text(position = "fill", size = 4, vjust = 2) + 
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(values = c("steelblue2", "green3")) +
+  labs(y = "", x = "", fill = "", title = "Where Non-Whites Publish Art") 
+```
+
+![](Artist-History_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

@@ -43,13 +43,13 @@ artist %>%
 *race* has a string called N/A, this should be replaced with NA values as missing data.
 
 ```{r}
-artist %>% 
+artist <- artist %>% 
   mutate(race = ifelse(race == "N/A", NA, race))
 ```
 
 # Exploratory Data Analysis
 
-### Race
+## Race
 
 ```{r}
 artist %>% 
@@ -62,15 +62,50 @@ artist %>%
   labs(y = "", x = "", fill = "")
 ```
 
+### Years
+
 ```{r}
 artist %>% 
+  drop_na() %>% 
   group_by(year) %>% 
   count(race) %>% 
   ggplot(aes(year, n, color = race)) +
-  geom_line()
+  geom_line() +
+  labs(title = "Art Publications", x = "Year", y = "", color = "")
 
 artist %>% 
   drop_na() %>% 
   ggplot(aes(year, fill = race, color = race)) +
-  geom_density(alpha = 0.5)
+  geom_density(alpha = 0.5) +
+  labs(title = "Proportion of Publications of each Race",
+       x = "Year", y = "")
+```
+
+```{r}
+artist %>% 
+  filter(race_nwi == "Non-White") %>% 
+  group_by(year) %>% 
+  count(book) %>% 
+  ggplot(aes(year, n, color = book)) +
+  geom_line()
+
+artist %>% 
+  ggplot(aes(fill = book, x = race_nwi)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(label = percent_format())
+```
+
+### Book
+
+```{r}
+artist %>% 
+  count(race_nwi, book) %>% 
+  group_by(race_nwi) %>% 
+  mutate(pct = n/sum(n)) %>% 
+  ggplot(aes(x = race_nwi, y = pct, fill = fct_rev(book), label = percent(pct))) + 
+  geom_col(position = 'fill') + 
+  geom_text(position = "fill", size = 4, vjust = 2) + 
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(values = c("steelblue2", "green3")) +
+  labs(y = "", x = "", fill = "", title = "Where Non-Whites Publish Art") 
 ```
