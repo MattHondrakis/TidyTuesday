@@ -11,6 +11,8 @@ Matthew
     -   <a href="#race" id="toc-race">Race</a>
         -   <a href="#years" id="toc-years">Years</a>
         -   <a href="#book" id="toc-book">Book</a>
+        -   <a href="#amount-of-space-on-the-page"
+            id="toc-amount-of-space-on-the-page">Amount of Space on the Page</a>
 
 ``` r
 artist <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-17/artists.csv')
@@ -26,6 +28,7 @@ artist <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesda
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+# shorten column names by removing 'artist_' from it
 artist <- artist %>% 
   rename_with(~gsub("artist_", "", .x))
 ```
@@ -179,3 +182,51 @@ artist %>%
 ```
 
 ![](Artist-History_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+We can see that the majority of Non-White artists had their art
+published on **Gardener**.
+
+### Amount of Space on the Page
+
+``` r
+artist %>% 
+  drop_na() %>% 
+  group_by(race) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n) %>% 
+  knitr::kable()
+```
+
+| race                                      |    n |
+|:------------------------------------------|-----:|
+| White                                     | 2935 |
+| Black or African American                 |   83 |
+| Asian                                     |   66 |
+| Native Hawaiian or Other Pacific Islander |   12 |
+| American Indian or Alaska Native          |    4 |
+
+``` r
+artist %>% 
+  drop_na() %>% 
+  ggplot(aes(space_ratio_per_page_total, fill = race)) +
+  geom_histogram() +
+  facet_wrap(~race, scales = "free") +
+  theme(legend.position = "top")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Artist-History_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+artist %>%
+  drop_na() %>% 
+  group_by(race) %>% 
+  summarize(median = median(space_ratio_per_page_total)) %>% 
+  ggplot(aes(median, fct_reorder(race, median))) +
+  geom_col(fill = "steelblue2") +
+  geom_text(aes(label = round(median, 2)), hjust = 1.5) +
+  labs(y = "", x = "Median", title = "Amount of Space Art takes on a Page by Race")
+```
+
+![](Artist-History_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

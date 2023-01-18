@@ -21,6 +21,7 @@ theme_update(plot.title = element_text(hjust = 0.5))
 ```{r}
 artist <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-17/artists.csv')
 
+# shorten column names by removing 'artist_' from it
 artist <- artist %>% 
   rename_with(~gsub("artist_", "", .x))
 ```
@@ -108,4 +109,35 @@ artist %>%
   scale_y_continuous(labels = percent) +
   scale_fill_manual(values = c("steelblue2", "green3")) +
   labs(y = "", x = "", fill = "", title = "Where Non-Whites Publish Art") 
+```
+
+We can see that the majority of Non-White artists had their art published on **Gardener**.
+
+### Amount of Space on the Page
+
+```{r}
+artist %>% 
+  drop_na() %>% 
+  group_by(race) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n) %>% 
+  knitr::kable()
+
+artist %>% 
+  drop_na() %>% 
+  ggplot(aes(space_ratio_per_page_total, fill = race)) +
+  geom_histogram() +
+  facet_wrap(~race, scales = "free") +
+  theme(legend.position = "top")
+```
+
+```{r}
+artist %>%
+  drop_na() %>% 
+  group_by(race) %>% 
+  summarize(median = median(space_ratio_per_page_total)) %>% 
+  ggplot(aes(median, fct_reorder(race, median))) +
+  geom_col(fill = "steelblue2") +
+  geom_text(aes(label = round(median, 2)), hjust = 1.5) +
+  labs(y = "", x = "Median", title = "Amount of Space Art takes on a Page by Race")
 ```
