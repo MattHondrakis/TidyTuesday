@@ -210,8 +210,8 @@ artist %>%
   drop_na() %>% 
   ggplot(aes(space_ratio_per_page_total, fill = race)) +
   geom_histogram() +
-  facet_wrap(~race, scales = "free") +
-  theme(legend.position = "top")
+  facet_wrap(~race, scales = "free", ncol = 2) +
+  theme(legend.position = "none")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
