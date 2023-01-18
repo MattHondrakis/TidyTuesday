@@ -5,6 +5,7 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 
 ## Dataset Analysis
 
+### 2022
 1. [Bee Colonies](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-11-22/Bees.md) *(Short)*
 2. [Chocolate Bar Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-18-22/Chocolate.md)
 3. [Board Game Ratings](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/01-25-22/BoardGames.md)
@@ -38,5 +39,8 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 31. [Yarn](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/10-11-22/Ravelry-Yarn.md) (Short)
 32. [Horror Movies](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/11-01-22/Horror-Movies.md)
 33. [Weather Forecasts](https://github.com/MattHondrakis/TidyTuesday/blob/main/2022/12-20-22/Weather-Forecasts.md)
+
+### 2023
+
 34. [Artist History](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-17-23/Artist-History.md)
 
