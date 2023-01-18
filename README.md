@@ -42,5 +42,5 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 
 ### 2023
 
-34. [Artist History](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-17-23/Artist-History.md)
+34. [Artist History](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-17-23/Art-Publications.md)
 
