@@ -240,9 +240,10 @@ artist %>%
   summarize(avg_space = mean(space_ratio_per_page_total, na.rm = TRUE)) %>% 
   ungroup() %>% 
   slice_max(avg_space, n = 10) %>% 
-  ggplot() +
-  geom_col(aes(avg_space, fct_reorder(name, avg_space), fill = nationality)) +
-  labs(y = "", x = "", "Average Art Space on Page by Artist") 
+  ggplot(aes(avg_space, fct_reorder(name, avg_space), fill = nationality)) +
+  geom_col(color = "black") +
+  labs(y = "", x = "", title = "Average Art Space on Page by Artist", 
+       fill = "Nationality")
 ```
 
     ## `summarise()` has grouped output by 'name'. You can override using the
