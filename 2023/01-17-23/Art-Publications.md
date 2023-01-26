@@ -13,6 +13,7 @@ Matthew
         -   <a href="#book" id="toc-book">Book</a>
         -   <a href="#amount-of-space-on-the-page"
             id="toc-amount-of-space-on-the-page">Amount of Space on the Page</a>
+    -   <a href="#artist" id="toc-artist">Artist</a>
 
 ``` r
 artist <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-17/artists.csv')
@@ -224,9 +225,27 @@ artist %>%
   group_by(race) %>% 
   summarize(median = median(space_ratio_per_page_total)) %>% 
   ggplot(aes(median, fct_reorder(race, median))) +
-  geom_col(fill = "steelblue2") +
+  geom_col(color = "black", fill = "steelblue2") +
   geom_text(aes(label = round(median, 2)), hjust = 1.5) +
   labs(y = "", x = "Median", title = "Amount of Space Art takes on a Page by Race")
 ```
 
 ![](Art-Publications_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+## Artist
+
+``` r
+artist %>% 
+  group_by(name, nationality) %>% 
+  summarize(avg_space = mean(space_ratio_per_page_total, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  slice_max(avg_space, n = 10) %>% 
+  ggplot() +
+  geom_col(aes(avg_space, fct_reorder(name, avg_space), fill = nationality)) +
+  labs(y = "", x = "", "Average Art Space on Page by Artist") 
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+![](Art-Publications_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
