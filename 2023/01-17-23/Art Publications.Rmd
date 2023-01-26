@@ -10,17 +10,16 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500, fig.showtext = TRUE)
 library(tidyverse)
 library(scales)
 library(patchwork)
 library(sysfonts)
 library(showtext)
-font_add_google("Roboto Condensed", "Roboto Condensed")
-showtext_auto()
+font_add_google("Roboto Slab", "Roboto")
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5),
-             text = element_text(family = "Roboto Condensed"))
+             text = element_text(family = "Roboto"))
 ```
 
 ```{r}
