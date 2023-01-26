@@ -112,12 +112,18 @@ artist <- artist %>%
 ``` r
 artist %>% 
   group_by(ethnicity) %>% 
+  distinct(name, race) %>% 
   count(race, sort = TRUE) %>% 
   drop_na() %>% 
   ggplot(aes(n, fct_reorder(race, n, sum))) +
-  geom_col(color = "black", aes(fill = fct_rev(ethnicity))) +
-  scale_x_log10() +
-  labs(y = "", x = "", fill = "")
+  geom_col(color = "black", aes(fill = fct_rev(ethnicity)), 
+           position = position_dodge2(preserve = "single")) +
+  geom_text(aes(label = n, hjust = ifelse(n > 1, 1.5, -1)), 
+            position = position_dodge2(0.9)) +
+  scale_x_log10(label = comma_format()) + 
+  labs(y = "", x = "Number of Artists (log-scale)", fill = "", 
+       title = "Number of Artists of Hispanic Origin by Race") +
+  theme(legend.position = "top")
 ```
 
 ![](Art-Publications_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -125,27 +131,26 @@ artist %>%
 ### Years
 
 ``` r
-artist %>% 
+(artist %>% 
   drop_na() %>% 
   group_by(year) %>% 
   count(race) %>% 
   ggplot(aes(year, n, color = race)) +
-  geom_line() +
-  labs(title = "Art Publications", x = "Year", y = "", color = "")
+  geom_line() + 
+  scale_color_discrete(direction = -1) +
+  labs(title = "Art Publications", x = "Year", y = "", color = "") +
+  theme(legend.position = "none")) /
+(artist %>% 
+  drop_na() %>% 
+  ggplot(aes(year, fill = race)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_discrete(direction = -1) +
+  labs(title = "Proportion of Publications of each Race",
+       x = "Year", y = "")) +
+plot_layout(guides = "collect")
 ```
 
 ![](Art-Publications_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-artist %>% 
-  drop_na() %>% 
-  ggplot(aes(year, fill = race, color = race)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Proportion of Publications of each Race",
-       x = "Year", y = "")
-```
-
-![](Art-Publications_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 artist %>% 

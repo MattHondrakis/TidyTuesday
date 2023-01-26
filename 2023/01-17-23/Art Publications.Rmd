@@ -17,7 +17,7 @@ library(patchwork)
 library(sysfonts)
 library(showtext)
 font_add_google("Roboto Slab", "Roboto")
-theme_set(theme_bw())
+theme_set(theme_minimal())
 theme_update(plot.title = element_text(hjust = 0.5),
              text = element_text(family = "Roboto"))
 ```
@@ -59,31 +59,40 @@ artist <- artist %>%
 ```{r}
 artist %>% 
   group_by(ethnicity) %>% 
+  distinct(name, race) %>% 
   count(race, sort = TRUE) %>% 
   drop_na() %>% 
   ggplot(aes(n, fct_reorder(race, n, sum))) +
-  geom_col(color = "black", aes(fill = fct_rev(ethnicity))) +
-  scale_x_log10() +
-  labs(y = "", x = "", fill = "")
+  geom_col(color = "black", aes(fill = fct_rev(ethnicity)), 
+           position = position_dodge2(preserve = "single")) +
+  geom_text(aes(label = n, hjust = ifelse(n > 1, 1.5, -1)), 
+            position = position_dodge2(0.9)) +
+  scale_x_log10(label = comma_format()) + 
+  labs(y = "", x = "Number of Artists (log-scale)", fill = "", 
+       title = "Number of Artists of Hispanic Origin by Race") +
+  theme(legend.position = "top")
 ```
 
 ### Years
 
 ```{r}
-artist %>% 
+(artist %>% 
   drop_na() %>% 
   group_by(year) %>% 
   count(race) %>% 
   ggplot(aes(year, n, color = race)) +
-  geom_line() +
-  labs(title = "Art Publications", x = "Year", y = "", color = "")
-
-artist %>% 
+  geom_line() + 
+  scale_color_discrete(direction = -1) +
+  labs(title = "Art Publications", x = "Year", y = "", color = "") +
+  theme(legend.position = "none")) /
+(artist %>% 
   drop_na() %>% 
-  ggplot(aes(year, fill = race, color = race)) +
+  ggplot(aes(year, fill = race)) +
   geom_density(alpha = 0.5) +
+  scale_fill_discrete(direction = -1) +
   labs(title = "Proportion of Publications of each Race",
-       x = "Year", y = "")
+       x = "Year", y = "")) +
+plot_layout(guides = "collect")
 ```
 
 ```{r}
