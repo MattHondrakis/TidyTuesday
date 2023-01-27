@@ -240,7 +240,7 @@ horror_movies %>%
         plot.background = element_rect(fill = "black"),
         plot.title = element_text(hjust = 0.5, family = "Creepster", color = "darkorange"), 
         panel.background = element_rect(fill = "black", color  =  NA)) +
-  labs(title = "Horror Movie Release Day in October", y = "", x = "") 
+  labs(title = "Horror Movie Day of Release in October", y = "", x = "") 
 ```
 
 ![](Horror-Movies_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
