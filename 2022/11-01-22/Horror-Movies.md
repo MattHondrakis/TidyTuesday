@@ -230,11 +230,15 @@ horror_movies %>%
   filter(month(release_date) == 10) %>% 
   count(day(release_date)) %>% 
   ggplot(aes(`day(release_date)`, n)) + geom_col(color = "black", fill = "darkorange") +
-  geom_label(aes(x = 26, y = 500, label = "Halloween"), fill = "darkorange", fontface = "bold") +
-  scale_x_continuous(breaks = seq(1, 31, 3)) +
+  geom_label(aes(x = 26, y = 500, label = "Halloween"), fill = "darkorange", fontface = "bold", family = "Creepster") +
+  scale_x_continuous(expand = c(0,0), breaks = seq(1, 31, 3)) +
+  scale_y_continuous(expand = c(0,0), breaks = seq(150,450,150)) +
   geom_curve(aes(x = 26, y = 480, xend = 30, yend = 450), curvature = 0.3, color = "darkred", size = 1,
              arrow = arrow(length = unit(0.03, "npc"))) + 
-  theme(panel.grid = element_blank(), plot.title = element_text(hjust = 0.5), 
+  theme(panel.grid = element_blank(), 
+        axis.text = element_text(color = "white", size = 10),
+        plot.background = element_rect(fill = "black"),
+        plot.title = element_text(hjust = 0.5, family = "Creepster", color = "darkorange"), 
         panel.background = element_rect(fill = "black", color  =  NA)) +
   labs(title = "Horror Movie Release Day in October", y = "", x = "") 
 ```
