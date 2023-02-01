@@ -6,7 +6,7 @@ Matthew
 -   <a href="#exploratory-data-analysis"
     id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
     -   <a href="#number-of-cats" id="toc-number-of-cats">Number of Cats</a>
-    -   <a href="#prey-per-month" id="toc-prey-per-month">Prey Per Month</a>
+    -   <a href="#prey-per-year" id="toc-prey-per-year">Prey Per Year</a>
     -   <a href="#hours-indoors" id="toc-hours-indoors">Hours Indoors</a>
     -   <a href="#cat-sex" id="toc-cat-sex">Cat Sex</a>
 
@@ -28,15 +28,17 @@ cats %>%
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-## Prey Per Month
+## Prey Per Year
 
 ``` r
 cats %>% 
   count(prey_p_month) %>% 
   mutate(prey_year = 12*prey_p_month) %>% 
-  ggplot(aes(prey_year, n)) +
-  geom_col(fill = "steelblue2") +
-  labs(y = "Number of Cats", x = "Prey per Year", title = "Number of Cats by the Number of Prey Caught per Year")
+  ggplot(aes(fct_reorder(factor(prey_year),prey_year), n)) +
+  geom_col(fill = "steelblue2") + 
+  geom_text(aes(label = n), vjust = 2) +
+  labs(y = "Number of Cats", x = "Prey per Year", 
+       title = "Number of Cats by the Number of Prey Caught per Year")
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->

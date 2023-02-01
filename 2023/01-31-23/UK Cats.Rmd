@@ -38,15 +38,17 @@ cats %>%
   labs(y = "", x = "", title = "Number of Cats per Household")
 ```
 
-## Prey Per Month
+## Prey Per Year
 
 ```{r}
 cats %>% 
   count(prey_p_month) %>% 
   mutate(prey_year = 12*prey_p_month) %>% 
-  ggplot(aes(prey_year, n)) +
-  geom_col(fill = "steelblue2") +
-  labs(y = "Number of Cats", x = "Prey per Year", title = "Number of Cats by the Number of Prey Caught per Year")
+  ggplot(aes(fct_reorder(factor(prey_year),prey_year), n)) +
+  geom_col(fill = "steelblue2") + 
+  geom_text(aes(label = n), vjust = 2) +
+  labs(y = "Number of Cats", x = "Prey per Year", 
+       title = "Number of Cats by the Number of Prey Caught per Year")
 ```
 
 ## Hours Indoors
