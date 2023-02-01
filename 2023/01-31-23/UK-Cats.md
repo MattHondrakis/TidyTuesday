@@ -8,6 +8,7 @@ Matthew
     -   <a href="#number-of-cats" id="toc-number-of-cats">Number of Cats</a>
     -   <a href="#prey-per-month" id="toc-prey-per-month">Prey Per Month</a>
     -   <a href="#hours-indoors" id="toc-hours-indoors">Hours Indoors</a>
+    -   <a href="#cat-sex" id="toc-cat-sex">Cat Sex</a>
 
 ``` r
 cats <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-31/cats_uk_reference.csv')
@@ -49,7 +50,22 @@ cats %>%
   geom_col(fill = "steelblue2") +
   geom_text(aes(label = n), vjust = 2) +
   scale_x_continuous(breaks = seq(2.5,22.5,5)) +
-  labs(y = "Count", x = "Hours Indoors", title = "Number of Cats by the Hours Spent Indoors")
+  labs(y = "Count", x = "Hours Indoors", 
+       title = "Number of Cats by the Hours Spent Indoors")
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Cat Sex
+
+``` r
+cats %>% 
+  count(animal_sex) %>% 
+  ggplot(aes(animal_sex, n, fill = animal_sex)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = 2) +
+  labs(fill = "", x = "", y = "", title = "Female vs Male Cats") +
+  scale_fill_manual(values = c("pink2", "steelblue2"))
+```
+
+![](UK-Cats_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
