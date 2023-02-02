@@ -8,7 +8,8 @@ Matthew
   - <a href="#number-of-cats" id="toc-number-of-cats">Number of Cats</a>
   - <a href="#prey-per-year" id="toc-prey-per-year">Prey Per Year</a>
   - <a href="#hours-indoors" id="toc-hours-indoors">Hours Indoors</a>
-  - <a href="#cat-sex" id="toc-cat-sex">Cat Sex</a>
+  - <a href="#cat-gender" id="toc-cat-gender">Cat Gender</a>
+  - <a href="#age" id="toc-age">Age</a>
 
 ``` r
 cats <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-31/cats_uk_reference.csv')
@@ -58,13 +59,13 @@ cats %>%
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-## Cat Sex
+## Cat Gender
 
 ``` r
 cats %>% 
   count(animal_sex) %>% 
   ggplot(aes(animal_sex, n, fill = animal_sex)) +
-  geom_col() +
+  geom_col(color = "black") +
   geom_text(aes(label = n), vjust = 2) +
   labs(x = "", y = "", title = "Female vs Male Cats") +
   scale_x_discrete(labels = c("Female", "Male")) +
@@ -73,3 +74,20 @@ cats %>%
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+## Age
+
+``` r
+cats %>% 
+  count(age_years) %>% 
+  drop_na() %>% 
+  ggplot(aes(age_years, n, fill = factor(age_years))) +
+  geom_col(color = "black") + 
+  scale_x_continuous(breaks = seq(0,16,1)) +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(y = "Number of Cats", x = "", title = "Age Distribution") +
+  theme(panel.grid.minor.x = element_blank(),
+        legend.position = "none")
+```
+
+![](UK-Cats_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
