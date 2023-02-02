@@ -72,6 +72,8 @@ cats %>%
   ggplot(aes(animal_sex, n, fill = animal_sex)) +
   geom_col() +
   geom_text(aes(label = n), vjust = 2) +
-  labs(fill = "", x = "", y = "", title = "Female vs Male Cats") +
-  scale_fill_manual(values = c("pink2", "steelblue2"))
+  labs(x = "", y = "", title = "Female vs Male Cats") +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  scale_fill_manual(values = c("pink2", "steelblue2")) +
+  theme(legend.position = "none")
 ```
