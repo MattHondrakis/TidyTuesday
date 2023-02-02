@@ -23,7 +23,7 @@ cats %>%
   ggplot(aes(n_cats)) +
   geom_bar(fill = "steelblue2") +
   geom_text(aes(label = ..count..), stat = "count", vjust = 2) +
-  labs(y = "", x = "", title = "Number of Cats per Household")
+  labs(y = "Households", x = "", title = "Cats per Household")
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
@@ -37,8 +37,8 @@ cats %>%
   ggplot(aes(fct_reorder(factor(prey_year),prey_year), n)) +
   geom_col(fill = "steelblue2") + 
   geom_text(aes(label = n), vjust = 2) +
-  labs(y = "Number of Cats", x = "Prey per Year", 
-       title = "Number of Cats by the Number of Prey Caught per Year")
+  labs(y = "Cats", x = "Prey per Year", 
+       title = "Prey Caught per Year")
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -52,8 +52,8 @@ cats %>%
   geom_col(fill = "steelblue2") +
   geom_text(aes(label = n), vjust = 2) +
   scale_x_continuous(breaks = seq(2.5,22.5,5)) +
-  labs(y = "Count", x = "Hours Indoors", 
-       title = "Number of Cats by the Hours Spent Indoors")
+  labs(y = "Cats", x = "Hours Indoors", 
+       title = "Hours Spent Indoors")
 ```
 
 ![](UK-Cats_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
