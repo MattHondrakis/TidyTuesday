@@ -19,6 +19,7 @@ library(showtext)
 font_add_google("Roboto Slab", "Roboto")
 theme_set(theme_minimal())
 theme_update(plot.title = element_text(hjust = 0.5),
+             plot.subtitle = element_text(hjust = 0.5),
              text = element_text(family = "Roboto"))
 ```
 
@@ -38,4 +39,37 @@ drugs %>%
 drugs %>% 
   count(authorisation_status, sort = TRUE) %>% 
   knitr::kable()
+
+drugs %>% 
+  count(active_substance, sort = TRUE) %>% 
+  slice_max(n, n = 5) %>% 
+  knitr::kable()
+```
+
+## Therapeutic Areas
+
+```{r}
+drugs %>% 
+  mutate(len = nchar(therapeutic_area)) %>% 
+  arrange(-len) %>% 
+  head(3) %>% 
+  pull(therapeutic_area)
+```
+
+As it can be seen, the column *therapeutic_area* contains all possible uses for each drug, separated by **";"**. Thus in order to count how many distinct therapeutic areas a drug is used for, we will need to separate the column into multiple rows based on the delimiter, **";"**.
+
+```{r}
+drugs %>% 
+  filter(active_substance == "adalimumab") %>% 
+  select(active_substance, therapeutic_area) %>% 
+  separate_rows(therapeutic_area, sep = ";  ") %>% 
+  distinct(therapeutic_area)
+
+drugs %>% 
+  group_by(active_substance) %>% 
+  select(active_substance, therapeutic_area) %>% 
+  separate_rows(therapeutic_area, sep = ";  ") %>% 
+  distinct(therapeutic_area) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n)
 ```
