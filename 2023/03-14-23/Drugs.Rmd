@@ -77,6 +77,7 @@ drugs %>%
   slice_max(n, n = 5) %>% 
   ggplot(aes(n, fct_reorder(active_substance, n))) +
   geom_col(fill = "steelblue4") +
+  geom_text(aes(label = n), hjust = 2, color = "white") +
   labs(y = "Active Substance",
        x = "",
        title = "Top 5 Substances by the Number of Therapeutic Applications") +
