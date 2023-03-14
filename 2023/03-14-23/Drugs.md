@@ -75,6 +75,9 @@ uses for each drug, separated by **“;”**. Thus in order to count how
 many distinct therapeutic areas a drug is used for, we will need to
 separate the column into multiple rows based on the delimiter, **“;”**.
 
+For example, below we have all the therapeutic areas for the substance
+*adalimumab*.
+
 ``` r
 drugs %>% 
   filter(active_substance == "adalimumab") %>% 
