@@ -64,12 +64,21 @@ drugs %>%
   select(active_substance, therapeutic_area) %>% 
   separate_rows(therapeutic_area, sep = ";  ") %>% 
   distinct(therapeutic_area)
+```
 
+```{r}
 drugs %>% 
   group_by(active_substance) %>% 
   select(active_substance, therapeutic_area) %>% 
   separate_rows(therapeutic_area, sep = ";  ") %>% 
   distinct(therapeutic_area) %>% 
   summarize(n = n()) %>% 
-  arrange(-n)
+  arrange(-n) %>% 
+  slice_max(n, n = 5) %>% 
+  ggplot(aes(n, fct_reorder(active_substance, n))) +
+  geom_col(fill = "steelblue4") +
+  labs(y = "Active Substance",
+       x = "",
+       title = "Top 5 Substances by the Number of Therapeutic Applications") +
+  theme(plot.title = element_text(hjust = 1))
 ```

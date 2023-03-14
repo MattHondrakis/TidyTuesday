@@ -105,20 +105,14 @@ drugs %>%
   separate_rows(therapeutic_area, sep = ";  ") %>% 
   distinct(therapeutic_area) %>% 
   summarize(n = n()) %>% 
-  arrange(-n)
+  arrange(-n) %>% 
+  slice_max(n, n = 5) %>% 
+  ggplot(aes(n, fct_reorder(active_substance, n))) +
+  geom_col(fill = "steelblue4") +
+  labs(y = "Active Substance",
+       x = "",
+       title = "Top 5 Substances by the Number of Therapeutic Applications") +
+  theme(plot.title = element_text(hjust = 1))
 ```
 
-    ## # A tibble: 1,346 x 2
-    ##    active_substance            n
-    ##    <chr>                   <int>
-    ##  1 idecabtagene vicleucel     16
-    ##  2 amifampridine phosphate    13
-    ##  3 adalimumab                 11
-    ##  4 ibandronic acid            11
-    ##  5 bevacizumab                 9
-    ##  6 nivolumab                   9
-    ##  7 interferon alfa-2b          8
-    ##  8 melphalan hydrochloride     8
-    ##  9 pembrolizumab               8
-    ## 10 rivaroxaban                 8
-    ## # ... with 1,336 more rows
+![](Drugs_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
