@@ -28,8 +28,14 @@ drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday
 
 # EDA
 
+## Categoricals
+
 ```{r}
 drugs %>% 
   count(category) %>% 
+  knitr::kable()
+
+drugs %>% 
+  count(authorisation_status, sort = TRUE) %>% 
   knitr::kable()
 ```
