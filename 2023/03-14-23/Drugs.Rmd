@@ -12,6 +12,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500, fig.showtext = TRUE)
 library(tidyverse)
+library(lubridate)
 library(scales)
 library(patchwork)
 library(sysfonts)
@@ -84,4 +85,46 @@ drugs %>%
        x = "",
        title = "Top 5 Substances by the Number of Therapeutic Applications") +
   theme(plot.title = element_text(hjust = 1))
+```
+
+## Authorization Status
+
+```{r}
+drugs %>% 
+  filter(!is.na(authorisation_status)) %>% 
+  ggplot(aes(str_to_title(category), fill = authorisation_status)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("springgreen2", "yellow3", "red3")) +
+  labs(title = "Proportion of Drugs Authorization Status by Category",
+       y = "Proportion",
+       fill = "",
+       x = "") +
+  scale_y_continuous(labels = percent_format())
+```
+
+```{r}
+drugs %>% 
+  group_by(active_substance) %>% 
+  count(authorisation_status, sort = TRUE) %>% 
+  filter(authorisation_status == "withdrawn")
+```
+
+```{r}
+drugs %>% 
+  group_by(y = year(first_published)) %>% 
+  count(authorisation_status) %>% 
+  ggplot(aes(y, n, color = authorisation_status)) +
+  geom_line() 
+
+drugs %>% 
+  mutate(diff = as.numeric(
+    difftime(revision_date, first_published, units = "weeks"))) %>% 
+  select(first_published, diff) %>% 
+  filter(!is.na(diff)) %>% 
+  ggplot(aes(first_published, diff)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Drug Published", 
+       y = "Time Until Review (weeks)",
+       title = "Time Between Review and Publication over Time")
 ```

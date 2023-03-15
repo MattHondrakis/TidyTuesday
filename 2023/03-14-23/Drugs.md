@@ -7,6 +7,8 @@ Matthew
   - <a href="#categoricals" id="toc-categoricals">Categoricals</a>
   - <a href="#therapeutic-areas" id="toc-therapeutic-areas">Therapeutic
     Areas</a>
+  - <a href="#authorization-status"
+    id="toc-authorization-status">Authorization Status</a>
 
 ``` r
 drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-14/drugs.csv')
@@ -120,3 +122,71 @@ drugs %>%
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+## Authorization Status
+
+``` r
+drugs %>% 
+  filter(!is.na(authorisation_status)) %>% 
+  ggplot(aes(str_to_title(category), fill = authorisation_status)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("springgreen2", "yellow3", "red3")) +
+  labs(title = "Proportion of Drugs Authorization Status by Category",
+       y = "Proportion",
+       fill = "",
+       x = "") +
+  scale_y_continuous(labels = percent_format())
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+drugs %>% 
+  group_by(active_substance) %>% 
+  count(authorisation_status, sort = TRUE) %>% 
+  filter(authorisation_status == "withdrawn")
+```
+
+    ## # A tibble: 267 x 3
+    ## # Groups:   active_substance [267]
+    ##    active_substance               authorisation_status     n
+    ##    <chr>                          <chr>                <int>
+    ##  1 clopidogrel                    withdrawn                8
+    ##  2 pioglitazone hydrochloride     withdrawn                6
+    ##  3 adalimumab                     withdrawn                5
+    ##  4 docetaxel                      withdrawn                5
+    ##  5 insulin human                  withdrawn                5
+    ##  6 ribavirin                      withdrawn                5
+    ##  7 aliskiren                      withdrawn                4
+    ##  8 clopidogrel (as hydrochloride) withdrawn                4
+    ##  9 meloxicam                      withdrawn                4
+    ## 10 aliskiren, hydrochlorothiazide withdrawn                3
+    ## # ... with 257 more rows
+
+``` r
+drugs %>% 
+  group_by(y = year(first_published)) %>% 
+  count(authorisation_status) %>% 
+  ggplot(aes(y, n, color = authorisation_status)) +
+  geom_line() 
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+drugs %>% 
+  mutate(diff = as.numeric(
+    difftime(revision_date, first_published, units = "weeks"))) %>% 
+  select(first_published, diff) %>% 
+  filter(!is.na(diff)) %>% 
+  ggplot(aes(first_published, diff)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Drug Published", 
+       y = "Time Until Review (weeks)",
+       title = "Time Between Review and Publication over Time")
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Drugs_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
