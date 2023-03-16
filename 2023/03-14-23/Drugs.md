@@ -113,7 +113,7 @@ drugs %>%
   arrange(-n) %>% 
   slice_max(n, n = 5) %>% 
   ggplot(aes(n, fct_reorder(active_substance, n))) +
-  geom_col(fill = "steelblue4") +
+  geom_col(fill = "steelblue3") +
   geom_text(aes(label = n), hjust = 2, color = "white") +
   labs(y = "Active Substance",
        x = "",
@@ -130,7 +130,7 @@ drugs %>%
   filter(!is.na(authorisation_status)) %>% 
   ggplot(aes(str_to_title(category), fill = authorisation_status)) +
   geom_bar(position = "fill") +
-  scale_fill_manual(values = c("springgreen2", "yellow3", "red3")) +
+  scale_fill_manual(values = c("springgreen2", "darkblue", "red3")) +
   labs(title = "Proportion of Drugs Authorization Status by Category",
        y = "Proportion",
        fill = "",
@@ -139,6 +139,21 @@ drugs %>%
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+table(drugs$category, drugs$authorisation_status) %>% 
+  chisq.test()
+```
+
+    ## 
+    ##  Pearson's Chi-squared test
+    ## 
+    ## data:  .
+    ## X-squared = 3.3104, df = 2, p-value = 0.191
+
+There does not appear to be a statistically significant difference
+between *human* and *veterinary* drugs with respect to whether they were
+*authorized* or *withdrawn*.
 
 ``` r
 drugs %>% 
@@ -165,10 +180,15 @@ drugs %>%
 
 ``` r
 drugs %>% 
+  filter(!is.na(authorisation_status)) %>% 
   group_by(y = year(first_published)) %>% 
   count(authorisation_status) %>% 
   ggplot(aes(y, n, color = authorisation_status)) +
-  geom_line() 
+  geom_line() +
+  labs(y = "Total", x = "", color = "",
+       title = "Authorisation of Time",) +
+  theme(legend.position = c(0.38, 0.835),
+        panel.grid.minor.x = element_blank())
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
@@ -180,7 +200,7 @@ drugs %>%
   select(first_published, diff) %>% 
   filter(!is.na(diff)) %>% 
   ggplot(aes(first_published, diff)) +
-  geom_point() +
+  geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "Drug Published", 
        y = "Time Until Review (weeks)",
@@ -190,3 +210,27 @@ drugs %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
+drugs %>% 
+  group_by(marketing_authorisation_holder_company_name) %>% 
+  summarize(n = n(),
+            prop = mean(authorisation_status == "authorised")) %>% 
+  arrange(-n, -prop) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(prop, fct_reorder(
+    marketing_authorisation_holder_company_name, prop))) +
+  geom_col(color = "black", fill = "steelblue2") +
+  geom_text(aes(label = paste0(prop*n, "/", n), hjust = 1.5)) +
+  geom_text(aes(label = marketing_authorisation_holder_company_name),
+            x = 0.05, 
+            hjust = "inward") +
+  labs(y = "",
+       x = "",
+       title = 
+         "Most Prolific Companies Ordered by Proportion of Drugs Authorized") +
+  scale_x_continuous(labels = percent_format()) +
+  theme(axis.text.y = element_blank())
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
