@@ -30,7 +30,7 @@ drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday
 
 # EDA
 
-## Categoricals
+## Categorical Counts
 
 ```{r}
 drugs %>% 
