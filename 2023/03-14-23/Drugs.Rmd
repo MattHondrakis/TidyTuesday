@@ -160,3 +160,12 @@ drugs %>%
   scale_x_continuous(labels = percent_format()) +
   theme(axis.text.y = element_blank())
 ```
+
+## Active Substance
+
+```{r}
+dlong <- drugs %>% 
+  separate_rows(therapeutic_area, sep = "; ") %>% 
+  mutate(therapeutic_area = trimws(therapeutic_area),
+         main_thera = str_remove_all(therapeutic_area, ",.*"))
+```

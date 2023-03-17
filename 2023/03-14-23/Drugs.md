@@ -4,11 +4,14 @@ Matthew
 2023-03-14
 
 - <a href="#eda" id="toc-eda">EDA</a>
-  - <a href="#categoricals" id="toc-categoricals">Categoricals</a>
+  - <a href="#categorical-counts" id="toc-categorical-counts">Categorical
+    Counts</a>
   - <a href="#therapeutic-areas" id="toc-therapeutic-areas">Therapeutic
     Areas</a>
   - <a href="#authorization-status"
     id="toc-authorization-status">Authorization Status</a>
+  - <a href="#active-substance" id="toc-active-substance">Active
+    Substance</a>
 
 ``` r
 drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-14/drugs.csv')
@@ -16,7 +19,7 @@ drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday
 
 # EDA
 
-## Categoricals
+## Categorical Counts
 
 ``` r
 drugs %>% 
@@ -186,7 +189,7 @@ drugs %>%
   ggplot(aes(y, n, color = authorisation_status)) +
   geom_line() +
   labs(y = "Total", x = "", color = "",
-       title = "Authorisation of Time",) +
+       title = "Authorization of Time") +
   theme(legend.position = c(0.38, 0.835),
         panel.grid.minor.x = element_blank())
 ```
@@ -234,3 +237,12 @@ drugs %>%
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## Active Substance
+
+``` r
+dlong <- drugs %>% 
+  separate_rows(therapeutic_area, sep = "; ") %>% 
+  mutate(therapeutic_area = trimws(therapeutic_area),
+         main_thera = str_remove_all(therapeutic_area, ",.*"))
+```
