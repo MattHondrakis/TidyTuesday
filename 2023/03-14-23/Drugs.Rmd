@@ -217,4 +217,10 @@ dlong_cluster %>%
   count(cluster) %>% 
   mutate(prop = n/sum(n)) %>% 
   arrange(-n, -prop)
+
+dlong_cluster %>% 
+  filter(!is.na(main_thera)) %>% 
+  group_by(cluster) %>% 
+  count(main_thera) %>% 
+  arrange(-cluster, -n)
 ```

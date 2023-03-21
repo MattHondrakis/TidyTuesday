@@ -307,18 +307,42 @@ dlong_cluster %>%
   arrange(-n, -prop)
 ```
 
-    ## # A tibble: 723 x 4
+    ## # A tibble: 714 x 4
     ## # Groups:   marketing_authorisation_holder_company_name [544]
     ##    marketing_authorisation_holder_company_name cluster     n  prop
     ##    <chr>                                         <int> <int> <dbl>
-    ##  1 Accord Healthcare S.L.U.                          2    45 0.409
-    ##  2 Novartis Europharm Limited                        2    42 0.467
-    ##  3 Sandoz GmbH                                       3    37 0.544
-    ##  4 GlaxoSmithKline Biologicals S.A.                  2    36 0.554
-    ##  5 Samsung Bioepis NL B.V.                           3    35 0.875
-    ##  6 Merck Sharp & Dohme B.V.                          3    35 0.515
-    ##  7 Bristol-Myers Squibb Pharma EEIG                  3    34 0.507
-    ##  8 Accord Healthcare S.L.U.                          4    34 0.309
-    ##  9 Pfizer Europe MA EEIG                             2    33 0.44 
-    ## 10 Celltrion Healthcare Hungary Kft.                 3    32 0.8  
-    ## # ... with 713 more rows
+    ##  1 Accord Healthcare S.L.U.                          3    45 0.409
+    ##  2 Novartis Europharm Limited                        3    42 0.467
+    ##  3 Sandoz GmbH                                       4    37 0.544
+    ##  4 GlaxoSmithKline Biologicals S.A.                  3    36 0.554
+    ##  5 Novartis Europharm Limited                        1    36 0.4  
+    ##  6 Samsung Bioepis NL B.V.                           4    35 0.875
+    ##  7 Merck Sharp & Dohme B.V.                          4    35 0.515
+    ##  8 Bristol-Myers Squibb Pharma EEIG                  4    34 0.507
+    ##  9 Pfizer Europe MA EEIG                             3    33 0.44 
+    ## 10 Celltrion Healthcare Hungary Kft.                 4    32 0.8  
+    ## # ... with 704 more rows
+
+``` r
+dlong_cluster %>% 
+  filter(!is.na(main_thera)) %>% 
+  group_by(cluster) %>% 
+  count(main_thera) %>% 
+  arrange(-cluster, -n)
+```
+
+    ## # A tibble: 692 x 3
+    ## # Groups:   cluster [4]
+    ##    cluster main_thera                n
+    ##      <int> <chr>                 <int>
+    ##  1       4 Arthritis                61
+    ##  2       4 Carcinoma                41
+    ##  3       4 Breast Neoplasms         31
+    ##  4       4 Psoriasis                21
+    ##  5       4 Spondylitis              21
+    ##  6       4 Colitis                  19
+    ##  7       4 Crohn Disease            19
+    ##  8       4 Colorectal Neoplasms     17
+    ##  9       4 Myocardial Infarction    17
+    ## 10       4 Stroke                   17
+    ## # ... with 682 more rows
