@@ -12,6 +12,7 @@ Matthew
     id="toc-authorization-status">Authorization Status</a>
   - <a href="#active-substance" id="toc-active-substance">Active
     Substance</a>
+    - <a href="#cluster" id="toc-cluster">Cluster</a>
 
 ``` r
 drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-14/drugs.csv')
@@ -246,3 +247,78 @@ dlong <- drugs %>%
   mutate(therapeutic_area = trimws(therapeutic_area),
          main_thera = str_remove_all(therapeutic_area, ",.*"))
 ```
+
+``` r
+dlong %>% 
+  count(main_thera, sort = TRUE) %>% 
+  filter(grepl("Diabetes", main_thera))
+```
+
+    ## # A tibble: 2 x 2
+    ##   main_thera                 n
+    ##   <chr>                  <int>
+    ## 1 Diabetes Mellitus        117
+    ## 2 Diabetes Complications     5
+
+### Cluster
+
+``` r
+unique_df <- dlong %>%
+  filter(!is.na(main_thera)) %>% slice(-1666) %>% 
+  select(medicine_name, main_thera) %>% 
+  distinct()
+
+binary_matrix <- unique_df %>% 
+  mutate(value = 1) %>%
+  spread(key = main_thera, value = value, fill = 0)
+```
+
+``` r
+dist_matrix <- dist(binary_matrix[,-1])
+
+tot_withinss <- map_dbl(2:10, function(k){
+  model <- kmeans(dist_matrix, centers = k, nstart = 5)
+  model$tot.withinss
+})
+
+plot(tot_withinss)
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+clusters <- kmeans(dist_matrix, 4, 5)
+
+new_df <- data.frame(medicine_name = binary_matrix$medicine_name,
+                     cluster = clusters$cluster)
+
+dlong_cluster <- dlong %>% 
+  left_join(new_df)
+```
+
+    ## Joining, by = "medicine_name"
+
+``` r
+dlong_cluster %>% 
+  filter(!is.na(cluster)) %>% 
+  group_by(marketing_authorisation_holder_company_name) %>% 
+  count(cluster) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  arrange(-n, -prop)
+```
+
+    ## # A tibble: 723 x 4
+    ## # Groups:   marketing_authorisation_holder_company_name [544]
+    ##    marketing_authorisation_holder_company_name cluster     n  prop
+    ##    <chr>                                         <int> <int> <dbl>
+    ##  1 Accord Healthcare S.L.U.                          2    45 0.409
+    ##  2 Novartis Europharm Limited                        2    42 0.467
+    ##  3 Sandoz GmbH                                       3    37 0.544
+    ##  4 GlaxoSmithKline Biologicals S.A.                  2    36 0.554
+    ##  5 Samsung Bioepis NL B.V.                           3    35 0.875
+    ##  6 Merck Sharp & Dohme B.V.                          3    35 0.515
+    ##  7 Bristol-Myers Squibb Pharma EEIG                  3    34 0.507
+    ##  8 Accord Healthcare S.L.U.                          4    34 0.309
+    ##  9 Pfizer Europe MA EEIG                             2    33 0.44 
+    ## 10 Celltrion Healthcare Hungary Kft.                 3    32 0.8  
+    ## # ... with 713 more rows

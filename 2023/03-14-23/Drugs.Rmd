@@ -169,3 +169,52 @@ dlong <- drugs %>%
   mutate(therapeutic_area = trimws(therapeutic_area),
          main_thera = str_remove_all(therapeutic_area, ",.*"))
 ```
+
+```{r}
+dlong %>% 
+  count(main_thera, sort = TRUE) %>% 
+  filter(grepl("Diabetes", main_thera))
+```
+
+### Cluster
+
+```{r}
+unique_df <- dlong %>%
+  filter(!is.na(main_thera)) %>% slice(-1666) %>% 
+  select(medicine_name, main_thera) %>% 
+  distinct()
+
+binary_matrix <- unique_df %>% 
+  mutate(value = 1) %>%
+  spread(key = main_thera, value = value, fill = 0)
+```
+
+```{r}
+dist_matrix <- dist(binary_matrix[,-1])
+
+tot_withinss <- map_dbl(2:10, function(k){
+  model <- kmeans(dist_matrix, centers = k, nstart = 5)
+  model$tot.withinss
+})
+
+plot(tot_withinss)
+```
+
+```{r}
+clusters <- kmeans(dist_matrix, 4, 5)
+
+new_df <- data.frame(medicine_name = binary_matrix$medicine_name,
+                     cluster = clusters$cluster)
+
+dlong_cluster <- dlong %>% 
+  left_join(new_df)
+```
+
+```{r}
+dlong_cluster %>% 
+  filter(!is.na(cluster)) %>% 
+  group_by(marketing_authorisation_holder_company_name) %>% 
+  count(cluster) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  arrange(-n, -prop)
+```
