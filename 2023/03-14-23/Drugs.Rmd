@@ -176,6 +176,8 @@ dlong %>%
   filter(grepl("Diabetes", main_thera))
 ```
 
+## Companies
+
 ### Cluster
 
 ```{r}

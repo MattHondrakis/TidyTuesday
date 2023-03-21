@@ -12,6 +12,7 @@ Matthew
     id="toc-authorization-status">Authorization Status</a>
   - <a href="#active-substance" id="toc-active-substance">Active
     Substance</a>
+  - <a href="#companies" id="toc-companies">Companies</a>
     - <a href="#cluster" id="toc-cluster">Cluster</a>
 
 ``` r
@@ -260,6 +261,8 @@ dlong %>%
     ## 1 Diabetes Mellitus        117
     ## 2 Diabetes Complications     5
 
+## Companies
+
 ### Cluster
 
 ``` r
@@ -307,21 +310,21 @@ dlong_cluster %>%
   arrange(-n, -prop)
 ```
 
-    ## # A tibble: 714 x 4
+    ## # A tibble: 682 x 4
     ## # Groups:   marketing_authorisation_holder_company_name [544]
     ##    marketing_authorisation_holder_company_name cluster     n  prop
     ##    <chr>                                         <int> <int> <dbl>
-    ##  1 Accord Healthcare S.L.U.                          3    45 0.409
-    ##  2 Novartis Europharm Limited                        3    42 0.467
-    ##  3 Sandoz GmbH                                       4    37 0.544
-    ##  4 GlaxoSmithKline Biologicals S.A.                  3    36 0.554
-    ##  5 Novartis Europharm Limited                        1    36 0.4  
-    ##  6 Samsung Bioepis NL B.V.                           4    35 0.875
-    ##  7 Merck Sharp & Dohme B.V.                          4    35 0.515
-    ##  8 Bristol-Myers Squibb Pharma EEIG                  4    34 0.507
-    ##  9 Pfizer Europe MA EEIG                             3    33 0.44 
-    ## 10 Celltrion Healthcare Hungary Kft.                 4    32 0.8  
-    ## # ... with 704 more rows
+    ##  1 Accord Healthcare S.L.U.                          4    75 0.682
+    ##  2 Sandoz GmbH                                       4    67 0.985
+    ##  3 GlaxoSmithKline Biologicals S.A.                  4    65 1    
+    ##  4 Novartis Europharm Limited                        4    52 0.578
+    ##  5 Bristol-Myers Squibb Pharma EEIG                  4    49 0.731
+    ##  6 Merck Sharp & Dohme B.V.                          4    48 0.706
+    ##  7 Pfizer Europe MA EEIG                             4    48 0.64 
+    ##  8 Samsung Bioepis NL B.V.                           4    40 1    
+    ##  9 Celltrion Healthcare Hungary Kft.                 4    39 0.975
+    ## 10 Novartis Europharm Limited                        2    36 0.4  
+    ## # ... with 672 more rows
 
 ``` r
 dlong_cluster %>% 
@@ -331,18 +334,18 @@ dlong_cluster %>%
   arrange(-cluster, -n)
 ```
 
-    ## # A tibble: 692 x 3
+    ## # A tibble: 606 x 3
     ## # Groups:   cluster [4]
-    ##    cluster main_thera                n
-    ##      <int> <chr>                 <int>
-    ##  1       4 Arthritis                61
-    ##  2       4 Carcinoma                41
-    ##  3       4 Breast Neoplasms         31
-    ##  4       4 Psoriasis                21
-    ##  5       4 Spondylitis              21
-    ##  6       4 Colitis                  19
-    ##  7       4 Crohn Disease            19
-    ##  8       4 Colorectal Neoplasms     17
-    ##  9       4 Myocardial Infarction    17
-    ## 10       4 Stroke                   17
-    ## # ... with 682 more rows
+    ##    cluster main_thera                       n
+    ##      <int> <chr>                        <int>
+    ##  1       4 Arthritis                       92
+    ##  2       4 Carcinoma                       70
+    ##  3       4 Immunization                    54
+    ##  4       4 Breast Neoplasms                46
+    ##  5       4 Cancer                          39
+    ##  6       4 Myocardial Infarction           36
+    ##  7       4 Stroke                          32
+    ##  8       4 Leukemia                        31
+    ##  9       4 Psoriasis                       30
+    ## 10       4 Peripheral Vascular Diseases    29
+    ## # ... with 596 more rows
