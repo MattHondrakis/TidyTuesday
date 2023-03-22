@@ -283,6 +283,7 @@ Next, a distance matrix is created, while ignoring the first column
 “*medicine name”*.
 
 ``` r
+set.seed(123)
 dist_matrix <- dist(binary_matrix[,-1])
 
 tot_withinss <- map_dbl(2:10, function(k){
@@ -296,6 +297,7 @@ plot(tot_withinss)
 ![](Drugs_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
+set.seed(321)
 clusters <- kmeans(dist_matrix, 4, 5)
 
 new_df <- data.frame(active_substance = binary_matrix$active_substance,
@@ -309,31 +311,6 @@ dlong_cluster <- dlong %>%
 
 ``` r
 dlong_cluster %>% 
-  filter(!is.na(cluster)) %>% 
-  group_by(marketing_authorisation_holder_company_name) %>% 
-  count(cluster) %>% 
-  mutate(prop = n/sum(n)) %>% 
-  arrange(-n, -prop)
-```
-
-    ## # A tibble: 736 x 4
-    ## # Groups:   marketing_authorisation_holder_company_name [550]
-    ##    marketing_authorisation_holder_company_name cluster     n  prop
-    ##    <chr>                                         <int> <int> <dbl>
-    ##  1 Sandoz GmbH                                       1    48 0.706
-    ##  2 Accord Healthcare S.L.U.                          4    48 0.436
-    ##  3 Novartis Europharm Limited                        4    41 0.456
-    ##  4 Samsung Bioepis NL B.V.                           1    38 0.95 
-    ##  5 Bristol-Myers Squibb Pharma EEIG                  1    38 0.567
-    ##  6 Accord Healthcare S.L.U.                          1    38 0.345
-    ##  7 Celltrion Healthcare Hungary Kft.                 1    37 0.925
-    ##  8 GlaxoSmithKline Biologicals S.A.                  4    36 0.554
-    ##  9 Merck Sharp & Dohme B.V.                          1    35 0.515
-    ## 10 Novartis Europharm Limited                        2    35 0.389
-    ## # ... with 726 more rows
-
-``` r
-dlong_cluster %>% 
   filter(!is.na(main_thera)) %>% 
   group_by(cluster, main_thera) %>% 
   count(active_substance) %>% 
@@ -342,16 +319,60 @@ dlong_cluster %>%
 
     ## # A tibble: 1,806 x 4
     ## # Groups:   cluster, main_thera [683]
-    ##    cluster main_thera         active_substance      n
-    ##      <int> <chr>              <chr>             <int>
-    ##  1       4 Rhinitis           desloratadine        18
-    ##  2       4 Bipolar Disorder   olanzapine           12
-    ##  3       4 Neutropenia        pegfilgrastim        12
-    ##  4       4 Schizophrenia      olanzapine           12
-    ##  5       4 Anxiety Disorders  pregabalin            9
-    ##  6       4 Epilepsy           pregabalin            9
-    ##  7       4 Leukemia           azacitidine           9
-    ##  8       4 Neutropenia        filgrastim            9
-    ##  9       4 Alzheimer Disease  rivastigmine          8
-    ## 10       4 Multiple Sclerosis dimethyl fumarate     8
+    ##    cluster main_thera               active_substance     n
+    ##      <int> <chr>                    <chr>            <int>
+    ##  1       4 Arthritis                adalimumab          43
+    ##  2       4 Carcinoma                bevacizumab         22
+    ##  3       4 Spondylitis              adalimumab          16
+    ##  4       4 Crohn Disease            adalimumab          14
+    ##  5       4 Psoriasis                adalimumab          14
+    ##  6       4 Colitis                  adalimumab          13
+    ##  7       4 Uveitis                  adalimumab          13
+    ##  8       4 Arthritis                etanercept          12
+    ##  9       4 Hidradenitis Suppurativa adalimumab          12
+    ## 10       4 Breast Neoplasms         bevacizumab         11
     ## # ... with 1,796 more rows
+
+``` r
+dlong_cluster %>%
+  filter(!is.na(main_thera)) %>% 
+  count(main_thera) %>%
+  top_n(10) %>%
+  inner_join(dlong_cluster, by = "main_thera") %>% 
+  select(main_thera, active_substance, cluster) %>% 
+  group_by(main_thera) %>% 
+  summarize(n_clusters = n_distinct(cluster)) %>% 
+  arrange(-n_clusters)
+```
+
+    ## Selecting by n
+
+    ## # A tibble: 11 x 2
+    ##    main_thera            n_clusters
+    ##    <chr>                      <int>
+    ##  1 Arthritis                      3
+    ##  2 Breast Neoplasms               3
+    ##  3 Carcinoma                      3
+    ##  4 Diabetes Mellitus              3
+    ##  5 Leukemia                       3
+    ##  6 Lymphoma                       3
+    ##  7 Myocardial Infarction          3
+    ##  8 Cancer                         2
+    ##  9 HIV Infections                 2
+    ## 10 Hypertension                   2
+    ## 11 Immunization                   2
+
+``` r
+dlong_cluster %>% 
+  filter(!is.na(cluster)) %>% 
+  group_by(cluster) %>% 
+  summarize(n = n_distinct(main_thera)) %>% 
+  ggplot(aes(n, fct_reorder(factor(cluster), n), fill = factor(cluster))) +
+  geom_col(color = "black") +
+  geom_text(aes(label = n, hjust = ifelse(n > 1, 2, -1))) +
+  labs(y = "Cluster", x = "# of Therapeutic Areas",
+       title = "Number of Therapeutic Areas per Cluster") +
+  theme(legend.position = "none")
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->

@@ -196,6 +196,7 @@ binary_matrix <- unique_df %>%
 Next, a distance matrix is created, while ignoring the first column "*medicine name"*.
 
 ```{r}
+set.seed(123)
 dist_matrix <- dist(binary_matrix[,-1])
 
 tot_withinss <- map_dbl(2:10, function(k){
@@ -207,6 +208,7 @@ plot(tot_withinss)
 ```
 
 ```{r}
+set.seed(321)
 clusters <- kmeans(dist_matrix, 4, 5)
 
 new_df <- data.frame(active_substance = binary_matrix$active_substance,
@@ -218,15 +220,33 @@ dlong_cluster <- dlong %>%
 
 ```{r}
 dlong_cluster %>% 
-  filter(!is.na(cluster)) %>% 
-  group_by(marketing_authorisation_holder_company_name) %>% 
-  count(cluster) %>% 
-  mutate(prop = n/sum(n)) %>% 
-  arrange(-n, -prop)
-
-dlong_cluster %>% 
   filter(!is.na(main_thera)) %>% 
   group_by(cluster, main_thera) %>% 
   count(active_substance) %>% 
   arrange(-cluster, -n) 
+```
+
+```{r}
+dlong_cluster %>%
+  filter(!is.na(main_thera)) %>% 
+  count(main_thera) %>%
+  top_n(10) %>%
+  inner_join(dlong_cluster, by = "main_thera") %>% 
+  select(main_thera, active_substance, cluster) %>% 
+  group_by(main_thera) %>% 
+  summarize(n_clusters = n_distinct(cluster)) %>% 
+  arrange(-n_clusters)
+```
+
+```{r}
+dlong_cluster %>% 
+  filter(!is.na(cluster)) %>% 
+  group_by(cluster) %>% 
+  summarize(n = n_distinct(main_thera)) %>% 
+  ggplot(aes(n, fct_reorder(factor(cluster), n), fill = factor(cluster))) +
+  geom_col(color = "black") +
+  geom_text(aes(label = n, hjust = ifelse(n > 1, 2, -1))) +
+  labs(y = "Cluster", x = "# of Therapeutic Areas",
+       title = "Number of Therapeutic Areas per Cluster") +
+  theme(legend.position = "none")
 ```
