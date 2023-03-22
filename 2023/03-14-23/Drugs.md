@@ -265,10 +265,13 @@ dlong %>%
 
 ### Cluster
 
+In order to cluster, we must first create a binary matrix. The following
+code is a concise way of doing so.
+
 ``` r
 unique_df <- dlong %>%
   filter(!is.na(main_thera)) %>% slice(-1666) %>% 
-  select(medicine_name, main_thera) %>% 
+  select(active_substance, main_thera) %>% 
   distinct()
 
 binary_matrix <- unique_df %>% 
@@ -276,11 +279,14 @@ binary_matrix <- unique_df %>%
   spread(key = main_thera, value = value, fill = 0)
 ```
 
+Next, a distance matrix is created, while ignoring the first column
+“*medicine name”*.
+
 ``` r
 dist_matrix <- dist(binary_matrix[,-1])
 
 tot_withinss <- map_dbl(2:10, function(k){
-  model <- kmeans(dist_matrix, centers = k, nstart = 5)
+  model <- kmeans(dist_matrix, centers = k, nstart = 8)
   model$tot.withinss
 })
 
@@ -292,14 +298,14 @@ plot(tot_withinss)
 ``` r
 clusters <- kmeans(dist_matrix, 4, 5)
 
-new_df <- data.frame(medicine_name = binary_matrix$medicine_name,
+new_df <- data.frame(active_substance = binary_matrix$active_substance,
                      cluster = clusters$cluster)
 
 dlong_cluster <- dlong %>% 
   left_join(new_df)
 ```
 
-    ## Joining, by = "medicine_name"
+    ## Joining, by = "active_substance"
 
 ``` r
 dlong_cluster %>% 
@@ -310,42 +316,42 @@ dlong_cluster %>%
   arrange(-n, -prop)
 ```
 
-    ## # A tibble: 682 x 4
-    ## # Groups:   marketing_authorisation_holder_company_name [544]
+    ## # A tibble: 736 x 4
+    ## # Groups:   marketing_authorisation_holder_company_name [550]
     ##    marketing_authorisation_holder_company_name cluster     n  prop
     ##    <chr>                                         <int> <int> <dbl>
-    ##  1 Accord Healthcare S.L.U.                          4    75 0.682
-    ##  2 Sandoz GmbH                                       4    67 0.985
-    ##  3 GlaxoSmithKline Biologicals S.A.                  4    65 1    
-    ##  4 Novartis Europharm Limited                        4    52 0.578
-    ##  5 Bristol-Myers Squibb Pharma EEIG                  4    49 0.731
-    ##  6 Merck Sharp & Dohme B.V.                          4    48 0.706
-    ##  7 Pfizer Europe MA EEIG                             4    48 0.64 
-    ##  8 Samsung Bioepis NL B.V.                           4    40 1    
-    ##  9 Celltrion Healthcare Hungary Kft.                 4    39 0.975
-    ## 10 Novartis Europharm Limited                        2    36 0.4  
-    ## # ... with 672 more rows
+    ##  1 Sandoz GmbH                                       1    48 0.706
+    ##  2 Accord Healthcare S.L.U.                          4    48 0.436
+    ##  3 Novartis Europharm Limited                        4    41 0.456
+    ##  4 Samsung Bioepis NL B.V.                           1    38 0.95 
+    ##  5 Bristol-Myers Squibb Pharma EEIG                  1    38 0.567
+    ##  6 Accord Healthcare S.L.U.                          1    38 0.345
+    ##  7 Celltrion Healthcare Hungary Kft.                 1    37 0.925
+    ##  8 GlaxoSmithKline Biologicals S.A.                  4    36 0.554
+    ##  9 Merck Sharp & Dohme B.V.                          1    35 0.515
+    ## 10 Novartis Europharm Limited                        2    35 0.389
+    ## # ... with 726 more rows
 
 ``` r
 dlong_cluster %>% 
   filter(!is.na(main_thera)) %>% 
-  group_by(cluster) %>% 
-  count(main_thera) %>% 
-  arrange(-cluster, -n)
+  group_by(cluster, main_thera) %>% 
+  count(active_substance) %>% 
+  arrange(-cluster, -n) 
 ```
 
-    ## # A tibble: 606 x 3
-    ## # Groups:   cluster [4]
-    ##    cluster main_thera                       n
-    ##      <int> <chr>                        <int>
-    ##  1       4 Arthritis                       92
-    ##  2       4 Carcinoma                       70
-    ##  3       4 Immunization                    54
-    ##  4       4 Breast Neoplasms                46
-    ##  5       4 Cancer                          39
-    ##  6       4 Myocardial Infarction           36
-    ##  7       4 Stroke                          32
-    ##  8       4 Leukemia                        31
-    ##  9       4 Psoriasis                       30
-    ## 10       4 Peripheral Vascular Diseases    29
-    ## # ... with 596 more rows
+    ## # A tibble: 1,806 x 4
+    ## # Groups:   cluster, main_thera [683]
+    ##    cluster main_thera         active_substance      n
+    ##      <int> <chr>              <chr>             <int>
+    ##  1       4 Rhinitis           desloratadine        18
+    ##  2       4 Bipolar Disorder   olanzapine           12
+    ##  3       4 Neutropenia        pegfilgrastim        12
+    ##  4       4 Schizophrenia      olanzapine           12
+    ##  5       4 Anxiety Disorders  pregabalin            9
+    ##  6       4 Epilepsy           pregabalin            9
+    ##  7       4 Leukemia           azacitidine           9
+    ##  8       4 Neutropenia        filgrastim            9
+    ##  9       4 Alzheimer Disease  rivastigmine          8
+    ## 10       4 Multiple Sclerosis dimethyl fumarate     8
+    ## # ... with 1,796 more rows
