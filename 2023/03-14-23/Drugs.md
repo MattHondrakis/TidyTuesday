@@ -12,11 +12,14 @@ Matthew
     id="toc-authorization-status">Authorization Status</a>
   - <a href="#active-substance" id="toc-active-substance">Active
     Substance</a>
-  - <a href="#companies" id="toc-companies">Companies</a>
     - <a href="#cluster" id="toc-cluster">Cluster</a>
+  - <a href="#biosimilar" id="toc-biosimilar">Biosimilar</a>
 
 ``` r
 drugs <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-14/drugs.csv')
+
+drugs$marketing_authorisation_holder_company_name <- 
+  str_trim(drugs$marketing_authorisation_holder_company_name)
 ```
 
 # EDA
@@ -261,8 +264,6 @@ dlong %>%
     ## 1 Diabetes Mellitus        117
     ## 2 Diabetes Complications     5
 
-## Companies
-
 ### Cluster
 
 In order to cluster, we must first create a binary matrix. The following
@@ -280,7 +281,7 @@ binary_matrix <- unique_df %>%
 ```
 
 Next, a distance matrix is created, while ignoring the first column
-“*medicine name”*.
+“*active substance”*.
 
 ``` r
 set.seed(123)
@@ -291,14 +292,19 @@ tot_withinss <- map_dbl(2:10, function(k){
   model$tot.withinss
 })
 
-plot(tot_withinss)
+plot(tot_withinss, type = "b", pch = 19, col = "blue")
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
+The heuristic is to choose a *k* value that is at the “elbow” of the
+plot, and thus we choose 3. This cluster most likely does not represent
+anything true about the data set, but may allow us to find some
+patterns.
+
 ``` r
 set.seed(321)
-clusters <- kmeans(dist_matrix, 4, 5)
+clusters <- kmeans(dist_matrix, 3, 5)
 
 new_df <- data.frame(active_substance = binary_matrix$active_substance,
                      cluster = clusters$cluster)
@@ -318,19 +324,19 @@ dlong_cluster %>%
 ```
 
     ## # A tibble: 1,806 x 4
-    ## # Groups:   cluster, main_thera [683]
-    ##    cluster main_thera               active_substance     n
-    ##      <int> <chr>                    <chr>            <int>
-    ##  1       4 Arthritis                adalimumab          43
-    ##  2       4 Carcinoma                bevacizumab         22
-    ##  3       4 Spondylitis              adalimumab          16
-    ##  4       4 Crohn Disease            adalimumab          14
-    ##  5       4 Psoriasis                adalimumab          14
-    ##  6       4 Colitis                  adalimumab          13
-    ##  7       4 Uveitis                  adalimumab          13
-    ##  8       4 Arthritis                etanercept          12
-    ##  9       4 Hidradenitis Suppurativa adalimumab          12
-    ## 10       4 Breast Neoplasms         bevacizumab         11
+    ## # Groups:   cluster, main_thera [592]
+    ##    cluster main_thera   active_substance           n
+    ##      <int> <chr>        <chr>                  <int>
+    ##  1       3 Hemophilia A octocog alfa               5
+    ##  2       3 Hemophilia A simoctocog alfa            2
+    ##  3       3 Hemophilia A damoctocog alfa pegol      1
+    ##  4       3 Hemophilia A efmoroctocog alfa          1
+    ##  5       3 Hemophilia A emicizumab                 1
+    ##  6       3 Hemophilia A lonoctocog alfa            1
+    ##  7       3 Hemophilia A moroctocog alfa            1
+    ##  8       3 Hemophilia A rurioctocog alfa pegol     1
+    ##  9       3 Hemophilia A susoctocog alfa            1
+    ## 10       3 Hemophilia A turoctocog alfa            1
     ## # ... with 1,796 more rows
 
 ``` r
@@ -350,17 +356,17 @@ dlong_cluster %>%
     ## # A tibble: 11 x 2
     ##    main_thera            n_clusters
     ##    <chr>                      <int>
-    ##  1 Arthritis                      3
-    ##  2 Breast Neoplasms               3
-    ##  3 Carcinoma                      3
-    ##  4 Diabetes Mellitus              3
-    ##  5 Leukemia                       3
-    ##  6 Lymphoma                       3
-    ##  7 Myocardial Infarction          3
-    ##  8 Cancer                         2
-    ##  9 HIV Infections                 2
-    ## 10 Hypertension                   2
-    ## 11 Immunization                   2
+    ##  1 Arthritis                      2
+    ##  2 Breast Neoplasms               2
+    ##  3 Carcinoma                      2
+    ##  4 Diabetes Mellitus              2
+    ##  5 HIV Infections                 2
+    ##  6 Hypertension                   2
+    ##  7 Leukemia                       2
+    ##  8 Lymphoma                       2
+    ##  9 Myocardial Infarction          2
+    ## 10 Cancer                         1
+    ## 11 Immunization                   1
 
 ``` r
 dlong_cluster %>% 
@@ -376,3 +382,52 @@ dlong_cluster %>%
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+## Biosimilar
+
+``` r
+drugs %>% 
+  filter(biosimilar) %>% 
+  group_by(active_substance) %>% 
+  summarize(n = n_distinct(marketing_authorisation_holder_company_name)) %>% 
+  arrange(-n)
+```
+
+    ## # A tibble: 21 x 2
+    ##    active_substance     n
+    ##    <chr>            <int>
+    ##  1 adalimumab           9
+    ##  2 bevacizumab          8
+    ##  3 pegfilgrastim        8
+    ##  4 filgrastim           7
+    ##  5 teriparatide         6
+    ##  6 trastuzumab          6
+    ##  7 infliximab           4
+    ##  8 epoetin alfa         3
+    ##  9 etanercept           3
+    ## 10 insulin aspart       3
+    ## # ... with 11 more rows
+
+``` r
+drugs %>% 
+  mutate(marketing_authorisation_holder_company_name = str_trim(
+    marketing_authorisation_holder_company_name
+  )) %>% 
+  group_by(name = marketing_authorisation_holder_company_name) %>% 
+  summarize(n = sum(biosimilar),
+            prop = mean(biosimilar)) %>% 
+  arrange(-n) %>% 
+  slice_max(n, n = 6) %>%
+  ggplot(aes(prop, fct_reorder(name, prop), fill = n)) +
+  geom_col(color = "black") +
+  geom_text(aes(label = paste(n, "/", n/prop), hjust = ifelse(prop > 0.25,
+                                                              1.5,
+                                                              -.5))) +
+  scale_x_continuous(labels = percent_format()) +
+  labs(y = "", x = "",
+       title = "Six Companies with the Most Biosimilar Drugs",
+       subtitle = "Biosimilar drugs are those that have the same\nactive ingredients with another") +
+  theme(legend.position = "none")
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
