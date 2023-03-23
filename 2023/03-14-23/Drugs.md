@@ -24,6 +24,15 @@ drugs$marketing_authorisation_holder_company_name <-
 
 # EDA
 
+``` r
+ggplot(drugs, aes(x = marketing_authorisation_date, fill = category)) +
+  geom_histogram(binwidth = 365, position = "identity", alpha = 0.5) +
+  labs(title = "Distribution of Marketing Authorization Dates by Category",
+       x = "Marketing Authorization Date", y = "Count")
+```
+
+![](Drugs_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 ## Categorical Counts
 
 ``` r
@@ -129,7 +138,7 @@ drugs %>%
   theme(plot.title = element_text(hjust = 1))
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Authorization Status
 
@@ -146,7 +155,7 @@ drugs %>%
   scale_y_continuous(labels = percent_format())
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 table(drugs$category, drugs$authorisation_status) %>% 
@@ -199,7 +208,7 @@ drugs %>%
         panel.grid.minor.x = element_blank())
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 drugs %>% 
@@ -217,7 +226,7 @@ drugs %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Drugs_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 drugs %>% 
@@ -241,7 +250,7 @@ drugs %>%
   theme(axis.text.y = element_blank())
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ## Active Substance
 
@@ -295,7 +304,7 @@ tot_withinss <- map_dbl(2:10, function(k){
 plot(tot_withinss, type = "b", pch = 19, col = "blue")
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 The heuristic is to choose a *k* value that is at the “elbow” of the
 plot, and thus we choose 3. This cluster most likely does not represent
@@ -381,7 +390,7 @@ dlong_cluster %>%
   theme(legend.position = "none")
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ## Biosimilar
 
@@ -434,4 +443,4 @@ drugs %>%
   guides(color = "none")
 ```
 
-![](Drugs_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Drugs_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->

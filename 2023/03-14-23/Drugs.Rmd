@@ -33,6 +33,13 @@ drugs$marketing_authorisation_holder_company_name <-
 
 # EDA
 
+```{r}
+ggplot(drugs, aes(x = marketing_authorisation_date, fill = category)) +
+  geom_histogram(binwidth = 365, position = "identity", alpha = 0.5) +
+  labs(title = "Distribution of Marketing Authorization Dates by Category",
+       x = "Marketing Authorization Date", y = "Count")
+```
+
 ## Categorical Counts
 
 ```{r}
