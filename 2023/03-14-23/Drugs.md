@@ -415,19 +415,23 @@ drugs %>%
   )) %>% 
   group_by(name = marketing_authorisation_holder_company_name) %>% 
   summarize(n = sum(biosimilar),
-            prop = mean(biosimilar)) %>% 
+            prop = round(mean(biosimilar)*100,1)) %>% 
   arrange(-n) %>% 
   slice_max(n, n = 6) %>%
-  ggplot(aes(prop, fct_reorder(name, prop), fill = n)) +
+  ggplot(aes(n, fct_reorder(name, n), fill = prop)) +
   geom_col(color = "black") +
-  geom_text(aes(label = paste(n, "/", n/prop), hjust = ifelse(prop > 0.25,
-                                                              1.5,
-                                                              -.5))) +
-  scale_x_continuous(labels = percent_format()) +
-  labs(y = "", x = "",
+  geom_text(aes(label = paste(prop, "%"), color = ifelse(prop > 50, 
+                                             "black", "white")), 
+            hjust = 1.5) +
+  scale_color_manual(values = c("black", "white")) +
+  labs(y = "", x = "", fill = "Percent",
        title = "Six Companies with the Most Biosimilar Drugs",
-       subtitle = "Biosimilar drugs are those that have the same\nactive ingredients with another") +
-  theme(legend.position = "none")
+       subtitle = "Biosimilar drugs are those that have the same\nactive ingredients with another",
+       caption = "Color and percent indicate the proportion of drugs that are biosimilar per company") +
+  theme(legend.position = c(0.9,0.2),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank())  +
+  guides(color = "none")
 ```
 
 ![](Drugs_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
