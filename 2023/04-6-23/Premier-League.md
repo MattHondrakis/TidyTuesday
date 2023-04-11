@@ -35,21 +35,22 @@ soccer %>%
 ``` r
 soccer %>% 
   filter(HTAG != HTHG) %>% 
-  mutate(leading = ifelse(HTHG > HTAG, HTHG, HTAG),
+  mutate(leading = ifelse(HTHG > HTAG, HTHG - HTAG, HTAG - HTHG),
          l_win = ifelse(((HTHG > HTAG) & HTR == "H") | 
                             ((HTAG > HTHG) & HTR == "A"),
                           1,
                           0)) %>% 
   group_by(leading) %>% 
-  summarize(prop = paste0(mean(l_win) * 100, "%")) %>% 
+  summarize(n = n(),
+            prop = paste0(mean(l_win) * 100, "%")) %>% 
   knitr::kable()
 ```
 
-| leading | prop |
-|--------:|:-----|
-|       1 | 100% |
-|       2 | 100% |
-|       3 | 100% |
-|       4 | 100% |
+| leading |   n | prop |
+|--------:|----:|:-----|
+|       1 | 155 | 100% |
+|       2 |  57 | 100% |
+|       3 |  14 | 100% |
+|       4 |   3 | 100% |
 
 All teams that were leading in the half time, won the game by full time.
