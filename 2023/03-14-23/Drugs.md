@@ -433,7 +433,7 @@ drugs %>%
                                              "black", "white")), 
             hjust = 1.5) +
   scale_color_manual(values = c("black", "white")) +
-  labs(y = "", x = "", fill = "Percent",
+  labs(y = "", x = "# of Drugs", fill = "Percent",
        title = "Six Companies with the Most Biosimilar Drugs",
        subtitle = "Biosimilar drugs are those that have the same\nactive ingredients with another",
        caption = "Color and percent indicate the proportion of drugs that are biosimilar per company") +
