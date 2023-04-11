@@ -6,8 +6,7 @@ Matthew
 - <a href="#eda" id="toc-eda">EDA</a>
   - <a href="#numeric-distribution" id="toc-numeric-distribution">Numeric
     Distribution</a>
-  - <a href="#conditional-probability"
-    id="toc-conditional-probability">Conditional Probability</a>
+  - <a href="#halftime-leads" id="toc-halftime-leads">Halftime Leads</a>
 
 ``` r
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
@@ -30,7 +29,7 @@ soccer %>%
 
 ![](Premier-League_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-## Conditional Probability
+## Halftime Leads
 
 ``` r
 soccer %>% 
@@ -54,3 +53,19 @@ soccer %>%
 |       4 |   3 | 100% |
 
 All teams that were leading in the half time, won the game by full time.
+
+``` r
+equalhf <- soccer %>% 
+  filter(HTAG == HTHG) %>% 
+  select(is.numeric, FTR)
+
+equalhf %>% 
+  count(FTR)
+```
+
+    ## # A tibble: 3 x 2
+    ##   FTR       n
+    ##   <chr> <int>
+    ## 1 A        44
+    ## 2 D        51
+    ## 3 H        56

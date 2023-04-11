@@ -42,7 +42,7 @@ soccer %>%
   facet_wrap(~key)
 ```
 
-## Conditional Probability
+## Halftime Leads
 
 ```{r}
 soccer %>% 
@@ -59,3 +59,12 @@ soccer %>%
 ```
 
 All teams that were leading in the half time, won the game by full time.
+
+```{r}
+equalhf <- soccer %>% 
+  filter(HTAG == HTHG) %>% 
+  select(is.numeric, FTR)
+
+equalhf %>% 
+  count(FTR)
+```
