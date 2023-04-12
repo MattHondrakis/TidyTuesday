@@ -22,6 +22,8 @@ library(broom)
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
 ```
 
+# Data Dictionary
+
 ```{r}
 input_text <- "|variable |class     |description |
 |:--------|:---------|:-----------|
@@ -164,5 +166,3 @@ mod2 %>%
   geom_col() +
   labs(y = "", x = "Absolute")
 ```
-
-

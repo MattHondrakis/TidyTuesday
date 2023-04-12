@@ -3,6 +3,7 @@ Premier League
 Matthew
 2023-04-6
 
+- <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
 - <a href="#eda" id="toc-eda">EDA</a>
   - <a href="#numeric-distribution" id="toc-numeric-distribution">Numeric
     Distribution</a>
@@ -11,6 +12,8 @@ Matthew
 ``` r
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
 ```
+
+# Data Dictionary
 
 ``` r
 input_text <- "|variable |class     |description |
