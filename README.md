@@ -45,3 +45,4 @@ I typically spend about a week on each dataset, and then I move onto to the newe
 34. [Artist History](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-17-23/Art-Publications.md)
 35. [Cats UK](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/01-31-23/UK-Cats.md)
 36. [Drugs](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/03-14-23/Drugs.md)
+37. [Premier League](https://github.com/MattHondrakis/TidyTuesday/blob/main/2023/04-6-23/Premier-League.md)
