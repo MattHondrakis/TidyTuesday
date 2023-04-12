@@ -177,6 +177,8 @@ mod2 %>%
   labs(y = "", x = "Absolute")
 ```
 
+### ROC Curves
+
 ```{r}
 two_factor <- equalhf %>% 
   filter(FTR != "D") %>% 

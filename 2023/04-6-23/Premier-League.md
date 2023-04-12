@@ -10,6 +10,7 @@ Matthew
   - <a href="#halftime-leads" id="toc-halftime-leads">Halftime Leads</a>
   - <a href="#logistic-regression" id="toc-logistic-regression">Logistic
     Regression</a>
+    - <a href="#roc-curves" id="toc-roc-curves">ROC Curves</a>
 
 ``` r
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
@@ -296,6 +297,8 @@ mod2 %>%
 ```
 
 ![](Premier-League_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+### ROC Curves
 
 ``` r
 two_factor <- equalhf %>% 
