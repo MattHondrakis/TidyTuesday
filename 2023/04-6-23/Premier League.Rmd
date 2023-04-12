@@ -22,6 +22,58 @@ library(broom)
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
 ```
 
+```{r}
+input_text <- "|variable |class     |description |
+|:--------|:---------|:-----------|
+|Date     |character |The date when the match was played  |
+|HomeTeam |character |The home team    |
+|AwayTeam |character |The away team    |
+|FTHG     |double    |Full time home goals        |
+|FTAG     |double    |Full time away goals        |
+|FTR      |character |Full time result         |
+|HTHG     |double    |Halftime home goals        |
+|HTAG     |double    |Halftime away goals        |
+|HTR      |character |Halftime results         |
+|Referee  |character |Referee of the match    |
+|HS       |double    |Number of shots taken by the home team          |
+|AS       |double    |Number of shots taken by the away team          |
+|HST      |double    |Number of shots on target by the home team   |
+|AST      |double    |Number of shots on target by the away team   |
+|HF       |double    |Number of fouls by the home team   |
+|AF       |double    |Number of fouls by the away team    |
+|HC       |double    |Number of corners taken by the home team |
+|AC       |double    |Number of corners taken by the away team |
+|HY       |double    |Number of yellow cards received by the home team |
+|AY       |double    |Number of yellow cards received by the away team  |
+|HR       |double    |Number of red cards received by the home team  |
+|AR       |double    |Number of red cards received by the away team  |"
+
+data <- read.table(text = input_text, sep = "|", header = TRUE, stringsAsFactors = FALSE, strip.white = TRUE)
+
+data <- data[-1, -c(1, ncol(data))]
+```
+
+```{r}
+variable <- data$variable
+description <- data$description
+
+column_mapping <- setNames(description, variable)
+
+soccer_renamed <- soccer
+
+colnames(soccer_renamed) <- column_mapping[colnames(soccer_renamed)]
+colnames(soccer_renamed)
+```
+
+```{r}
+data.frame(variable, description) %>% 
+  knitr::kable()
+
+soccer_renamed %>% 
+  janitor::clean_names() %>% 
+  colnames()
+```
+
 # EDA
 
 ## Numeric Distribution
@@ -113,52 +165,4 @@ mod2 %>%
   labs(y = "", x = "Absolute")
 ```
 
-```{r}
-input_text <- "|variable |class     |description |
-|:--------|:---------|:-----------|
-|Date     |character |The date when the match was played  |
-|HomeTeam |character |The home team    |
-|AwayTeam |character |The away team    |
-|FTHG     |double    |Full time home goals        |
-|FTAG     |double    |Full time away goals        |
-|FTR      |character |Full time result         |
-|HTHG     |double    |Halftime home goals        |
-|HTAG     |double    |Halftime away goals        |
-|HTR      |character |Halftime results         |
-|Referee  |character |Referee of the match    |
-|HS       |double    |Number of shots taken by the home team          |
-|AS       |double    |Number of shots taken by the away team          |
-|HST      |double    |Number of shots on target by the home team   |
-|AST      |double    |Number of shots on target by the away team   |
-|HF       |double    |Number of fouls by the home team   |
-|AF       |double    |Number of fouls by the away team    |
-|HC       |double    |Number of corners taken by the home team |
-|AC       |double    |Number of corners taken by the away team |
-|HY       |double    |Number of yellow cards received by the home team |
-|AY       |double    |Number of yellow cards received by the away team  |
-|HR       |double    |Number of red cards received by the home team  |
-|AR       |double    |Number of red cards received by the away team  |"
-
-data <- read.table(text = input_text, sep = "|", header = TRUE, stringsAsFactors = FALSE, strip.white = TRUE)
-
-data <- data[-1, -c(1, ncol(data))]
-```
-
-```{r}
-variable <- data$variable
-description <- data$description
-
-column_mapping <- setNames(description, variable)
-
-soccer_renamed <- soccer
-
-colnames(soccer_renamed) <- column_mapping[colnames(soccer_renamed)]
-colnames(soccer_renamed)
-```
-
-```{r}
-soccer_renamed %>% 
-  janitor::clean_names() %>% 
-  colnames()
-```
 
