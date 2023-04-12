@@ -8,6 +8,8 @@ Matthew
   - <a href="#numeric-distribution" id="toc-numeric-distribution">Numeric
     Distribution</a>
   - <a href="#halftime-leads" id="toc-halftime-leads">Halftime Leads</a>
+  - <a href="#logistic-regression" id="toc-logistic-regression">Logistic
+    Regression</a>
 
 ``` r
 soccer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
@@ -198,6 +200,8 @@ equalhf %>%
     ## 2 D        51
     ## 3 H        56
 
+## Logistic Regression
+
 ``` r
 mod <- glm(FTR ~ ., 
     data = equalhf %>% filter(FTR != "D") %>% mutate(FTR = as.factor(FTR)) %>% 
@@ -292,3 +296,21 @@ mod2 %>%
 ```
 
 ![](Premier-League_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+two_factor <- equalhf %>% 
+  filter(FTR != "D") %>% 
+  mutate(FTR = fct_rev(as.factor(FTR)))
+
+two_factor %>% 
+  mutate(pred = predict(mod, two_factor), model = "One") %>% 
+  bind_rows(two_factor %>% 
+              mutate(pred = predict(mod2, two_factor), model = "Two")) %>% 
+  group_by(model) %>% 
+  roc_curve(FTR, pred) %>% 
+  autoplot() +
+  labs(title = "Roc Curve of Both Models") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](Premier-League_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->

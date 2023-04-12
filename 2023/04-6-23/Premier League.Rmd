@@ -12,10 +12,18 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500, fig.showtext = TRUE)
 library(tidyverse)
+library(tidymodels)
 library(lubridate)
 library(scales)
 library(patchwork)
 library(broom)
+library(sysfonts)
+library(showtext)
+font_add_google("Roboto Slab", "Roboto")
+theme_set(theme_minimal())
+theme_update(plot.title = element_text(hjust = 0.5),
+             plot.subtitle = element_text(hjust = 0.5),
+             text = element_text(family = "Roboto"))
 ```
 
 ```{r, message = FALSE}
@@ -116,6 +124,8 @@ equalhf %>%
   count(FTR)
 ```
 
+## Logistic Regression
+
 ```{r}
 mod <- glm(FTR ~ ., 
     data = equalhf %>% filter(FTR != "D") %>% mutate(FTR = as.factor(FTR)) %>% 
@@ -165,4 +175,20 @@ mod2 %>%
   ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = estimate > 0)) +
   geom_col() +
   labs(y = "", x = "Absolute")
+```
+
+```{r}
+two_factor <- equalhf %>% 
+  filter(FTR != "D") %>% 
+  mutate(FTR = fct_rev(as.factor(FTR)))
+
+two_factor %>% 
+  mutate(pred = predict(mod, two_factor), model = "One") %>% 
+  bind_rows(two_factor %>% 
+              mutate(pred = predict(mod2, two_factor), model = "Two")) %>% 
+  group_by(model) %>% 
+  roc_curve(FTR, pred) %>% 
+  autoplot() +
+  labs(title = "Roc Curve of Both Models") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
