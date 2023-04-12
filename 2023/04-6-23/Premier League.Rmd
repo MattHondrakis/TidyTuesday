@@ -15,14 +15,7 @@ library(tidyverse)
 library(lubridate)
 library(scales)
 library(patchwork)
-library(sysfonts)
-library(showtext)
-font_add_google("Roboto Slab", "Roboto")
-theme_set(theme_minimal())
-theme_update(plot.title = element_text(hjust = 0.5),
-             plot.subtitle = element_text(hjust = 0.5),
-             text = element_text(family = "Roboto"))
-showtext_auto()
+library(broom)
 ```
 
 ```{r, message = FALSE}
@@ -63,8 +56,109 @@ All teams that were leading in the half time, won the game by full time.
 ```{r}
 equalhf <- soccer %>% 
   filter(HTAG == HTHG) %>% 
-  select(is.numeric, FTR)
+  select(where(is.numeric), FTR)
 
 equalhf %>% 
   count(FTR)
 ```
+
+```{r}
+mod <- glm(FTR ~ ., 
+    data = equalhf %>% filter(FTR != "D") %>% mutate(FTR = as.factor(FTR)) %>% 
+      select(-c(FTAG, FTHG, AR, HR, HTAG, HTHG)),
+    family = "binomial")
+```
+
+```{r}
+equalhf %>% 
+  filter(FTR != "D") %>% 
+  mutate(predictions = predict(mod, equalhf %>% filter(FTR != "D"), type = "response"),
+         pred = ifelse(predictions > 0.5, "H", "A")) %>% 
+  select(FTR, pred) %>% 
+  summarize(accuracy = mean(FTR == pred))
+
+mod %>% tidy() %>% 
+  arrange(-abs(estimate)) 
+
+mod %>% 
+  tidy() %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = p.value < 0.05)) +
+  geom_col() +
+  labs(y = "", x = "Absolute")
+```
+
+```{r}
+mod2 <- glm(FTR ~ AST + HST, 
+    data = equalhf %>% filter(FTR != "D") %>% mutate(FTR = as.factor(FTR)),
+    family = "binomial")
+
+equalhf %>% 
+  filter(FTR != "D") %>% 
+  mutate(predictions = predict(mod2, equalhf %>% filter(FTR != "D"), type = "response"),
+         pred = ifelse(predictions > 0.5, "H", "A")) %>% 
+  select(FTR, pred) %>% 
+  summarize(accuracy = mean(FTR == pred))
+
+mod2 %>% 
+  tidy() %>% 
+  arrange(-abs(estimate))
+
+mod2 %>% 
+  tidy() %>% 
+  mutate(term = case_when(term == "AST" ~ "Away Shots Taken",
+                          term == "HST" ~ "Home Shots Taken",
+                          term == "(Intercept)" ~ as.character(term))) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = estimate > 0)) +
+  geom_col() +
+  labs(y = "", x = "Absolute")
+```
+
+```{r}
+input_text <- "|variable |class     |description |
+|:--------|:---------|:-----------|
+|Date     |character |The date when the match was played  |
+|HomeTeam |character |The home team    |
+|AwayTeam |character |The away team    |
+|FTHG     |double    |Full time home goals        |
+|FTAG     |double    |Full time away goals        |
+|FTR      |character |Full time result         |
+|HTHG     |double    |Halftime home goals        |
+|HTAG     |double    |Halftime away goals        |
+|HTR      |character |Halftime results         |
+|Referee  |character |Referee of the match    |
+|HS       |double    |Number of shots taken by the home team          |
+|AS       |double    |Number of shots taken by the away team          |
+|HST      |double    |Number of shots on target by the home team   |
+|AST      |double    |Number of shots on target by the away team   |
+|HF       |double    |Number of fouls by the home team   |
+|AF       |double    |Number of fouls by the away team    |
+|HC       |double    |Number of corners taken by the home team |
+|AC       |double    |Number of corners taken by the away team |
+|HY       |double    |Number of yellow cards received by the home team |
+|AY       |double    |Number of yellow cards received by the away team  |
+|HR       |double    |Number of red cards received by the home team  |
+|AR       |double    |Number of red cards received by the away team  |"
+
+data <- read.table(text = input_text, sep = "|", header = TRUE, stringsAsFactors = FALSE, strip.white = TRUE)
+
+data <- data[-1, -c(1, ncol(data))]
+```
+
+```{r}
+variable <- data$variable
+description <- data$description
+
+column_mapping <- setNames(description, variable)
+
+soccer_renamed <- soccer
+
+colnames(soccer_renamed) <- column_mapping[colnames(soccer_renamed)]
+colnames(soccer_renamed)
+```
+
+```{r}
+soccer_renamed %>% 
+  janitor::clean_names() %>% 
+  colnames()
+```
+
