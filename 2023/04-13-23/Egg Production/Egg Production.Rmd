@@ -45,3 +45,17 @@ eggproduction %>%
   ggplot(aes(observed_month, n_hens, color = prod_type)) +
   geom_point()
 ```
+
+## Eggs
+
+```{r}
+eggproduction %>% 
+  ggplot(aes(observed_month, n_eggs, color = prod_process)) +
+  geom_point() +
+  scale_y_log10()
+
+eggproduction %>% 
+  filter(prod_process == "all") %>% 
+  ggplot(aes(observed_month, n_eggs, color = prod_type)) +
+  geom_point()
+```
