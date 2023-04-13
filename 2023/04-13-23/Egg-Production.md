@@ -18,9 +18,10 @@ cagefreepercentages <- read_csv('https://raw.githubusercontent.com/rfordatascien
 
 ``` r
 eggproduction %>% 
-  ggplot(aes(observed_month, n_hens, color = prod_process)) +
+  ggplot(aes(observed_month, n_hens, color = prod_process, shape = prod_type)) +
   geom_point() +
-  scale_y_log10()
+  scale_y_log10() +
+  labs(y = "# Hens", x = "", title = "Number of Hens")
 ```
 
 ![](Egg-Production_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
@@ -29,7 +30,8 @@ eggproduction %>%
 eggproduction %>% 
   filter(prod_process == "all") %>% 
   ggplot(aes(observed_month, n_hens, color = prod_type)) +
-  geom_point()
+  geom_point() +
+  labs(y = "# Hens", x = "", "Number of Hens by type")
 ```
 
 ![](Egg-Production_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
