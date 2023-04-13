@@ -57,5 +57,6 @@ eggproduction %>%
 eggproduction %>% 
   filter(prod_process == "all") %>% 
   ggplot(aes(observed_month, n_eggs, color = prod_type)) +
-  geom_point()
+  geom_point() +
+  labs(x = "", y = "Eggs")
 ```

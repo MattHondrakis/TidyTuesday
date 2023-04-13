@@ -49,7 +49,8 @@ eggproduction %>%
 eggproduction %>% 
   filter(prod_process == "all") %>% 
   ggplot(aes(observed_month, n_eggs, color = prod_type)) +
-  geom_point()
+  geom_point() +
+  labs(x = "", y = "Eggs")
 ```
 
 ![](Egg-Production_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
